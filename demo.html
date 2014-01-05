@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <title>Secretbox test</title>
+  <meta charset="utf8">
+</head>
+<style>
+  body {
+    font: 14px sans-serif;
+  }
+  input[type="text"], textarea {
+    border: 1px solid #aaa;
+    padding: 5px;
+    border-radius: 3px;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border: 1px solid lightblue;
+    padding: 5px;
+    outline: none;
+    box-shadow: 0 0 5px lightblue;
+  }
+  #status { color: #c44; }
+</style>
+<body>
+  <script src="nacl.min.js"></script>
+  <script>
+    function submitForm(e) {
+      var form = document.forms[0];
+      var i, input, output, status = 'OK';
+      var key = form.key.value;
+      for (i = key.length; i < 32; i++) key += String.fromCharCode(0);
+      var nonce = form.nonce.value;
+      for (i = nonce.length; i < 24; i++) nonce += String.fromCharCode(0);
+      input = form.text.value;
+      var actval = form.act[0].checked ? form.act[0].value : (form.act[1].checked ? form.act[1].value : form.act[0].value);
+      if (actval === 'seal') {
+        output = nacl.secretbox.seal(input, nonce, key); 
+        form.text.value = output;
+      } else {
+        output = nacl.secretbox.open(input, nonce, key);
+        if (output === false) {
+          output = '';
+          status = 'Failed to open';
+        } else {
+          form.text.value = output;
+        }
+      } 
+      document.getElementById('status').innerHTML = status;
+      return false;
+    }
+  </script>
+  <form onsubmit="return submitForm()">
+    <input type="text" name="key" size="32" maxlength="32" placeholder="Key"><br>
+    <input type="text" name="nonce" size="24" maxlength="24" placeholder="Nonce"><br>
+    <textarea name="text" rows=10 cols=32 placeholder="Message"></textarea><br>
+    <label><input type="radio" name="act" value="seal" checked> Seal</label>
+    <label><input type="radio" name="act" value="open"> Open</label>
+    <p><input type="submit"> <span id="status"></span></p>
+  </form>
+</body>
+</html>
