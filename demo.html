@@ -37,7 +37,7 @@
         output = nacl.secretbox.seal(input, nonce, key); 
       } else {
         output = nacl.secretbox.open(input, nonce, key);
-        if (!output) {
+        if (output === false) {
           output = '';
           status = 'Failed to open';
         }
