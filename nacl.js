@@ -299,6 +299,7 @@ exports.secretbox.open = function(box, nonce, key) {
   var i, m = [], c = [], k, n;
   for (i = 0; i < crypto_secretbox_BOXZEROBYTES; i++) c.push(0); 
   try { c = c.concat(decodeBase64(box)); } catch(e) { return false; }
+  if (c.length < 32) return false;
   k = getBytes(key);
   n = getBytes(nonce);
   checkLengths(k, n);
