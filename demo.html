@@ -35,14 +35,16 @@
       var actval = form.act[0].checked ? form.act[0].value : (form.act[1].checked ? form.act[1].value : form.act[0].value);
       if (actval === 'seal') {
         output = nacl.secretbox.seal(input, nonce, key); 
+        form.text.value = output;
       } else {
         output = nacl.secretbox.open(input, nonce, key);
         if (output === false) {
           output = '';
           status = 'Failed to open';
+        } else {
+          form.text.value = output;
         }
       } 
-      form.text.value = output;
       document.getElementById('status').innerHTML = status;
       return false;
     }
