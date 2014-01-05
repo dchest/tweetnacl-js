@@ -2,6 +2,14 @@ var nacl = (typeof require !== 'undefined') ? require('./nacl.js') : window.nacl
 
 if (!nacl) throw new Error('nacl not loaded');
 
+function bytes_equal(x, y) {
+  if (x.length !== y.length) return false;
+  for (var i = 0; i < x.length; i++) {
+    if (x[i] !== y[i]) return false;
+  }
+  return true;
+}
+
 /*
  * Test and benchmark.
  */
@@ -25,14 +33,8 @@ function crypto_stream_xor_test() {
 
   for (var i = 0; i < golden.length; i++) {
     var out = [];
-    nacl.crypto_stream_xor(out, golden[i].m, golden[i].m.length, golden[i].n, golden[i].k);
-    var ndiff = 0;
-    for (var j = 0; j < golden[i].out.length; j++) {
-      if (out[j] != golden[i].out[j]) {
-        ndiff++;
-      }
-    }
-    if (ndiff != 0) {
+    nacl.crypto_stream_xor(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].n, golden[i].k);
+    if (!bytes_equal(out, golden[i].out)) {
       console.log(i, 'differ');
       console.log('expected', golden[i].out, 'got', out);
     } else {
@@ -51,7 +53,7 @@ function crypto_stream_xor_benchmark() {
   var start = new Date();
   var MB = 2;
   for (i = 0; i < MB*1024; i++) {
-    nacl.crypto_stream_xor(out, m, m.length, n, k);
+    nacl.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
   }
   var elapsed = (new Date()) - start;
   console.log('', (MB*1000)/elapsed, 'MB/s');
@@ -88,14 +90,8 @@ function crypto_onetimeauth_test() {
   }
   for (var i = 0; i < golden.length; i++) {
     var out = [];
-    nacl.crypto_onetimeauth(out, golden[i].m, golden[i].m.length, golden[i].k);
-    var ndiff = 0;
-    for (var j = 0; j < golden[i].out.length; j++) {
-      if (out[j] != golden[i].out[j]) {
-        ndiff++;
-      }
-    }
-    if (ndiff != 0) {
+    nacl.crypto_onetimeauth(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].k);
+    if (!bytes_equal(out, golden[i].out)) {
       console.log(i, 'differ');
       console.log('expected', golden[i].out, 'got', out);
     } else {
@@ -114,15 +110,55 @@ function crypto_onetimeauth_benchmark() {
   var start = new Date();
   var MB = 2;
   for (i = 0; i < MB*1024; i++) {
-    nacl.crypto_onetimeauth(out, m, m.length, k);
+    nacl.crypto_onetimeauth(out, 0, m, 0, m.length, k);
   }
   var elapsed = (new Date()) - start;
   console.log('', (MB*1000)/elapsed, 'MB/s');
 }
 
 
+function crypto_secretbox_test() {
+  console.log('Testing crypto_secretbox');
+  var i, k = [], n = [], m = [], c = [];
+  for (i = 0; i < 32; i++) k[i] = 1;
+  for (i = 0; i < 24; i++) n[i] = 2;
+  for (i = 0; i < 64; i++) m[i] = 3;
+  // Pad m.
+  for (i = 0; i < nacl.crypto_secretbox_ZEROBYTES; i++) m.unshift(0);
+
+  nacl.crypto_secretbox(c, m, m.length, n, k);
+
+  var golden = [132,66,188,49,63,70,38,241,53,158,59,80,18,43,108,230,254,102,221,254,125,57,209,78,99,126,180,253,91,69,190,173,171,85,25,141,246,171,83,104,67,151,146,162,60,135,219,112,172,182,21,109,197,239,149,122,192,79,98,118,207,96,147,184,75,231,127,240,132,156,195,62,52,183,37,77,90,143,101,173];
+
+  // Unpad c.
+  out = c.slice(nacl.crypto_secretbox_BOXZEROBYTES);
+
+  if (!bytes_equal(out, golden)) {
+    console.log(0, 'differ');
+    console.log('expected', golden, 'got', out);
+  } else {
+    console.log(0, 'OK');
+  }
+
+  // Try opening.
+  var opened = [];
+  if (!nacl.crypto_secretbox_open(opened, c, c.length, n, k)) {
+    console.log("open failed");
+  } else {
+    console.log("opened - OK");
+  }
+  if (!bytes_equal(opened, m)) {
+    console.log(1, 'differ');
+    console.log('expected', m, 'got', opened);
+  } else {
+    console.log(1, 'OK');
+  }
+}
+
+
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
+crypto_secretbox_test();
 
-crypto_stream_xor_benchmark();
-crypto_onetimeauth_benchmark();
+//crypto_stream_xor_benchmark();
+//crypto_onetimeauth_benchmark();
