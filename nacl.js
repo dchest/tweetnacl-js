@@ -228,12 +228,16 @@ exports.crypto_stream_salsa20_xor = crypto_stream_salsa20_xor;
 exports.crypto_stream_salsa20 = crypto_stream_salsa20;
 exports.crypto_onetimeauth = crypto_onetimeauth;
 exports.crypto_onetimeauth_verify = crypto_onetimeauth_verify;
+exports.crypto_verify_16 = crypto_verify_16;
+exports.crypto_verify_32 = crypto_verify_32;
 exports.crypto_secretbox = crypto_secretbox;
 exports.crypto_secretbox_open = crypto_secretbox_open;
 exports.crypto_secretbox_KEYBYTES = crypto_secretbox_KEYBYTES;
 exports.crypto_secretbox_NONCEBYTES = crypto_secretbox_NONCEBYTES;
 exports.crypto_secretbox_ZEROBYTES = crypto_secretbox_ZEROBYTES;
 exports.crypto_secretbox_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
+
+/* Encodings */
 
 function bytesFromUTF8(s) {
   var b = [], i;
@@ -295,7 +299,7 @@ exports.secretbox.seal = function(msg, nonce, key) {
 exports.secretbox.open = function(box, nonce, key) {
   var i, m = [], c = [], k, n;
   for (i = 0; i < crypto_secretbox_BOXZEROBYTES; i++) c.push(0); 
-  c = c.concat(decodeBase64(box));
+  try { c = c.concat(decodeBase64(box)); } catch(e) { return false; }
   k = getBytes(key);
   n = getBytes(nonce);
   checkLengths(k, n);

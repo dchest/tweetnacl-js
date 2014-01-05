@@ -11,7 +11,7 @@ function bytes_equal(x, y) {
 }
 
 function benchmark(fn) {
-  var start = new Date(), MB = 2;
+  var start = new Date(), MB = 1;
   for (i = 0; i < MB*1024; i++) {
     fn();
   }
@@ -195,7 +195,7 @@ function seal_open_benchmark() {
     nacl.secretbox.open(box, nonce, key);
   });
   console.log('Benchmarking secretbox.open (invalid)');
-  box += 'x';
+  box = 'A' + box.substr(1);
   benchmark(function() {
     nacl.secretbox.open(box, nonce, key);
   });
