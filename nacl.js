@@ -1,4 +1,5 @@
 (function(exports) {
+  'use strict';
 
 /* XSalsa20 */
 
@@ -216,6 +217,11 @@ function crypto_secretbox_open(m,c,d,n,k) {
   return true;
 }
 
+var crypto_secretbox_KEYBYTES = 32,
+    crypto_secretbox_NONCEBYTES = 24,
+    crypto_secretbox_ZEROBYTES = 32,
+    crypto_secretbox_BOXZEROBYTES = 16;
+
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream;
 exports.crypto_stream_salsa20_xor = crypto_stream_salsa20_xor;
@@ -224,9 +230,77 @@ exports.crypto_onetimeauth = crypto_onetimeauth;
 exports.crypto_onetimeauth_verify = crypto_onetimeauth_verify;
 exports.crypto_secretbox = crypto_secretbox;
 exports.crypto_secretbox_open = crypto_secretbox_open;
-exports.crypto_secretbox_KEYBYTES = 32;
-exports.crypto_secretbox_NONCEBYTES = 24;
-exports.crypto_secretbox_ZEROBYTES = 32;
-exports.crypto_secretbox_BOXZEROBYTES = 16;
+exports.crypto_secretbox_KEYBYTES = crypto_secretbox_KEYBYTES;
+exports.crypto_secretbox_NONCEBYTES = crypto_secretbox_NONCEBYTES;
+exports.crypto_secretbox_ZEROBYTES = crypto_secretbox_ZEROBYTES;
+exports.crypto_secretbox_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
+
+function bytesFromUTF8(s) {
+  var b = [], i;
+  s = unescape(encodeURIComponent(s));
+  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
+  return b;
+}
+
+function bytesToUTF8(b) {
+  var s = [], i;
+  for (i = 0; i < b.length; i++) s.push(String.fromCharCode(b[i]));
+  return decodeURIComponent(escape(s.join('')));
+}
+
+function getBytes(s) {
+  return (typeof s === 'string') ? bytesFromUTF8(s) : s;
+}
+
+function encodeBase64(b) {
+  var i, s = [], len = b.length;
+  if (typeof btoa === 'undefined') {
+    return (new Buffer(b)).toString('base64');
+  }
+  for (i = 0; i < len; i++) s.push(String.fromCharCode(b[i]));
+  return btoa(s.join(''));
+}
+
+function decodeBase64(s) {
+  var b = [], i;
+  if (typeof atob === 'undefined') {
+    return Array.prototype.slice.call(new Buffer(s, 'base64'), 0);
+  }
+  s = atob(s);
+  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
+  return b;
+}
+
+function checkLengths(k, n) {
+  if (k.length != crypto_secretbox_KEYBYTES)
+    throw new Error('bad key length');
+  if (n.length != crypto_secretbox_NONCEBYTES)
+    throw new Error('bad nonce length');
+}
+
+/* High-level API */
+exports.secretbox = exports.secretbox || {};
+
+exports.secretbox.seal = function(msg, nonce, key) {
+  var i, m = [], c = [], k, n;
+  for (i = 0; i < crypto_secretbox_ZEROBYTES; i++) m.push(0);
+  m = m.concat(getBytes(msg));
+  k = getBytes(key);
+  n = getBytes(nonce);
+  checkLengths(k, n);
+  crypto_secretbox(c, m, m.length, n, k);
+  return encodeBase64(c.slice(crypto_secretbox_BOXZEROBYTES));
+};
+
+exports.secretbox.open = function(box, nonce, key) {
+  var i, m = [], c = [], k, n;
+  for (i = 0; i < crypto_secretbox_BOXZEROBYTES; i++) c.push(0); 
+  c = c.concat(decodeBase64(box));
+  k = getBytes(key);
+  n = getBytes(nonce);
+  checkLengths(k, n);
+  if (!crypto_secretbox_open(m, c, c.length, n, k)) return false;
+  return bytesToUTF8(m.slice(crypto_secretbox_ZEROBYTES));
+};
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));

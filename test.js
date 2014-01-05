@@ -10,6 +10,15 @@ function bytes_equal(x, y) {
   return true;
 }
 
+function benchmark(fn) {
+  var start = new Date(), MB = 2;
+  for (i = 0; i < MB*1024; i++) {
+    fn();
+  }
+  var elapsed = (new Date()) - start;
+  console.log('', (MB*1000)/elapsed, 'MB/s');
+}
+
 /*
  * Test and benchmark.
  */
@@ -50,13 +59,9 @@ function crypto_stream_xor_benchmark() {
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   for (i = 0; i < 24; i++) n[i] = i;
   for (i = 0; i < 32; i++) k[i] = i;
-  var start = new Date();
-  var MB = 2;
-  for (i = 0; i < MB*1024; i++) {
+  benchmark(function(){
     nacl.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
-  }
-  var elapsed = (new Date()) - start;
-  console.log('', (MB*1000)/elapsed, 'MB/s');
+  });
 }
 
 
@@ -107,13 +112,9 @@ function crypto_onetimeauth_benchmark() {
   for (i = 0; i < 1024; i++) {
     m[i] = i & 255;
   }
-  var start = new Date();
-  var MB = 2;
-  for (i = 0; i < MB*1024; i++) {
+  benchmark(function(){
     nacl.crypto_onetimeauth(out, 0, m, 0, m.length, k);
-  }
-  var elapsed = (new Date()) - start;
-  console.log('', (MB*1000)/elapsed, 'MB/s');
+  });
 }
 
 
@@ -143,9 +144,9 @@ function crypto_secretbox_test() {
   // Try opening.
   var opened = [];
   if (!nacl.crypto_secretbox_open(opened, c, c.length, n, k)) {
-    console.log("open failed");
+    console.log('open failed');
   } else {
-    console.log("opened - OK");
+    console.log('opened - OK');
   }
   if (!bytes_equal(opened, m)) {
     console.log(1, 'differ');
@@ -155,10 +156,57 @@ function crypto_secretbox_test() {
   }
 }
 
+function crypto_secretbox_benchmark() {
+  console.log('Benchmarking crypto_secretbox');
+  var i, k = [], n = [], m = [], c = [];
+  for (i = 0; i < 32; i++) k[i] = 1;
+  for (i = 0; i < 24; i++) n[i] = 2;
+  for (i = 0; i < 1024; i++) m[i] = 3;
+  benchmark(function() {
+    nacl.crypto_secretbox(c, m, m.length, n, k);
+  });
+}
+
+function seal_open_test() {
+  console.log('Testing secretbox.seal and secrebox.open');
+  var key = '12345678901234567890123456789012';
+  var nonce = '123456789012345678901234';
+  var msg = 'привет!'
+  var box = nacl.secretbox.seal(msg, nonce, key);
+  var dec = nacl.secretbox.open(box, nonce, key);
+  if (msg === dec)
+    console.log('OK');
+  else
+    console.log('expected ', msg, 'got', dec);
+}
+
+function seal_open_benchmark() {
+  var key = '12345678901234567890123456789012';
+  var nonce = '123456789012345678901234';
+  var box = null;
+  var msg = '';
+  for (var i = 0; i < 1024; i++) msg += 'a';
+  console.log('Benchmarking secretbox.seal');
+  benchmark(function() {
+    box = nacl.secretbox.seal(msg, nonce, key);
+  });
+  console.log('Benchmarking secretbox.open (valid)');
+  benchmark(function() {
+    nacl.secretbox.open(box, nonce, key);
+  });
+  console.log('Benchmarking secretbox.open (invalid)');
+  box += 'x';
+  benchmark(function() {
+    nacl.secretbox.open(box, nonce, key);
+  });
+}
 
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
+seal_open_test();
 
-//crypto_stream_xor_benchmark();
-//crypto_onetimeauth_benchmark();
+crypto_stream_xor_benchmark();
+crypto_onetimeauth_benchmark();
+crypto_secretbox_benchmark();
+seal_open_benchmark();
