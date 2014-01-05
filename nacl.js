@@ -177,10 +177,35 @@ function crypto_onetimeauth(out, m, n, k) {
   for(j = 0; j < 16; j++) out[j] = h[j];
 }
 
+/* Secret box */
+
+/*
+function crypto_secretbox(c, m, d, n, k) {
+  var i;
+  if (d < 32) throw new Error("crypto_secretbox: d < 32");
+  crypto_stream_xor(c,m,d,n,k);
+  crypto_onetimeauth(c + 16,c + 32,d - 32,c);
+  FOR(i,16) c[i] = 0;
+  return true;
+}
+
+int crypto_secretbox_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
+{
+  int i;
+  u8 x[32];
+  if (d < 32) return -1;
+  crypto_stream(x,32,n,k);
+  if (crypto_onetimeauth_verify(c + 16,c + 32,d - 32,x) != 0) return -1;
+  crypto_stream_xor(m,c,d,n,k);
+  FOR(i,32) m[i] = 0;
+  return 0;
+}
+*/
+
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream_xor;
 exports.crypto_stream_salsa20_xor = crypto_stream_salsa20_xor;
 exports.crypto_stream_salsa20 = crypto_stream_salsa20;
 exports.crypto_onetimeauth = crypto_onetimeauth;
 
-})(typeof exports !== 'undefined' ? exports : (window.nacl || window.nacl = {}));
+})(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));
