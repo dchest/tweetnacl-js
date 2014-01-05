@@ -175,8 +175,7 @@ function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
   for(j = 0; j < 16; j++) out[outpos+j] = h[j];
 }
 
-function vn(x, xpos, y, ypos, n)
-{
+function vn(x, xpos, y, ypos, n) {
   var i,d = 0;
   for(i = 0; i < n; i++) d |= x[xpos+i]^y[ypos+i];
   return (1 & ((d - 1) >>> 8)) - 1;
