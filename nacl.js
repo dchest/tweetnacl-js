@@ -1,4 +1,6 @@
-function(exports) {
+(function(exports) {
+
+/* XSalsa20 */
 
 function L32(x, c) { return (x << c) | (x >>> (32 - c)); }
 
@@ -110,9 +112,75 @@ function crypto_stream_xor(c,m,d,n,k) {
   crypto_stream_salsa20_xor(c,m,d,subn,s);
 }
 
+/* Poly1305 */
+
+function crypto_onetimeauth(out, m, n, k) {
+  var add1305 = function(h, c) {
+    var j, u = 0;
+    for(j = 0; j < 17; j++) {
+      u = (u + ((h[j] + c[j]) | 0)) | 0;
+      h[j] = u & 255;
+      u >>>= 8;
+    }
+  }
+
+  var minusp = [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252];
+
+  var s, i, j, u ;
+  var x = [], r = [], h = [], c = [], g = [];
+  var mpos = 0;
+  for(j = 0; j < 17; j++) r[j]=h[j]=0;
+  for(j = 0; j < 16; j++) r[j]=k[j];
+  r[3]&=15;
+  r[4]&=252;
+  r[7]&=15;
+  r[8]&=252;
+  r[11]&=15;
+  r[12]&=252;
+  r[15]&=15;
+
+  while (n > 0) {
+    for(j = 0; j < 17; j++) c[j] = 0;
+    for (j = 0;(j < 16) && (j < n);++j) c[j] = m[mpos+j];
+    c[j] = 1;
+    mpos += j; n -= j;
+    add1305(h,c);
+    for(i = 0; i < 17; i++) {
+      x[i] = 0;
+      for(j = 0; j < 17; j++) x[i] += (h[j] * ((j <= i) ? r[i - j] : ((320 * r[i + 17 - j])|0))) | 0;
+    }
+    for(i = 0; i < 17; i++) h[i] = x[i];
+    u = 0;
+    for(j = 0; j < 16; j++) {
+      u = (u + h[j]) | 0;
+      h[j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + h[16]) | 0; h[16] = u & 3;
+    u = (5 * (u >>> 2)) | 0;
+    for(j = 0; j < 16; j++) {
+      u = (u + h[j]) | 0;
+      h[j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + h[16]) | 0; h[16] = u;
+  }
+
+  for(j = 0; j < 17; j++) g[j] = h[j];
+  add1305(h,minusp);
+  s = (-(h[16] >>> 7) | 0);
+  for(j = 0; j < 17; j++) h[j] ^= s & (g[j] ^ h[j]);
+
+  for(j = 0; j < 16; j++) c[j] = k[j + 16];
+  c[16] = 0;
+  add1305(h,c);
+  for(j = 0; j < 16; j++) out[j] = h[j];
+}
+
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream_xor;
 exports.crypto_stream_salsa20_xor = crypto_stream_salsa20_xor;
 exports.crypto_stream_salsa20 = crypto_stream_salsa20;
+exports.crypto_onetimeauth = crypto_onetimeauth;
 
-}(typeof exports !== 'undefined' ? exports : window.nacl || window.nacl = {});
+})(typeof exports !== 'undefined' ? exports : (window.nacl || window.nacl = {}));
