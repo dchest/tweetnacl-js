@@ -4,6 +4,23 @@
   <title>Secretbox test</title>
   <meta charset="utf8">
 </head>
+<style>
+  body {
+    font: 14px sans-serif;
+  }
+  input[type="text"], textarea {
+    border: 1px solid #aaa;
+    padding: 5px;
+    border-radius: 3px;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border: 1px solid lightblue;
+    padding: 5px;
+    outline: none;
+    box-shadow: 0 0 5px lightblue;
+  }
+  #status { color: #c44; }
+</style>
 <body>
   <script src="nacl.min.js"></script>
   <script>
@@ -31,21 +48,12 @@
     }
   </script>
   <form onsubmit="return submitForm()">
-    <p><label>
-      Key: <input name="key" size="32" maxlength="32">
-    </label></p>
-    <p><label>
-      Nonce: <input name="nonce" size="24" maxlength="24">
-    </label></p>
-    <p>Message:<br>
-    <textarea name="text" rows=10 cols=32></textarea>
-    </p>
-    <p>
+    <input type="text" name="key" size="32" maxlength="32" placeholder="Key"><br>
+    <input type="text" name="nonce" size="24" maxlength="24" placeholder="Nonce"><br>
+    <textarea name="text" rows=10 cols=32 placeholder="Message"></textarea><br>
     <label><input type="radio" name="act" value="seal" checked> Seal</label>
     <label><input type="radio" name="act" value="open"> Open</label>
-    </p>
-    <input type="submit">
+    <p><input type="submit"> <span id="status"></span></p>
   </form>
-  <div id="status"></div>
 </body>
 </html>
