@@ -10,8 +10,8 @@ function bytes_equal(x, y) {
   return true;
 }
 
-function benchmark(fn) {
-  var start = new Date(), MB = 1;
+function benchmark(fn, MB) {
+  var start = new Date(), MB = MB || 1;
   for (i = 0; i < MB*1024; i++) {
     fn();
   }
@@ -180,7 +180,7 @@ function secretbox_seal_open_test() {
     console.log('expected ', msg, 'got', dec);
 }
 
-function seal_open_benchmark() {
+function secretbox_seal_open_benchmark() {
   var key = '12345678901234567890123456789012';
   var nonce = '123456789012345678901234';
   var box = null;
@@ -243,6 +243,18 @@ function crypto_scalarmult_base_test() {
   }
 }
 
+function crypto_scalarmult_base_benchmark() {
+  console.log('Benchmarking nacl.crypto_scalarmult_base');
+  var n = [], q = [], i, start, elapsed, num = 70;
+  for (i = 0; i < 32; i++) n[i] = i;
+  start = new Date();
+  for (i = 0; i < num; i++) {
+    nacl.crypto_scalarmult_base(q, n);
+  }
+  elapsed = (new Date()) - start;
+  console.log(' ' + (num*1000)/elapsed, 'ops/s');
+}
+
 function crypto_randombytes_test() {
   console.log('Testing crypto_randombytes');
   var t = {}, tmp, s, i;
@@ -283,6 +295,28 @@ function box_seal_open_test() {
   }
 }
 
+function box_seal_open_benchmark() {
+  var pk1 = [], sk1 = [], pk2 = [], sk2 = [];
+  nacl.crypto_box_keypair(pk1, sk1);
+  nacl.crypto_box_keypair(pk2, sk2);
+  var nonce = '123456789012345678901234';
+  var box = null;
+  var msg = '';
+  for (var i = 0; i < 1024; i++) msg += 'a';
+  console.log('Benchmarking box.seal');
+  benchmark(function() {
+    box = nacl.box.seal(msg, nonce, pk1, sk2);
+  }, 0.1);
+  console.log('Benchmarking box.open (valid)');
+  benchmark(function() {
+    nacl.box.open(box, nonce, pk2, sk1);
+  }, 0.1);
+  console.log('Benchmarking box.open (invalid key)');
+  benchmark(function() {
+    nacl.box.open(box, nonce, pk2, sk2);
+  }, 0.1);
+}
+
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
@@ -295,4 +329,6 @@ box_seal_open_test();
 crypto_stream_xor_benchmark();
 crypto_onetimeauth_benchmark();
 crypto_secretbox_benchmark();
-seal_open_benchmark();
+secretbox_seal_open_benchmark();
+crypto_scalarmult_base_benchmark();
+box_seal_open_benchmark();
