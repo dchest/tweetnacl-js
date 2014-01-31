@@ -224,6 +224,22 @@ function secretbox_seal_open_benchmark() {
   });
 }
 
+function secretbox_seal_open_array_benchmark() {
+  var key = [], nonce = [], msg = [], box, i;
+  for (i = 0; i < 32; i++) key[i] = 1;
+  for (i = 0; i < 24; i++) nonce[i] = 2;
+  for (i = 0; i < 1024; i++) msg[i] = 3;
+
+  console.log('Benchmarking secretbox.seal (array)');
+  benchmark(function() {
+    box = nacl.secretbox.seal(msg, nonce, key);
+  });
+  console.log('Benchmarking secretbox.open (valid, array)');
+  benchmark(function() {
+    nacl.secretbox.open(box, nonce, key);
+  });
+}
+
 function crypto_scalarmult_base_test_long() {
   // This takes takes a bit of time.
   // Similar to https://code.google.com/p/go/source/browse/curve25519/curve25519_test.go?repo=crypto
@@ -355,5 +371,6 @@ crypto_stream_xor_benchmark();
 crypto_onetimeauth_benchmark();
 crypto_secretbox_benchmark();
 secretbox_seal_open_benchmark();
+secretbox_seal_open_array_benchmark();
 crypto_scalarmult_base_benchmark();
 box_seal_open_benchmark();
