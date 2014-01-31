@@ -639,16 +639,19 @@ exports.box.before = function(publicKey, secretKey) {
   checkPairLengths(pk, sk);
   crypto_box_beforenm(k, pk, sk);
   return k;
-}
+};
+
+exports.box.sealAfter = exports.secretbox.seal;
+exports.box.openAfter = exports.secretbox.open;
 
 exports.box.seal = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
   return exports.secretbox.seal(msg, nonce, k);
-}
+};
 
 exports.box.open = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
   return exports.secretbox.open(msg, nonce, k);
-}
+};
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));
