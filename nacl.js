@@ -589,16 +589,16 @@ function decodeBase64(s) {
 }
 
 function checkLengths(k, n) {
-  if (k.length != crypto_secretbox_KEYBYTES)
+  if (k.length !== crypto_secretbox_KEYBYTES)
     throw new Error('bad key size');
-  if (n.length != crypto_secretbox_NONCEBYTES)
+  if (n.length !== crypto_secretbox_NONCEBYTES)
     throw new Error('bad nonce size');
 }
 
 function checkPairLengths(pk, sk) {
-  if (pk.length != crypto_box_PUBLICKEYBYTES)
+  if (pk.length !== crypto_box_PUBLICKEYBYTES)
     throw new Error('bad public key size');
-  if (sk.length != crypto_box_SECRETKEYBYTES)
+  if (sk.length !== crypto_box_SECRETKEYBYTES)
     throw new Error('bad secret key size');
 }
 
