@@ -219,10 +219,8 @@ function crypto_secretbox_open(m,c,d,n,k) {
 
 /* Curve25519 */
 
-// Implementation derived from curve25519/ref,
-// version 20081011
-// Matthew Dempsky
-// Public domain.
+// Implementation derived from curve25519/ref: version 20081011
+// Matthew Dempsky. Public domain.
 // Derived from public domain code by D. J. Bernstein.
 
 // crypto_scalarmult(q, qpos, n, npos, p, ppos)
