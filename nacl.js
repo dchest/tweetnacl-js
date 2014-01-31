@@ -463,7 +463,8 @@ function crypto_scalarmult_base(q, qpos, n, npos) {
 function randombytes(x, xpos, n) {
   var values = null;
   if (typeof window !== 'undefined' && window.crypto) {
-    values = window.crypto.getRandomValues(new Uint8Array(n));
+    values = new Uint8Array(n);
+    window.crypto.getRandomValues(values);
   } else if (typeof require !== 'undefined') {
     var prng = require('crypto');
     values = prng ? prng.randomBytes(n) : null;
