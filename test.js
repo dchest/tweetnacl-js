@@ -201,9 +201,53 @@ function seal_open_benchmark() {
   });
 }
 
+function crypto_scalarmult_base_test_long() {
+  // This takes takes a bit of time.
+  // Similar to https://code.google.com/p/go/source/browse/curve25519/curve25519_test.go?repo=crypto
+  console.log('Testing crypto_scalarmult (long test)');
+  var golden = [0x89, 0x16, 0x1f, 0xde, 0x88, 0x7b, 0x2b, 0x53, 0xde, 0x54,
+    0x9a, 0xf4, 0x83, 0x94, 0x01, 0x06, 0xec, 0xc1, 0x14, 0xd6, 0x98, 0x2d,
+    0xaa, 0x98, 0x25, 0x6d, 0xe2, 0x3b, 0xdf, 0x77, 0x66, 0x1a];
+  var input = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  var output = [];
+  for (var j = 0; j < 200; j++) {
+    nacl.crypto_scalarmult_base(output, 0, input, 0);
+    var tmp = input; input = output; output = tmp;
+  }
+  if (!bytes_equal(input, golden)) {
+    console.log('differ');
+    console.log('expected', golden, 'got', out);
+  } else {
+    console.log('OK');
+  }
+}
+
+function crypto_scalarmult_base_test() {
+  console.log('Testing crypto_scalarmult');
+  var golden = [
+    {
+      q: [143, 64, 197, 173, 182, 143, 37, 98, 74, 229, 178, 20, 234, 118, 122, 110,
+          201, 77, 130, 157, 61, 123, 94, 26, 209, 186, 111, 62, 33, 56, 40, 95],
+      n: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    }
+  ];
+  for (var i = 0; i < golden.length; i++) {
+    var out = [];
+    nacl.crypto_scalarmult_base(out, 0, golden[i].n, 0);
+    if (!bytes_equal(out, golden[i].q)) {
+      console.log(i, 'differ');
+      console.log('expected', golden[i].q, 'got', out);
+    } else {
+      console.log(i, 'OK');
+    }
+  }
+}
+
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
+crypto_scalarmult_base_test();
+crypto_scalarmult_base_test_long();
 seal_open_test();
 
 crypto_stream_xor_benchmark();

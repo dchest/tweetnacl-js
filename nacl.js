@@ -216,10 +216,258 @@ function crypto_secretbox_open(m,c,d,n,k) {
   return true;
 }
 
+
+/* Curve25519 */
+
+// Implementation derived from curve25519/ref,
+// version 20081011
+// Matthew Dempsky
+// Public domain.
+// Derived from public domain code by D. J. Bernstein.
+
+// crypto_scalarmult(q, qpos, n, npos, p, ppos)
+//
+// This function multiplies a group element
+//   p[ppos], ..., p[ppos+crypto_scalarmult_BYTES-1]
+// by an integer
+//   n[npos], ..., n[npos+crypto_scalarmult_SCALARBYTES-1]
+// and puts the resulting group element into
+//   q[qpos], ..., q[qpos+crypto_scalarmult_BYTES-1].
+//
+var crypto_scalarmult = (function() {
+
+  function add(out, outpos, a, apos, b, bpos) {
+    var j, u = 0;
+    for (j = 0; j < 31; ++j) {
+      u = (u + ((a[apos+j] + b[bpos+j]) | 0)) | 0;
+      out[outpos+j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + ((a[apos+31] + b[bpos+31]) | 0)) | 0;
+    out[outpos+31] = u;
+  }
+
+  function sub(out, outpos, a, apos, b, bpos) {
+    var j, u = 218;
+    for (j = 0; j < 31; ++j) {
+      u = (u + ((((a[apos+j] + 65280) | 0) - b[bpos+j]) | 0)) | 0;
+      out[outpos+j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + ((a[apos+31] - b[bpos+31]) | 0)) | 0;
+    out[outpos+31] = u;
+  }
+
+  function squeeze(a, apos) {
+    var j, u = 0;
+    for (j = 0; j < 31; ++j) {
+      u = (u + a[apos+j]) | 0;
+      a[apos+j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + a[apos+31]) | 0;
+    a[apos+31] = u & 127;
+    u = (19 * (u >>> 7)) | 0;
+    for (j = 0; j < 31; ++j) {
+      u = (u + a[apos+j]) | 0;
+      a[apos+j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + a[apos+31]) | 0;
+    a[apos+31] = u;
+  }
+
+  var minusp = [
+   19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128
+  ];
+
+  function freeze(a, apos) {
+    var aorig = [], j, negative;
+    for (j = 0; j < 32; ++j) aorig[j] = a[apos+j];
+    add(a, apos, a, apos, minusp, 0);
+    negative = -((a[apos+31] >>> 7) & 1);
+    for (j = 0; j < 32; ++j) a[apos+j] ^= negative & (aorig[j] ^ a[apos+j]);
+  }
+
+  function mult(out, outpos, a, apos, b, bpos) {
+    var i, j, u;
+    for (i = 0; i < 32; ++i) {
+      u = 0;
+      for (j = 0; j <= i; ++j) u = (u + ((a[apos+j] * b[bpos+(i-j)]) | 0)) | 0;
+      for (j = i + 1; j < 32; ++j) u = (u + (((38 * a[apos+j]) | 0) * b[bpos+(i+32-j)]) | 0) | 0;
+      out[outpos+i] = u;
+    }
+    squeeze(out, outpos);
+  }
+
+  function mult121665(out, outpos, a, apos) {
+    var j, u = 0;
+    for (j = 0; j < 31; ++j) {
+      u = (u + ((121665 * a[apos+j]) | 0)) | 0;
+      out[outpos+j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + ((121665 * a[apos+31]) | 0)) | 0;
+    out[outpos+31] = u & 127;
+    u = (19 * (u >>> 7)) | 0;
+    for (j = 0; j < 31; ++j) {
+      u = (u + out[outpos+j]) | 0;
+      out[outpos+j] = u & 255;
+      u >>>= 8;
+    }
+    u = (u + out[outpos+j]) | 0;
+    out[outpos+j] = u;
+  }
+
+  function square(out, outpos, a, apos) {
+    var i, j, u;
+    for (i = 0; i < 32; ++i) {
+      u = 0;
+      for (j = 0; j < i - j; ++j) u = (u + ((a[apos+j] * a[apos+(i-j)]) | 0)) | 0;
+      for (j = i + 1; j < i + 32 - j; ++j) u = (u + ((((38 * a[apos+j]) | 0) * a[apos+(i+32-j)]) | 0)) | 0;
+      u = (u * 2) | 0;
+      if ((i & 1) === 0) {
+        u = (u + ((a[apos+(i/2|0)] * a[apos+(i/2|0)]) | 0)) | 0;
+        u = (u + ((((38 * a[apos+((i/2|0)+16)]) | 0) * a[apos+((i/2|0)+16)]) | 0)) | 0;
+      }
+      out[outpos+i] = u;
+    }
+    squeeze(out, outpos);
+  }
+
+  function select(p, ppos, q, qpos, r, rpos, s, spos, b) {
+    var j, t, bminus1;
+    bminus1 = (b - 1) >>> 0;
+    for (j = 0; j < 64; ++j) {
+      t = bminus1 & (r[rpos+j] ^ s[spos+j]);
+      p[ppos+j] = s[spos+j] ^ t;
+      q[qpos+j] = r[rpos+j] ^ t;
+    }
+  }
+
+  function mainloop(work, workpos, e, epos) {
+    var xzm1 = [], xzm = [], xzmb = [], xzm1b = [], xznb = [], xzn1b = [],
+        a0 = [], a1 = [], b0 = [], b1 = [], c1 = [], r = [], s = [], t = [],
+        u = [], j, b, pos;
+
+    for (j = 0; j < 32; ++j) xzm1[j] = work[workpos+j];
+    xzm1[32] = 1;
+    for (j = 33; j < 64; ++j) xzm1[j] = 0;
+
+    xzm[0] = 1;
+    for (j = 1; j < 64; ++j) xzm[j] = 0;
+
+    for (pos = 254; pos >= 0; --pos) {
+      b = e[epos + (pos/8|0)] >>> (pos & 7);
+      b &= 1;
+      select(xzmb, 0, xzm1b, 0, xzm, 0, xzm1, 0, b);
+      add(a0, 0, xzmb, 0, xzmb, 32);
+      sub(a0, 32, xzmb, 0, xzmb, 32);
+      add(a1, 0, xzm1b, 0, xzm1b, 32);
+      sub(a1, 32, xzm1b, 0, xzm1b, 32);
+      square(b0, 0, a0, 0);
+      square(b0, 32, a0, 32);
+      mult(b1, 0, a1, 0, a0, 32);
+      mult(b1, 32, a1, 32, a0, 0);
+      add(c1, 0, b1, 0, b1, 32);
+      sub(c1, 32, b1, 0, b1, 32);
+      square(r, 0, c1, 32);
+      sub(s, 0, b0, 0, b0, 32);
+      mult121665(t, 0, s, 0);
+      add(u, 0, t, 0, b0, 0);
+      mult(xznb, 0, b0, 0, b0, 32);
+      mult(xznb, 32, s, 0, u, 0);
+      square(xzn1b, 0, c1, 0);
+      mult(xzn1b, 32, r, 0, work, workpos);
+      select(xzm, 0, xzm1, 0, xznb, 0, xzn1b, 0, b);
+    }
+    for (j = 0; j < 64; ++j) work[workpos+j] = xzm[j];
+  }
+
+  function recip(out, outpos, z, zpos) {
+    var z2 = [], z9 = [], z11 = [], z2_5_0 = [], z2_10_0 = [],
+        z2_20_0 = [], z2_50_0 = [], z2_100_0 = [], t0 = [], t1 = [], i;
+
+    /* 2 */ square(z2, 0, z, zpos);
+    /* 4 */ square(t1, 0, z2, 0);
+    /* 8 */ square(t0, 0, t1, 0);
+    /* 9 */ mult(z9, 0, t0, 0, z, zpos);
+    /* 11 */ mult(z11, 0, z9, 0, z2, 0);
+    /* 22 */ square(t0, 0, z11, 0);
+    /* 2^5 - 2^0 = 31 */ mult(z2_5_0, 0, t0, 0, z9, 0);
+
+    /* 2^6 - 2^1 */ square(t0, 0, z2_5_0, 0);
+    /* 2^7 - 2^2 */ square(t1, 0, t0, 0);
+    /* 2^8 - 2^3 */ square(t0, 0, t1, 0);
+    /* 2^9 - 2^4 */ square(t1, 0, t0, 0);
+    /* 2^10 - 2^5 */ square(t0, 0, t1, 0);
+    /* 2^10 - 2^0 */ mult(z2_10_0, 0, t0, 0, z2_5_0, 0);
+
+    /* 2^11 - 2^1 */ square(t0, 0, z2_10_0, 0);
+    /* 2^12 - 2^2 */ square(t1, 0, t0, 0);
+    /* 2^20 - 2^10 */ for (i = 2; i < 10; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
+    /* 2^20 - 2^0 */ mult(z2_20_0, 0, t1, 0, z2_10_0, 0);
+
+    /* 2^21 - 2^1 */ square(t0, 0, z2_20_0, 0);
+    /* 2^22 - 2^2 */ square(t1, 0, t0, 0);
+    /* 2^40 - 2^20 */ for (i = 2; i < 20; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
+    /* 2^40 - 2^0 */ mult(t0, 0, t1, 0, z2_20_0, 0);
+
+    /* 2^41 - 2^1 */ square(t1, 0, t0, 0);
+    /* 2^42 - 2^2 */ square(t0, 0, t1, 0);
+    /* 2^50 - 2^10 */ for (i = 2; i < 10; i += 2) { square(t1, 0, t0, 0); square(t0, 0, t1, 0); }
+    /* 2^50 - 2^0 */ mult(z2_50_0, 0, t0, 0, z2_10_0, 0);
+
+    /* 2^51 - 2^1 */ square(t0, 0, z2_50_0, 0);
+    /* 2^52 - 2^2 */ square(t1, 0, t0, 0);
+    /* 2^100 - 2^50 */ for (i = 2; i < 50; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
+    /* 2^100 - 2^0 */ mult(z2_100_0, 0, t1, 0, z2_50_0, 0);
+
+    /* 2^101 - 2^1 */ square(t1, 0, z2_100_0, 0);
+    /* 2^102 - 2^2 */ square(t0, 0, t1, 0);
+    /* 2^200 - 2^100 */ for (i = 2; i < 100; i += 2) { square(t1, 0, t0, 0); square(t0, 0, t1, 0); }
+    /* 2^200 - 2^0 */ mult(t1, 0, t0, 0, z2_100_0, 0);
+
+    /* 2^201 - 2^1 */ square(t0, 0, t1, 0);
+    /* 2^202 - 2^2 */ square(t1, 0, t0, 0);
+    /* 2^250 - 2^50 */ for (i = 2; i < 50; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
+    /* 2^250 - 2^0 */ mult(t0, 0, t1, 0, z2_50_0, 0);
+
+    /* 2^251 - 2^1 */ square(t1, 0, t0, 0);
+    /* 2^252 - 2^2 */ square(t0, 0, t1, 0);
+    /* 2^253 - 2^3 */ square(t1, 0, t0, 0);
+    /* 2^254 - 2^4 */ square(t0, 0, t1, 0);
+    /* 2^255 - 2^5 */ square(t1, 0, t0, 0);
+    /* 2^255 - 21 */ mult(out, outpos, t1, 0, z11, 0);
+  }
+
+  return function(q, qpos, n, npos, p, ppos) {
+    var work = [], e = [], i;
+    for (i = 0; i < 32; ++i) e[i] = n[npos+i];
+    e[0] &= 248;
+    e[31] &= 127;
+    e[31] |= 64;
+    for (i = 0; i < 32; ++i) work[i] = p[ppos+i];
+    mainloop(work, 0, e, 0);
+    recip(work, 32, work, 32);
+    mult(work, 64, work, 0, work, 32);
+    freeze(work, 64);
+    for (i = 0; i < 32; ++i) q[qpos+i] = work[64 + i];
+  };
+
+})();
+
+function crypto_scalarmult_base(q, qpos, n, npos) {
+  var base = [9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  crypto_scalarmult(q, qpos, n, npos, base, 0);
+}
+
 var crypto_secretbox_KEYBYTES = 32,
     crypto_secretbox_NONCEBYTES = 24,
     crypto_secretbox_ZEROBYTES = 32,
-    crypto_secretbox_BOXZEROBYTES = 16;
+    crypto_secretbox_BOXZEROBYTES = 16,
+    crypto_scalarmult_BYTES = 32,
+    crypto_scalarmult_SCALARBYTES = 32;
 
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream;
@@ -231,10 +479,15 @@ exports.crypto_verify_16 = crypto_verify_16;
 exports.crypto_verify_32 = crypto_verify_32;
 exports.crypto_secretbox = crypto_secretbox;
 exports.crypto_secretbox_open = crypto_secretbox_open;
+exports.crypto_scalarmult = crypto_scalarmult;
+exports.crypto_scalarmult_base = crypto_scalarmult_base;
+
 exports.crypto_secretbox_KEYBYTES = crypto_secretbox_KEYBYTES;
 exports.crypto_secretbox_NONCEBYTES = crypto_secretbox_NONCEBYTES;
 exports.crypto_secretbox_ZEROBYTES = crypto_secretbox_ZEROBYTES;
 exports.crypto_secretbox_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
+exports.crypto_scalarmult_BYTES = crypto_scalarmult_BYTES;
+exports.crypto_scalarmult_SCALARBYTES = crypto_scalarmult_SCALARBYTES;
 
 /* Encodings */
 
