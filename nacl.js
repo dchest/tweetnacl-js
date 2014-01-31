@@ -530,6 +530,11 @@ exports.crypto_secretbox = crypto_secretbox;
 exports.crypto_secretbox_open = crypto_secretbox_open;
 exports.crypto_scalarmult = crypto_scalarmult;
 exports.crypto_scalarmult_base = crypto_scalarmult_base;
+exports.crypto_box_beforenm = crypto_box_beforenm;
+exports.crypto_box_afternm = crypto_box_afternm;
+exports.crypto_box = crypto_box;
+exports.crypto_box_open = crypto_box_open;
+exports.crypto_box_keypair = crypto_box_keypair;
 
 exports.crypto_secretbox_KEYBYTES = crypto_secretbox_KEYBYTES;
 exports.crypto_secretbox_NONCEBYTES = crypto_secretbox_NONCEBYTES;
