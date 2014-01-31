@@ -211,7 +211,7 @@ function crypto_scalarmult_base_test_long() {
   var input = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   var output = [];
   for (var j = 0; j < 200; j++) {
-    nacl.crypto_scalarmult_base(output, 0, input, 0);
+    nacl.crypto_scalarmult_base(output, input);
     var tmp = input; input = output; output = tmp;
   }
   if (!bytes_equal(input, golden)) {
@@ -233,7 +233,7 @@ function crypto_scalarmult_base_test() {
   ];
   for (var i = 0; i < golden.length; i++) {
     var out = [];
-    nacl.crypto_scalarmult_base(out, 0, golden[i].n, 0);
+    nacl.crypto_scalarmult_base(out, golden[i].n);
     if (!bytes_equal(out, golden[i].q)) {
       console.log(i, 'differ');
       console.log('expected', golden[i].q, 'got', out);
@@ -269,7 +269,7 @@ function box_seal_open_test() {
     sk2[i] = 2;
   }
   var pk1 = [];
-  nacl.crypto_scalarmult_base(pk1, 0, sk1, 0);
+  nacl.crypto_scalarmult_base(pk1, sk1);
   var msg = [];
   for (i = 0; i < 64; i++) msg[i] = 3;
   var nonce = [];

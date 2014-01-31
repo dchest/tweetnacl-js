@@ -223,14 +223,14 @@ function crypto_secretbox_open(m,c,d,n,k) {
 // Matthew Dempsky. Public domain.
 // Derived from public domain code by D. J. Bernstein.
 
-// crypto_scalarmult(q, qpos, n, npos, p, ppos)
+// crypto_scalarmult(q, n, p)
 //
 // This function multiplies a group element
-//   p[ppos], ..., p[ppos+crypto_scalarmult_BYTES-1]
+//   p[0], ..., p[crypto_scalarmult_BYTES-1]
 // by an integer
-//   n[npos], ..., n[npos+crypto_scalarmult_SCALARBYTES-1]
+//   n[0], ..., n[crypto_scalarmult_SCALARBYTES-1]
 // and puts the resulting group element into
-//   q[qpos], ..., q[qpos+crypto_scalarmult_BYTES-1].
+//   q[0], ..., q[crypto_scalarmult_BYTES-1].
 //
 var crypto_scalarmult = (function() {
 
@@ -439,25 +439,25 @@ var crypto_scalarmult = (function() {
     /* 2^255 - 21 */ mult(out, outpos, t1, 0, z11, 0);
   }
 
-  return function(q, qpos, n, npos, p, ppos) {
+  return function(q, n, p) {
     var work = [], e = [], i;
-    for (i = 0; i < 32; ++i) e[i] = n[npos+i];
+    for (i = 0; i < 32; ++i) e[i] = n[i];
     e[0] &= 248;
     e[31] &= 127;
     e[31] |= 64;
-    for (i = 0; i < 32; ++i) work[i] = p[ppos+i];
+    for (i = 0; i < 32; ++i) work[i] = p[i];
     mainloop(work, 0, e, 0);
     recip(work, 32, work, 32);
     mult(work, 64, work, 0, work, 32);
     freeze(work, 64);
-    for (i = 0; i < 32; ++i) q[qpos+i] = work[64 + i];
+    for (i = 0; i < 32; ++i) q[i] = work[64 + i];
   };
 
 })();
 
-function crypto_scalarmult_base(q, qpos, n, npos) {
+function crypto_scalarmult_base(q, n) {
   var base = [9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  crypto_scalarmult(q, qpos, n, npos, base, 0);
+  crypto_scalarmult(q, n, base);
 }
 
 function randombytes(x, xpos, n) {
@@ -479,13 +479,13 @@ function randombytes(x, xpos, n) {
 
 function crypto_box_keypair(y, x) {
   randombytes(x, 0, 32);
-  crypto_scalarmult_base(y, 0, x, 0);
+  crypto_scalarmult_base(y, x);
 }
 
 function crypto_box_beforenm(k, y, x) {
   var s = [];
   var _0 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-  crypto_scalarmult(s, 0, x, 0, y, 0);
+  crypto_scalarmult(s, x, y);
   crypto_core_hsalsa20(k, _0, s, sigma);
 }
 
