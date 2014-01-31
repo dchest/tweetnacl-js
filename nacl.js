@@ -121,7 +121,7 @@ function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
       h[j] = u & 255;
       u >>>= 8;
     }
-  }
+  };
 
   var minusp = [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252];
 
@@ -210,7 +210,7 @@ function crypto_secretbox_open(m,c,d,n,k) {
   var x = [];
   if (d < 32) throw new Error("crypto_secretbox_open: d < 32");
   crypto_stream(x,0,32,n,k);
-  if (crypto_onetimeauth_verify(c, 16,c, 32,d - 32,x) != 0) return false;
+  if (crypto_onetimeauth_verify(c, 16,c, 32,d - 32,x) !== 0) return false;
   crypto_stream_xor(m,0,c,0,d,n,k);
   for(i = 0; i < 32; i++) m[i] = 0;
   return true;
@@ -462,12 +462,61 @@ function crypto_scalarmult_base(q, qpos, n, npos) {
   crypto_scalarmult(q, qpos, n, npos, base, 0);
 }
 
+function randombytes(x, xpos, n) {
+  var values = null;
+  if (typeof window !== 'undefined' && window.crypto) {
+    values = window.crypto.getRandomValues(new Uint8Array(n));
+  } else if (typeof require !== 'undefined') {
+    var prng = require('crypto');
+    values = prng ? prng.randomBytes(n) : null;
+  } else {
+    throw new Error("no random number generator found");
+  }
+  if (!values || values.length !== n) {
+    throw new Error("failed to generate random bytes");
+  }
+  for (var i = 0; i < values.length; i++) x[xpos+i] = values[i];
+}
+
+function crypto_box_keypair(y, x) {
+  randombytes(x, 0, 32);
+  crypto_scalarmult_base(y, 0, x, 0);
+}
+
+function crypto_box_beforenm(k, y, x) {
+  var s = [];
+  var _0 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  crypto_scalarmult(s, 0, x, 0, y, 0);
+  crypto_core_hsalsa20(k, _0, s, sigma);
+}
+
+var crypto_box_afternm = crypto_secretbox;
+var crypto_box_open_afternm = crypto_secretbox_open;
+
+function crypto_box(c, m, d, n, y, x) {
+  var k = [];
+  crypto_box_beforenm(k, y, x);
+  crypto_box_afternm(c, m, d, n, k);
+}
+
+function crypto_box_open(m, c, d, n, y, x) {
+  var k = [];
+  crypto_box_beforenm(k, y, x);
+  return crypto_box_open_afternm(m, c, d, n, k);
+}
+
 var crypto_secretbox_KEYBYTES = 32,
     crypto_secretbox_NONCEBYTES = 24,
     crypto_secretbox_ZEROBYTES = 32,
     crypto_secretbox_BOXZEROBYTES = 16,
     crypto_scalarmult_BYTES = 32,
-    crypto_scalarmult_SCALARBYTES = 32;
+    crypto_scalarmult_SCALARBYTES = 32,
+    crypto_box_PUBLICKEYBYTES = 32,
+    crypto_box_SECRETKEYBYTES = 32,
+    crypto_box_BEFORENMBYTES = 32,
+    crypto_box_NONCEBYTES = crypto_secretbox_NONCEBYTES,
+    crypto_box_ZEROBYTES = crypto_secretbox_ZEROBYTES,
+    crypto_box_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
 
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream;
@@ -488,6 +537,15 @@ exports.crypto_secretbox_ZEROBYTES = crypto_secretbox_ZEROBYTES;
 exports.crypto_secretbox_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
 exports.crypto_scalarmult_BYTES = crypto_scalarmult_BYTES;
 exports.crypto_scalarmult_SCALARBYTES = crypto_scalarmult_SCALARBYTES;
+exports.crypto_box_PUBLICKEYBYTES = crypto_box_PUBLICKEYBYTES;
+exports.crypto_box_SECRETKEYBYTES = crypto_box_SECRETKEYBYTES;
+exports.crypto_box_BEFORENMBYTES = crypto_box_BEFORENMBYTES;
+exports.crypto_box_NONCEBYTES = crypto_box_NONCEBYTES;
+exports.crypto_box_ZEROBYTES = crypto_box_ZEROBYTES;
+exports.crypto_box_BOXZEROBYTES = crypto_box_BOXZEROBYTES;
+
+// Additions.
+exports.crypto_randombytes = randombytes;
 
 /* Encodings */
 
@@ -534,6 +592,13 @@ function checkLengths(k, n) {
     throw new Error('bad nonce length');
 }
 
+function checkPairLengths(pk, sk) {
+  if (pk.length != crypto_box_PUBLICKEYBYTES)
+    throw new Error('bad public key length');
+  if (sk.length != crypto_box_SECRETKEYBYTES)
+    throw new Error('bad secret key length');
+}
+
 /* High-level API */
 exports.secretbox = exports.secretbox || {};
 
@@ -559,5 +624,26 @@ exports.secretbox.open = function(box, nonce, key) {
   if (!crypto_secretbox_open(m, c, c.length, n, k)) return false;
   return bytesToUTF8(m.slice(crypto_secretbox_ZEROBYTES));
 };
+
+exports.box = exports.box || {};
+
+exports.box.before = function(publicKey, secretKey) {
+  var pk = getBytes(publicKey);
+  var sk = getBytes(secretKey);
+  var k = [];
+  checkPairLengths(pk, sk);
+  crypto_box_beforenm(k, pk, sk);
+  return k;
+}
+
+exports.box.seal = function(msg, nonce, publicKey, secretKey) {
+  var k = exports.box.before(publicKey, secretKey);
+  return exports.secretbox.seal(msg, nonce, k);
+}
+
+exports.box.open = function(msg, nonce, publicKey, secretKey) {
+  var k = exports.box.before(publicKey, secretKey);
+  return exports.secretbox.open(msg, nonce, k);
+}
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));

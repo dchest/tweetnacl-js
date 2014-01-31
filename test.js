@@ -167,7 +167,7 @@ function crypto_secretbox_benchmark() {
   });
 }
 
-function seal_open_test() {
+function secretbox_seal_open_test() {
   console.log('Testing secretbox.seal and secrebox.open');
   var key = '12345678901234567890123456789012';
   var nonce = '123456789012345678901234';
@@ -243,12 +243,54 @@ function crypto_scalarmult_base_test() {
   }
 }
 
+function crypto_randombytes_test() {
+  console.log('Testing crypto_randombytes');
+  var t = {}, tmp, s, i;
+  for (var i = 0; i < 10000; i++) {
+    tmp = [];
+    nacl.crypto_randombytes(tmp, 0, 32);
+    s = tmp.join(',');
+    if (t[s]) {
+      console.log("duplicate random sequence! ", s);
+      return;
+    }
+    t[s] = true;
+  }
+  console.log('OK');
+}
+
+function box_seal_open_test() {
+  console.log('Testing box.seal and box.open');
+  var golden = 'eOowsZ0jQeu9ulQYD4Ie7CZc+GMSVJvqijdlKou5Twe3inPtFwgIXm' +
+               '3dDpQ7veuHVQeaN+sx2GFjziQRZKR2KcBTnzMLSRTNE1s4VbwqLfw=';
+  var sk1 = [], sk2 = [], i;
+  for (i = 0; i < 32; i++) {
+    sk1[i] = 1;
+    sk2[i] = 2;
+  }
+  var pk1 = [];
+  nacl.crypto_scalarmult_base(pk1, 0, sk1, 0);
+  var msg = [];
+  for (i = 0; i < 64; i++) msg[i] = 3;
+  var nonce = [];
+  for (i = 0; i < 24; i++) nonce[i] = 4;
+  var box = nacl.box.seal(msg, nonce, pk1, sk2);
+  if (box != golden) {
+    console.log('differ');
+    console.log('expected', golden, 'got', box);
+  } else {
+    console.log('OK');
+  }
+}
+
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
 crypto_scalarmult_base_test();
 crypto_scalarmult_base_test_long();
-seal_open_test();
+secretbox_seal_open_test();
+crypto_randombytes_test();
+box_seal_open_test();
 
 crypto_stream_xor_benchmark();
 crypto_onetimeauth_benchmark();
