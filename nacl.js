@@ -199,7 +199,7 @@ function crypto_onetimeauth_verify(h, hpos, m, mpos, n, k) {
 
 function crypto_secretbox(c,m,d,n,k) {
   var i;
-  if (d < 32) throw new Error("d < 32");
+  if (d < 32) throw new Error('d < 32');
   crypto_stream_xor(c,0,m,0,d,n,k);
   crypto_onetimeauth(c, 16, c, 32, d - 32, c);
   for(i = 0; i < 16; i++) c[i] = 0;
@@ -208,7 +208,7 @@ function crypto_secretbox(c,m,d,n,k) {
 function crypto_secretbox_open(m,c,d,n,k) {
   var i;
   var x = [];
-  if (d < 32) throw new Error("d < 32");
+  if (d < 32) throw new Error('d < 32');
   crypto_stream(x,0,32,n,k);
   if (crypto_onetimeauth_verify(c, 16,c, 32,d - 32,x) !== 0) return false;
   crypto_stream_xor(m,0,c,0,d,n,k);
@@ -469,10 +469,10 @@ function randombytes(x, xpos, n) {
     var prng = require('crypto');
     values = prng ? prng.randomBytes(n) : null;
   } else {
-    throw new Error("no PRNG");
+    throw new Error('no PRNG');
   }
   if (!values || values.length !== n) {
-    throw new Error("PRNG failed");
+    throw new Error('PRNG failed');
   }
   for (var i = 0; i < values.length; i++) x[xpos+i] = values[i];
 }
