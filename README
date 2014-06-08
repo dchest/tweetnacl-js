@@ -9,5 +9,5 @@ CHECKLIST:
 
  [✓] secretbox  (xsalsa20poly1305)
  [✓] cryptobox  (curve25519)
- [✓] cryptosign (ed255129)
+ [✓] cryptosign (ed25519)
  [ ] documentation
