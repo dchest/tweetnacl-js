@@ -752,7 +752,20 @@ var crypto_hash = function(out, data, len) {
   }
 }
 
-/* ed25519 */
+// ed25519 
+//
+// Written in 2014 by Devi Mandiri
+//
+// To the extent possible under law, the author(s) have dedicated all copyright and related and
+// neighboring rights to this software to the public domain worldwide. This software is distributed
+// without any warranty.
+//
+// You should have received a copy of the CC0 Public Domain Dedication along with this software.
+// If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+//
+// Implementation derived from TweetNaCl version 20140427.
+// See for details: http://tweetnacl.cr.yp.to/
+//
 var gf = function() { return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];}
 var gf0 = new gf(), gf1 = new gf(); gf1[0] = [1];
 var D = [30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,65139,11119,27886,20995],
