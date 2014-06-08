@@ -358,6 +358,52 @@ function box_seal_open_benchmark() {
   }, 0.1);
 }
 
+function sign_open_test() {
+  console.log('Testing sign and sign.open');
+  var sk = [], pk = [];
+  nacl.crypto_sign_keypair(pk, sk);
+  var msg = "test message";
+  var sig = nacl.sign(msg, sk);
+  var result = nacl.sign.open(msg, sig, pk);
+  if (!result) {
+    console.log("verification failed")
+  } else {
+    console.log("OK");
+  }
+}
+
+function sign_open_benchmark() {
+  var pk = [], sk = [], pk1 = [], sig1 = [];
+  for (var i = 0; i < 32;i ++) {
+    pk1[i] = 0;  
+    sig1[i] = 0;
+    sig1[i+32] = 0;
+  }
+  nacl.crypto_sign_keypair(pk, sk);
+  var sig = null;
+  var msg = '', msg1 = [];
+  for (var i = 0; i < 128; i++) {
+    msg += 'a';
+    sig1[i+64] = 97;
+  }
+  console.log('Benchmarking sign');
+  benchmark(function() {
+    sig = nacl.sign(msg, sk);
+  }, 0.1);
+  console.log('Benchmarking sign.open (valid)');
+  benchmark(function() {
+    nacl.sign.open(msg, sig, pk);
+  }, 0.1);
+  console.log('Benchmarking sign.open (invalid signature)');
+  benchmark(function() {
+    nacl.crypto_sign_open(msg1, sig1, sig1.length, pk);
+  }, 0.1);
+  console.log('Benchmarking sign.open (invalid publickey)');
+  benchmark(function() {
+    nacl.sign.open(msg, sig, pk1);
+  }, 0.1);
+}
+
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
@@ -366,6 +412,8 @@ crypto_scalarmult_base_test_long();
 secretbox_seal_open_test();
 crypto_randombytes_test();
 box_seal_open_test();
+sign_open_test();
+
 
 crypto_stream_xor_benchmark();
 crypto_onetimeauth_benchmark();
@@ -374,3 +422,5 @@ secretbox_seal_open_benchmark();
 secretbox_seal_open_array_benchmark();
 crypto_scalarmult_base_benchmark();
 box_seal_open_benchmark();
+sign_open_benchmark();
+

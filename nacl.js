@@ -504,6 +504,650 @@ function crypto_box_open(m, c, d, n, y, x) {
   return crypto_box_open_afternm(m, c, d, n, k);
 }
 
+/* sha512 - extracted from http://caligatio.github.com/jsSHA */
+var crypto_hash = function(out, data, len) {
+
+  var bits = function(high, low) {
+    this.high = high;
+    this.low = low;
+  }
+
+  var H = [new bits(0x6a09e667, 0xf3bcc908), new bits(0xbb67ae85, 0x84caa73b),
+          new bits(0x3c6ef372, 0xfe94f82b), new bits(0xa54ff53a, 0x5f1d36f1),
+          new bits(0x510e527f, 0xade682d1), new bits(0x9b05688c, 0x2b3e6c1f),
+          new bits(0x1f83d9ab, 0xfb41bd6b), new bits(0x5be0cd19, 0x137e2179)];
+
+  var K = [new bits(0x428a2f98, 0xd728ae22), new bits(0x71374491, 0x23ef65cd),
+          new bits(0xb5c0fbcf, 0xec4d3b2f), new bits(0xe9b5dba5, 0x8189dbbc),
+          new bits(0x3956c25b, 0xf348b538), new bits(0x59f111f1, 0xb605d019),
+          new bits(0x923f82a4, 0xaf194f9b), new bits(0xab1c5ed5, 0xda6d8118),
+          new bits(0xd807aa98, 0xa3030242), new bits(0x12835b01, 0x45706fbe),
+          new bits(0x243185be, 0x4ee4b28c), new bits(0x550c7dc3, 0xd5ffb4e2),
+          new bits(0x72be5d74, 0xf27b896f), new bits(0x80deb1fe, 0x3b1696b1),
+          new bits(0x9bdc06a7, 0x25c71235), new bits(0xc19bf174, 0xcf692694),
+          new bits(0xe49b69c1, 0x9ef14ad2), new bits(0xefbe4786, 0x384f25e3),
+          new bits(0x0fc19dc6, 0x8b8cd5b5), new bits(0x240ca1cc, 0x77ac9c65),
+          new bits(0x2de92c6f, 0x592b0275), new bits(0x4a7484aa, 0x6ea6e483),
+          new bits(0x5cb0a9dc, 0xbd41fbd4), new bits(0x76f988da, 0x831153b5),
+          new bits(0x983e5152, 0xee66dfab), new bits(0xa831c66d, 0x2db43210),
+          new bits(0xb00327c8, 0x98fb213f), new bits(0xbf597fc7, 0xbeef0ee4),
+          new bits(0xc6e00bf3, 0x3da88fc2), new bits(0xd5a79147, 0x930aa725),
+          new bits(0x06ca6351, 0xe003826f), new bits(0x14292967, 0x0a0e6e70),
+          new bits(0x27b70a85, 0x46d22ffc), new bits(0x2e1b2138, 0x5c26c926),
+          new bits(0x4d2c6dfc, 0x5ac42aed), new bits(0x53380d13, 0x9d95b3df),
+          new bits(0x650a7354, 0x8baf63de), new bits(0x766a0abb, 0x3c77b2a8),
+          new bits(0x81c2c92e, 0x47edaee6), new bits(0x92722c85, 0x1482353b),
+          new bits(0xa2bfe8a1, 0x4cf10364), new bits(0xa81a664b, 0xbc423001),
+          new bits(0xc24b8b70, 0xd0f89791), new bits(0xc76c51a3, 0x0654be30),
+          new bits(0xd192e819, 0xd6ef5218), new bits(0xd6990624, 0x5565a910),
+          new bits(0xf40e3585, 0x5771202a), new bits(0x106aa070, 0x32bbd1b8),
+          new bits(0x19a4c116, 0xb8d2d0c8), new bits(0x1e376c08, 0x5141ab53),
+          new bits(0x2748774c, 0xdf8eeb99), new bits(0x34b0bcb5, 0xe19b48a8),
+          new bits(0x391c0cb3, 0xc5c95a63), new bits(0x4ed8aa4a, 0xe3418acb),
+          new bits(0x5b9cca4f, 0x7763e373), new bits(0x682e6ff3, 0xd6b2b8a3),
+          new bits(0x748f82ee, 0x5defb2fc), new bits(0x78a5636f, 0x43172f60),
+          new bits(0x84c87814, 0xa1f0ab72), new bits(0x8cc70208, 0x1a6439ec),
+          new bits(0x90befffa, 0x23631e28), new bits(0xa4506ceb, 0xde82bde9),
+          new bits(0xbef9a3f7, 0xb2c67915), new bits(0xc67178f2, 0xe372532b),
+          new bits(0xca273ece, 0xea26619c), new bits(0xd186b8c7, 0x21c0c207),
+          new bits(0xeada7dd6, 0xcde0eb1e), new bits(0xf57d4f7f, 0xee6ed178),
+          new bits(0x06f067aa, 0x72176fba), new bits(0x0a637dc5, 0xa2c898a6),
+          new bits(0x113f9804, 0xbef90dae), new bits(0x1b710b35, 0x131c471b),
+          new bits(0x28db77f5, 0x23047d84), new bits(0x32caab7b, 0x40c72493),
+          new bits(0x3c9ebe0a, 0x15c9bebc), new bits(0x431d67c4, 0x9c100d4c),
+          new bits(0x4cc5d4be, 0xcb3e42b6), new bits(0x597f299c, 0xfc657e2a),
+          new bits(0x5fcb6fab, 0x3ad6faec), new bits(0x6c44198c, 0x4a475817)];
+
+  function safe_add_2(x, y) {
+    var lsw, msw, low, high;
+
+    lsw = (x.low & 65535) + (y.low & 65535);
+    msw = (x.low >>> 16) + (y.low >>> 16) + (lsw >>> 16);
+    low = ((msw & 65535) << 16) | (lsw & 65535);
+
+    lsw = (x.high & 65535) + (y.high & 65535) + (msw >>> 16);
+    msw = (x.high >>> 16) + (y.high >>> 16) + (lsw >>> 16);
+    high = ((msw & 65535) << 16) | (lsw & 65535);
+
+    return new bits(high, low);
+  }
+
+  function safe_add_4(a, b, c, d) {
+    var lsw, msw, low, high;
+
+    lsw = (a.low & 65535) + (b.low & 65535) + (c.low & 65535) + (d.low & 65535);
+    msw = (a.low >>> 16) + (b.low >>> 16) + (c.low >>> 16) + (d.low >>> 16) + (lsw >>> 16);
+    low = ((msw & 65535) << 16) | (lsw & 65535);
+
+    lsw = (a.high & 65535) + (b.high & 65535) + (c.high & 65535) + (d.high & 65535) + (msw >>> 16);
+    msw = (a.high >>> 16) + (b.high >>> 16) + (c.high >>> 16) + (d.high >>> 16) + (lsw >>> 16);
+    high = ((msw & 65535) << 16) | (lsw & 65535);
+
+    return new bits(high, low);
+  }
+
+  function safe_add_5(a, b, c, d, e) {
+    var lsw, msw, low, high;
+
+    lsw = (a.low & 65535) + (b.low & 65535) + (c.low & 65535) + (d.low & 65535) + (e.low & 65535);
+    msw = (a.low >>> 16) + (b.low >>> 16) + (c.low >>> 16) + (d.low >>> 16) + (e.low >>> 16) + (lsw >>> 16);
+    low = ((msw & 65535) << 16) | (lsw & 65535);
+
+    lsw = (a.high & 65535) + (b.high & 65535) + (c.high & 65535) + (d.high & 65535) + (e.high & 65535) + (msw >>> 16);
+    msw = (a.high >>> 16) + (b.high >>> 16) + (c.high >>> 16) + (d.high >>> 16) + (e.high >>> 16) + (lsw >>> 16);
+    high = ((msw & 65535) << 16) | (lsw & 65535);
+
+    return new bits(high, low);
+  }
+
+  function maj(x, y, z) {
+    return new bits(
+        (x.high & y.high) ^ (x.high & z.high) ^ (y.high & z.high),
+        (x.low & y.low) ^ (x.low & z.low) ^ (y.low & z.low)
+    );
+  }
+
+  function ch(x, y, z) {
+    return new bits(
+      (x.high & y.high) ^ (~x.high & z.high),
+      (x.low & y.low) ^ (~x.low & z.low)
+    );
+  }
+
+  function rotr(x, n) {
+    if (n <= 32) {
+        return new bits(
+            (x.high >>> n) | (x.low << (32 - n)),
+            (x.low >>> n) | (x.high << (32 - n))
+        );
+    } else {
+        return new bits(
+            (x.low >>> n) | (x.high << (32 - n)),
+            (x.high >>> n) | (x.low << (32 - n))
+        );
+    }
+  }
+
+  function sigma0(x) {
+    var rotr28 = rotr(x, 28);
+    var rotr34 = rotr(x, 34);
+    var rotr39 = rotr(x, 39);
+
+    return new bits(
+        rotr28.high ^ rotr34.high ^ rotr39.high,
+        rotr28.low ^ rotr34.low ^ rotr39.low
+    );
+  }
+
+  function sigma1(x) {
+    var rotr14 = rotr(x, 14);
+    var rotr18 = rotr(x, 18);
+    var rotr41 = rotr(x, 41);
+
+    return new bits(
+        rotr14.high ^ rotr18.high ^ rotr41.high,
+        rotr14.low ^ rotr18.low ^ rotr41.low
+    );
+  }
+
+  function gamma0(x) {
+    var rotr1 = rotr(x, 1), rotr8 = rotr(x, 8), shr7 = shr(x, 7);
+
+    return new bits(
+        rotr1.high ^ rotr8.high ^ shr7.high,
+        rotr1.low ^ rotr8.low ^ shr7.low
+    );
+  }
+
+  function gamma1(x) {
+    var rotr19 = rotr(x, 19);
+    var rotr61 = rotr(x, 61);
+    var shr6 = shr(x, 6);
+
+    return new bits(
+        rotr19.high ^ rotr61.high ^ shr6.high,
+        rotr19.low ^ rotr61.low ^ shr6.low
+    );
+  }
+
+  function shr(x, n) {
+    if (n <= 32) {
+        return new bits(
+            x.high >>> n,
+            x.low >>> n | (x.high << (32 - n))
+        );
+    } else {
+        return new bits(
+            0,
+            x.high << (32 - n)
+        );
+    }
+  }
+
+  if (typeof len == 'undefined') len = data.length;
+  
+  var W = new Array(64),
+      a, b, c, d, e, f, g, h, i, j, l,
+      T1, T2,
+      charsize = 8,
+      words = [], datalen = len*charsize;
+
+  for (i = 0; i < datalen; i += charsize) {
+      words[i >> 5] |= data[i/charsize] << (32 - charsize - (i % 32));
+  }
+
+  words[datalen >> 5] |= 0x80 << (24 - datalen % 32);
+  words[(((datalen + 128) >> 10) << 5) + 31] = datalen;
+
+  l = words.length;
+  for (i = 0; i < l; i += 32) {
+      a = H[0];
+      b = H[1];
+      c = H[2];
+      d = H[3];
+      e = H[4];
+      f = H[5];
+      g = H[6];
+      h = H[7];
+
+      for (j = 0; j < 80; j++) {
+          if (j < 16) {
+              W[j] = new bits(words[j*2 + i], words[j*2 + i + 1]);
+          } else {
+              W[j] = safe_add_4(gamma1(W[j - 2]), W[j - 7], gamma0(W[j - 15]), W[j - 16]);
+          }
+
+          T1 = safe_add_5(h, sigma1(e), ch(e, f, g), K[j], W[j]);
+          T2 = safe_add_2(sigma0(a), maj(a, b, c));
+          h = g;
+          g = f;
+          f = e;
+          e = safe_add_2(d, T1);
+          d = c;
+          c = b;
+          b = a;
+          a = safe_add_2(T1, T2);
+      }
+
+      H[0] = safe_add_2(a, H[0]);
+      H[1] = safe_add_2(b, H[1]);
+      H[2] = safe_add_2(c, H[2]);
+      H[3] = safe_add_2(d, H[3]);
+      H[4] = safe_add_2(e, H[4]);
+      H[5] = safe_add_2(f, H[5]);
+      H[6] = safe_add_2(g, H[6]);
+      H[7] = safe_add_2(h, H[7]);
+  }
+
+  var binarray = [];
+  l = H.length;
+  for (i = 0; i < l; i++) {
+      binarray.push(H[i].high);
+      binarray.push(H[i].low);
+  }
+
+  l = binarray.length * 4;
+  for (i = 0; i < l; i += 1) {
+      out[i] = (binarray[i >> 2] >> ((3 - (i % 4)) * 8)) & 0xff;
+  }
+}
+
+// ed25519 
+//
+// Written in 2014 by Devi Mandiri
+//
+// To the extent possible under law, the author(s) have dedicated all copyright and related and
+// neighboring rights to this software to the public domain worldwide. This software is distributed
+// without any warranty.
+//
+// You should have received a copy of the CC0 Public Domain Dedication along with this software.
+// If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+//
+// Implementation derived from TweetNaCl version 20140427.
+// See for details: http://tweetnacl.cr.yp.to/
+//
+var gf = function() { return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];}
+var gf0 = new gf(), gf1 = new gf(); gf1[0] = [1];
+var D = [30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,65139,11119,27886,20995],
+    D2 = [61785,9906,39828,60374,45398,33411,5274,224,53552,61171,33010,6542,64743,22239,55772,9222],
+    X = [54554,36645,11616,51542,42930,38181,51040,26924,56412,64982,57905,49316,21502,52590,14035,8553],
+    Y = [26200,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214],
+    I = [41136,18958,6951,50414,58488,44335,6150,12099,55207,15867,153,11085,57099,20417,9344,11139];
+
+function car25519(o) {
+  var c;
+  for (var i = 0; i < 16; i++) {
+      o[i] += 65536;
+      c = Math_floor(o[i] / 65536);
+      o[(i+1)*(i<15)] += c - 1 + 37 * (c-1) * (i==15);
+      o[i] -= (c * 65536);
+  }
+}
+
+function sel25519(p, q, b) {
+  var t, c = ~(b-1);
+  for (var i = 0; i < 16; i++) {
+    t = c & (p[i] ^ q[i]);
+    p[i] ^= t;
+    q[i] ^= t;
+  }
+}
+
+function pack25519(o, n) {
+  var i, j, b, m = new gf(), t = new gf();
+  for (i = 0; i < 16; i++) t[i] = n[i];
+  car25519(t);
+  car25519(t);
+  car25519(t);
+  for (j = 0; j < 2; j++) {
+    m[0] = t[0] - 65517;
+    for (i = 1; i < 15; i++) {
+      m[i] = t[i] - 65535 - ((m[i-1]>>16) & 1);
+      m[i-1] &= 65535;
+    }
+    m[15] = t[15] - 32767 - ((m[14]>>16) & 1);
+    b = (m[15]>>16) & 1;
+    m[14] &= 65535;
+    sel25519(t, m, 1-b);
+  }
+  for (i = 0; i < 16; i++) {
+    o[2*i] = t[i] & 255;
+    o[2*i+1] = t[i]>>8;
+  }
+}
+
+function A(o, a, b) {
+  var i = 16;
+  while (i--) {
+    // make sure it's a number
+    o[i] = (a[i]|0) + (b[i]|0);
+  }
+}
+
+function Z(o, a, b) {
+  var i = 16;
+  while (i--) {
+    o[i] = (a[i]|0) - (b[i]|0);
+  }
+}
+
+function M(o, a, b) {
+  var i, j, t = [];
+  i = 31; while(i--) t[i] = 0;
+  for (i = 0; i < 16; i++) {
+    for (j = 0; j < 16; j++) {
+      t[i+j] += a[i] * b[j];
+    }
+  }
+  for (i = 0; i < 15; i++) {
+    t[i] += 38 * t[i+16];
+  }
+  i = 16; while(i--) o[i] = t[i];
+  car25519(o);
+  car25519(o);
+}
+
+function S(o, a) {
+  M(o, a, a);
+}
+
+function inv25519(o, i) {
+  var c = new gf(), a;
+  a = 16; while (a--) c[a] = i[a];
+  a = 253;
+  do {
+    S(c, c);
+    if(a != 2 && a != 4) M(c, c, i);
+  } while (a--);
+  a = 16; while (a--) o[a] = c[a];
+}
+
+function unpack25519(o, n) {
+  for (var i = 0; i < 16; i++) {
+    o[i] = n[2*i] + (n[2*i+1] << 8);
+  }
+  o[15] &= 32767;
+}
+
+function add(p, q) {
+  var a = new gf(), b = new gf(), c = new gf(),
+      d = new gf(), e = new gf(), f = new gf(),
+      g = new gf(), h = new gf(), t = new gf();
+
+  Z(a, p[1], p[0]);
+  Z(t, q[1], q[0]);
+  M(a, a, t);
+  A(b, p[0], p[1]);
+  A(t, q[0], q[1]);
+  M(b, b, t);
+  M(c, p[3], q[3]);
+  M(c, c, D2);
+  M(d, p[2], q[2]);
+  A(d, d, d);
+  Z(e, b, a);
+  Z(f, d, c);
+  A(g, d, c);
+  A(h, b, a);
+  M(p[0], e, f);
+  M(p[1], h, g);
+  M(p[2], g, f);
+  M(p[3], e, h);
+}
+
+function cswap(p, q, b) {
+  for (var i = 0; i < 4; i++) {
+    sel25519(p[i], q[i], b);
+  }
+}
+
+function par25519(a) {
+  var d = new Array(32);
+  pack25519(d, a);
+  return d[0] & 1;
+}
+
+function pack(r, p) {
+  var tx = new gf(), ty = new gf(), zi = new gf();
+  inv25519(zi, p[2]);
+  M(tx, p[0], zi);
+  M(ty, p[1], zi);
+  pack25519(r, ty);
+  r[31] ^= par25519(tx) << 7;
+}
+
+function set25519(r, a) {
+  var i = 16; while(i--) r[i] = a[i]|0;
+}
+
+function scalarmult(p, q, s) {
+  var b;
+  set25519(p[0], gf0);
+  set25519(p[1], gf1);
+  set25519(p[2], gf1);
+  set25519(p[3], gf0);
+  var i = 255;
+  do {
+    b = (s[(i/8)|0] >> (i&7)) & 1;
+    cswap(p, q, b);
+    add(q, p);
+    add(p, p);
+    cswap(p, q, b);
+  } while (i--);
+}
+
+function scalarbase(p, s) {
+  var i = 4, q = [];
+  while (i--) q[i] = new gf();
+  set25519(q[0], X);
+  set25519(q[1], Y);
+  set25519(q[2], gf1);
+  M(q[3], X, Y);
+  scalarmult(p, q, s);
+}
+
+function crypto_sign_keypair(pk, sk, seed) {
+  var p = [], d = new Array(64), skseed = [];
+  var i = 4; while(i--) p[i] = new gf();
+
+  if (typeof seed !== 'undefined') {
+    skseed = skseed.concat(seed);
+  } else {
+    randombytes(skseed, 0, 32);
+  }
+
+  crypto_hash(d, skseed, 32);
+  d[0] &= 248;
+  d[31] &= 127;
+  d[31] |= 64;
+
+  scalarbase(p, d);
+  pack(pk, p);
+
+  for (i = 0; i < 32; i++) {
+    sk[i] = skseed[i];
+    sk[i+32] = pk[i];
+  }
+}
+
+var L = [237,211,245,92,26,99,18,88,214,156,247,162,222,249,222,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16];
+var Math_floor = Math.floor;
+
+function modL(r, x) {
+  var carry, i, j, k;
+  for (i = 63; i >= 32; --i) {
+    carry = 0;
+    for (j = i - 32, k = i - 12; j < k; ++j) {
+      x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+      carry = Math_floor((x[j] + 128) / 256);
+      x[j] -= carry * 256;
+    }
+    x[j] += carry;
+    x[i] = 0;
+  }
+  carry = 0;
+  for (j = 0; j < 32; j++) {
+    x[j] += carry - Math_floor(x[31]/16) * L[j];
+    carry = Math_floor(x[j] / 256);
+    x[j] &= 255;
+  }
+  for (j = 0; j < 32; j++) x[j] -= carry * L[j];
+  for (i = 0; i < 32; i++) {
+    x[i+1] += Math_floor(x[i] / 256);
+    r[i] = x[i] & 255;
+  }
+}
+
+function reduce(r) {
+  var x = new Array(64), i = 64;
+  while (i--) {
+    x[i] = r[i];
+    r[i] = 0;
+  }
+  modL(r, x);
+}
+
+function crypto_sign(sm, m, n, sk) {
+  var d = new Array(64),
+      h = new Array(64),
+      r = new Array(64),
+      x = new Array(64),
+      p = [], j;
+
+  var i = 4; while (i--) p[i] = new gf();
+
+  crypto_hash(d, sk, 32);
+  d[0] &= 248;
+  d[31] &= 127;
+  d[31] |= 64;
+
+  // passing smlen as arguments doesn't work (at my box),
+  // smlen moved as return
+  var smlen = n + 64;
+
+  for (i = 0; i < n; i++) sm[64 + i] = m[i];
+  for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
+
+  crypto_hash(r, sm.slice(32), n+32);
+  reduce(r);
+  scalarbase(p, r);
+  pack(sm, p);
+
+  for (i = 32; i < 64; i++) sm[i] = sk[i];
+  crypto_hash(h, sm, n + 64);
+  reduce(h);
+
+  i = 64; while(i--) x[i] = 0;
+  i = 32; while(i--) x[i] = r[i];
+
+  for (i = 0; i < 32; i++) {
+    for (j = 0; j < 32; j++) {
+      x[i+j] += h[i] * d[j];
+    }
+  }
+
+  var xrest = new Array(32);
+  modL(xrest, x);
+  for (i = 0; i < 32; i++) {
+      sm[i+32] = xrest[i];
+  }
+  return smlen;
+}
+
+function pow2523(o, i) {
+  var c = new gf(), a;
+  var a = 16; while(a--) c[a] = i[a];
+  a = 250;
+  do {
+      S(c, c);
+      if(a != 1) M(c, c, i);
+  } while (a--);
+  a = 16; while(a--) o[a] = c[a];
+}
+
+function neq25519(a, b) {
+  var c = new Array(32),
+      d = new Array(32);
+  pack25519(c, a);
+  pack25519(d, b);
+  return crypto_verify_32(c, 0, d, 0);
+}
+
+function unpackneg(r, p) {
+  var t = new gf(), chk = new gf(), num = new gf(),
+      den = new gf(), den2 = new gf(), den4 = new gf(),
+      den6 = new gf();
+
+  set25519(r[2], gf1);
+  unpack25519(r[1], p);
+  S(num, r[1]);
+  M(den, num, D);
+  Z(num, num, r[2]);
+  A(den, r[2], den);
+
+  S(den2, den);
+  S(den4, den2);
+  M(den6, den4, den2);
+  M(t, den6, num);
+  M(t, t, den);
+
+  pow2523(t, t);
+  M(t, t, num);
+  M(t, t, den);
+  M(t, t, den);
+  M(r[0], t, den);
+
+  S(chk, r[0]);
+  M(chk, chk, den);
+  if (neq25519(chk, num)) M(r[0], r[0], I);
+
+  S(chk, r[0]);
+  M(chk, chk, den);
+  if (neq25519(chk, num)) return -1;
+
+  if (par25519(r[0]) == (p[31]>>7)) Z(r[0], gf0, r[0]);
+
+  M(r[3], r[0], r[1]);
+  return 0;
+}
+
+function crypto_sign_open(m, sm, n, pk) {
+  var i, t = new Array(32),
+      h = new Array(64),
+      p = [], q = [],
+      x = [];
+
+  i = 4;
+  while (i--) {
+    p[i] = new gf();
+    q[i] = new gf();
+  }
+
+  //mlen = -1; // doesn't work
+  if (n < 64) return -1;
+
+  if (unpackneg(q, pk)) return false;
+  for (i = 0; i < n; i++) x[i] = sm[i];
+  for (i = 0; i < 32; i++) x[i+32] = pk[i];
+
+  crypto_hash(h, x, n);
+  reduce(h);
+  scalarmult(p, q, h);
+
+  scalarbase(q, sm.slice(32));
+  add(p, q);
+  pack(t, p);
+
+  n -= 64;
+  if (crypto_verify_32(sm, 0, t, 0)) return false;
+
+  //mlen = n;
+  for (i = 0; i < n; i++) {
+    m[i] = sm[i + 64];
+  }
+
+  return true;
+}
+
 var crypto_secretbox_KEYBYTES = 32,
     crypto_secretbox_NONCEBYTES = 24,
     crypto_secretbox_ZEROBYTES = 32,
@@ -515,7 +1159,10 @@ var crypto_secretbox_KEYBYTES = 32,
     crypto_box_BEFORENMBYTES = 32,
     crypto_box_NONCEBYTES = crypto_secretbox_NONCEBYTES,
     crypto_box_ZEROBYTES = crypto_secretbox_ZEROBYTES,
-    crypto_box_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
+    crypto_box_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES,
+    crypto_sign_BYTES = 64,
+    crypto_sign_PUBLICKEYBYTES = 32,
+    crypto_sign_SECRETKEYBYTES = 64;
 
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream;
@@ -534,6 +1181,10 @@ exports.crypto_box_afternm = crypto_box_afternm;
 exports.crypto_box = crypto_box;
 exports.crypto_box_open = crypto_box_open;
 exports.crypto_box_keypair = crypto_box_keypair;
+exports.crypto_hash = crypto_hash;
+exports.crypto_sign = crypto_sign;
+exports.crypto_sign_keypair = crypto_sign_keypair;
+exports.crypto_sign_open = crypto_sign_open;
 
 exports.crypto_secretbox_KEYBYTES = crypto_secretbox_KEYBYTES;
 exports.crypto_secretbox_NONCEBYTES = crypto_secretbox_NONCEBYTES;
@@ -547,6 +1198,10 @@ exports.crypto_box_BEFORENMBYTES = crypto_box_BEFORENMBYTES;
 exports.crypto_box_NONCEBYTES = crypto_box_NONCEBYTES;
 exports.crypto_box_ZEROBYTES = crypto_box_ZEROBYTES;
 exports.crypto_box_BOXZEROBYTES = crypto_box_BOXZEROBYTES;
+exports.crypto_sign_BYTES = crypto_sign_BYTES;
+exports.crypto_sign_PUBLICKEYBYTES = crypto_sign_PUBLICKEYBYTES;
+exports.crypto_sign_SECRETKEYBYTES = crypto_sign_SECRETKEYBYTES;
+
 
 // Additions.
 exports.crypto_randombytes = randombytes;
@@ -651,6 +1306,36 @@ exports.box.seal = function(msg, nonce, publicKey, secretKey) {
 exports.box.open = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
   return exports.secretbox.open(msg, nonce, k);
+};
+
+exports.sign = exports.sign || {};
+
+exports.sign = function(msg, key) {
+  var m = getBytes(msg);
+  var k = getBytes(key);
+  if (k.length !== crypto_sign_SECRETKEYBYTES) {
+    throw new Error('bad key size');
+  }
+  var mlen = m.length;
+  var sm = new Array(64+mlen);
+  crypto_sign(sm, m, mlen, k);
+  return encodeBase64(sm.slice(0,64));
+};
+
+exports.sign.open = function(msg, signature, publickey) {
+  var sig;
+  try { sig = decodeBase64(signature);} catch(e) { return false; }
+  if (sig.length !== crypto_sign_BYTES) {
+    throw new Error('bad signature size');
+  }
+  var pk = getBytes(publickey);
+  if (pk.length !== crypto_sign_PUBLICKEYBYTES) {
+    throw new Error('bad publickey size');
+  }
+  sig = sig.concat(getBytes(msg));
+  var m = [];
+  if (!crypto_sign_open(m, sig, sig.length, pk)) return false;
+  return bytesToUTF8(m);
 };
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));
