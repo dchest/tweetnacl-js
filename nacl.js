@@ -998,7 +998,7 @@ function crypto_sign(sm, m, n, sk) {
       h = new Array(64),
       r = new Array(64),
       x = new Array(64),
-      p = [], mCopy = [], j;
+      p = [], j;
 
   var i = 4; while (i--) p[i] = new gf();
 
