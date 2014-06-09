@@ -504,252 +504,233 @@ function crypto_box_open(m, c, d, n, y, x) {
   return crypto_box_open_afternm(m, c, d, n, k);
 }
 
-/* sha512 - extracted from http://caligatio.github.com/jsSHA */
-var crypto_hash = function(out, data, len) {
+/* sha512 */
 
-  var bits = function(high, low) {
-    this.high = high;
-    this.low = low;
+// Written in 2014 by Devi Mandiri. Public domain.
+//
+// Implementation derived from TweetNaCl version 20140427.
+// See for details: http://tweetnacl.cr.yp.to/
+//
+var u64 = function (h, l) {
+  this.high = h >>> 0;
+  this.low  = l >>> 0;
+}
+
+function dl64(x, pos) {
+  var h, l;
+  h =  x[pos]   << 24;
+  h |= x[pos+1] << 16;
+  h |= x[pos+2] <<  8;
+  h |= x[pos+3];
+  l |= x[pos+4] << 24;
+  l |= x[pos+5] << 16;
+  l |= x[pos+6] <<  8;
+  l |= x[pos+7];
+  return new u64(h, l);
+}
+
+function ts64(x, pos, u) {
+  x[pos]   = (u.high >> 24) & 0xff;
+  x[pos+1] = (u.high >> 16) & 0xff;
+  x[pos+2] = (u.high >>  8) & 0xff;
+  x[pos+3] =  u.high        & 0xff;
+  x[pos+4] = (u.low >> 24)  & 0xff;
+  x[pos+5] = (u.low >> 16)  & 0xff;
+  x[pos+6] = (u.low >>  8)  & 0xff;
+  x[pos+7] =  u.low         & 0xff;
+}
+
+function add64() {
+  var a = 0, b = 0, c = 0, d = 0, m16 = 65535,
+      l, h, ar = arguments, alen = ar.length|0;
+
+  for (var i = 0; i < alen; i++) {
+    l  = ar[i].low; h  = ar[i].high;
+    a += (l & m16); b += (l >>> 16);
+    c += (h & m16); d += (h >>> 16);
   }
+  b += (a >>> 16);
+  c += (b >>> 16);
+  d += (c >>> 16);
 
-  var H = [new bits(0x6a09e667, 0xf3bcc908), new bits(0xbb67ae85, 0x84caa73b),
-          new bits(0x3c6ef372, 0xfe94f82b), new bits(0xa54ff53a, 0x5f1d36f1),
-          new bits(0x510e527f, 0xade682d1), new bits(0x9b05688c, 0x2b3e6c1f),
-          new bits(0x1f83d9ab, 0xfb41bd6b), new bits(0x5be0cd19, 0x137e2179)];
+  return new u64((c & m16) | (d << 16), (a & m16) | (b << 16));
+}
 
-  var K = [new bits(0x428a2f98, 0xd728ae22), new bits(0x71374491, 0x23ef65cd),
-          new bits(0xb5c0fbcf, 0xec4d3b2f), new bits(0xe9b5dba5, 0x8189dbbc),
-          new bits(0x3956c25b, 0xf348b538), new bits(0x59f111f1, 0xb605d019),
-          new bits(0x923f82a4, 0xaf194f9b), new bits(0xab1c5ed5, 0xda6d8118),
-          new bits(0xd807aa98, 0xa3030242), new bits(0x12835b01, 0x45706fbe),
-          new bits(0x243185be, 0x4ee4b28c), new bits(0x550c7dc3, 0xd5ffb4e2),
-          new bits(0x72be5d74, 0xf27b896f), new bits(0x80deb1fe, 0x3b1696b1),
-          new bits(0x9bdc06a7, 0x25c71235), new bits(0xc19bf174, 0xcf692694),
-          new bits(0xe49b69c1, 0x9ef14ad2), new bits(0xefbe4786, 0x384f25e3),
-          new bits(0x0fc19dc6, 0x8b8cd5b5), new bits(0x240ca1cc, 0x77ac9c65),
-          new bits(0x2de92c6f, 0x592b0275), new bits(0x4a7484aa, 0x6ea6e483),
-          new bits(0x5cb0a9dc, 0xbd41fbd4), new bits(0x76f988da, 0x831153b5),
-          new bits(0x983e5152, 0xee66dfab), new bits(0xa831c66d, 0x2db43210),
-          new bits(0xb00327c8, 0x98fb213f), new bits(0xbf597fc7, 0xbeef0ee4),
-          new bits(0xc6e00bf3, 0x3da88fc2), new bits(0xd5a79147, 0x930aa725),
-          new bits(0x06ca6351, 0xe003826f), new bits(0x14292967, 0x0a0e6e70),
-          new bits(0x27b70a85, 0x46d22ffc), new bits(0x2e1b2138, 0x5c26c926),
-          new bits(0x4d2c6dfc, 0x5ac42aed), new bits(0x53380d13, 0x9d95b3df),
-          new bits(0x650a7354, 0x8baf63de), new bits(0x766a0abb, 0x3c77b2a8),
-          new bits(0x81c2c92e, 0x47edaee6), new bits(0x92722c85, 0x1482353b),
-          new bits(0xa2bfe8a1, 0x4cf10364), new bits(0xa81a664b, 0xbc423001),
-          new bits(0xc24b8b70, 0xd0f89791), new bits(0xc76c51a3, 0x0654be30),
-          new bits(0xd192e819, 0xd6ef5218), new bits(0xd6990624, 0x5565a910),
-          new bits(0xf40e3585, 0x5771202a), new bits(0x106aa070, 0x32bbd1b8),
-          new bits(0x19a4c116, 0xb8d2d0c8), new bits(0x1e376c08, 0x5141ab53),
-          new bits(0x2748774c, 0xdf8eeb99), new bits(0x34b0bcb5, 0xe19b48a8),
-          new bits(0x391c0cb3, 0xc5c95a63), new bits(0x4ed8aa4a, 0xe3418acb),
-          new bits(0x5b9cca4f, 0x7763e373), new bits(0x682e6ff3, 0xd6b2b8a3),
-          new bits(0x748f82ee, 0x5defb2fc), new bits(0x78a5636f, 0x43172f60),
-          new bits(0x84c87814, 0xa1f0ab72), new bits(0x8cc70208, 0x1a6439ec),
-          new bits(0x90befffa, 0x23631e28), new bits(0xa4506ceb, 0xde82bde9),
-          new bits(0xbef9a3f7, 0xb2c67915), new bits(0xc67178f2, 0xe372532b),
-          new bits(0xca273ece, 0xea26619c), new bits(0xd186b8c7, 0x21c0c207),
-          new bits(0xeada7dd6, 0xcde0eb1e), new bits(0xf57d4f7f, 0xee6ed178),
-          new bits(0x06f067aa, 0x72176fba), new bits(0x0a637dc5, 0xa2c898a6),
-          new bits(0x113f9804, 0xbef90dae), new bits(0x1b710b35, 0x131c471b),
-          new bits(0x28db77f5, 0x23047d84), new bits(0x32caab7b, 0x40c72493),
-          new bits(0x3c9ebe0a, 0x15c9bebc), new bits(0x431d67c4, 0x9c100d4c),
-          new bits(0x4cc5d4be, 0xcb3e42b6), new bits(0x597f299c, 0xfc657e2a),
-          new bits(0x5fcb6fab, 0x3ad6faec), new bits(0x6c44198c, 0x4a475817)];
+function shr(x, c) {
+  return new u64((x.high >>> c), (x.low >>> c) | (x.high << (32 - c)));
+}
 
-  function safe_add_2(x, y) {
-    var lsw, msw, low, high;
-
-    lsw = (x.low & 65535) + (y.low & 65535);
-    msw = (x.low >>> 16) + (y.low >>> 16) + (lsw >>> 16);
-    low = ((msw & 65535) << 16) | (lsw & 65535);
-
-    lsw = (x.high & 65535) + (y.high & 65535) + (msw >>> 16);
-    msw = (x.high >>> 16) + (y.high >>> 16) + (lsw >>> 16);
-    high = ((msw & 65535) << 16) | (lsw & 65535);
-
-    return new bits(high, low);
+function R(x, c) {
+  var h, l, c1 = 32 - c;
+  if (c < 32) {
+    h = (x.high >>> c) | (x.low  << c1);
+    l = (x.low  >>> c) | (x.high << c1);
+  } else if (c < 64) {
+    h = (x.low  >>> c) | (x.high << c1);
+    l = (x.high >>> c) | (x.low  << c1);
   }
+  return new u64(h, l);
+}
 
-  function safe_add_4(a, b, c, d) {
-    var lsw, msw, low, high;
+function Ch(x, y, z) {
+  var h = (x.high & y.high) ^ (~x.high & z.high),
+      l = (x.low & y.low) ^ (~x.low & z.low);
+  return new u64(h, l);
+}
 
-    lsw = (a.low & 65535) + (b.low & 65535) + (c.low & 65535) + (d.low & 65535);
-    msw = (a.low >>> 16) + (b.low >>> 16) + (c.low >>> 16) + (d.low >>> 16) + (lsw >>> 16);
-    low = ((msw & 65535) << 16) | (lsw & 65535);
+function Maj(x, y, z) {
+  var h = (x.high & y.high) ^ (x.high & z.high) ^ (y.high & z.high),
+      l = (x.low & y.low) ^ (x.low & z.low) ^ (y.low & z.low);
+  return new u64(h, l);
+}
 
-    lsw = (a.high & 65535) + (b.high & 65535) + (c.high & 65535) + (d.high & 65535) + (msw >>> 16);
-    msw = (a.high >>> 16) + (b.high >>> 16) + (c.high >>> 16) + (d.high >>> 16) + (lsw >>> 16);
-    high = ((msw & 65535) << 16) | (lsw & 65535);
+function Sigma0(x) {
+  var s = [], h, l;
+  s[0] = R(x, 28);
+  s[1] = R(x, 34);
+  s[2] = R(x, 39);
+  h = s[0].high ^ s[1].high ^ s[2].high;
+  l = s[0].low ^ s[1].low ^ s[2].low;
+  return new u64(h, l);
+}
 
-    return new bits(high, low);
-  }
+function Sigma1(x) {
+  var s = [], h, l;
+  s[0] = R(x, 14);
+  s[1] = R(x, 18);
+  s[2] = R(x, 41);
+  h = s[0].high ^ s[1].high ^ s[2].high;
+  l = s[0].low ^ s[1].low ^ s[2].low;
+  return new u64(h, l);
+}
 
-  function safe_add_5(a, b, c, d, e) {
-    var lsw, msw, low, high;
+function sigma0(x) {
+  var s = [], h, l;
+  s[0] = R(x, 1);
+  s[1] = R(x, 8);
+  s[2] = shr(x, 7);
+  h = s[0].high ^ s[1].high ^ s[2].high;
+  l = s[0].low ^ s[1].low ^ s[2].low;
+  return new u64(h, l);
+}
 
-    lsw = (a.low & 65535) + (b.low & 65535) + (c.low & 65535) + (d.low & 65535) + (e.low & 65535);
-    msw = (a.low >>> 16) + (b.low >>> 16) + (c.low >>> 16) + (d.low >>> 16) + (e.low >>> 16) + (lsw >>> 16);
-    low = ((msw & 65535) << 16) | (lsw & 65535);
+function sigma1(x) {
+  var s = [], h, l;
+  s[0] = R(x, 19);
+  s[1] = R(x, 61);
+  s[2] = shr(x, 6);
+  h = s[0].high ^ s[1].high ^ s[2].high;
+  l = s[0].low ^ s[1].low ^ s[2].low;
+  return new u64(h, l); 
+}
 
-    lsw = (a.high & 65535) + (b.high & 65535) + (c.high & 65535) + (d.high & 65535) + (e.high & 65535) + (msw >>> 16);
-    msw = (a.high >>> 16) + (b.high >>> 16) + (c.high >>> 16) + (d.high >>> 16) + (e.high >>> 16) + (lsw >>> 16);
-    high = ((msw & 65535) << 16) | (lsw & 65535);
+var K = [
+  new u64(0x428a2f98, 0xd728ae22), new u64(0x71374491, 0x23ef65cd),
+  new u64(0xb5c0fbcf, 0xec4d3b2f), new u64(0xe9b5dba5, 0x8189dbbc),
+  new u64(0x3956c25b, 0xf348b538), new u64(0x59f111f1, 0xb605d019),
+  new u64(0x923f82a4, 0xaf194f9b), new u64(0xab1c5ed5, 0xda6d8118),
+  new u64(0xd807aa98, 0xa3030242), new u64(0x12835b01, 0x45706fbe),
+  new u64(0x243185be, 0x4ee4b28c), new u64(0x550c7dc3, 0xd5ffb4e2),
+  new u64(0x72be5d74, 0xf27b896f), new u64(0x80deb1fe, 0x3b1696b1),
+  new u64(0x9bdc06a7, 0x25c71235), new u64(0xc19bf174, 0xcf692694),
+  new u64(0xe49b69c1, 0x9ef14ad2), new u64(0xefbe4786, 0x384f25e3),
+  new u64(0x0fc19dc6, 0x8b8cd5b5), new u64(0x240ca1cc, 0x77ac9c65),
+  new u64(0x2de92c6f, 0x592b0275), new u64(0x4a7484aa, 0x6ea6e483),
+  new u64(0x5cb0a9dc, 0xbd41fbd4), new u64(0x76f988da, 0x831153b5),
+  new u64(0x983e5152, 0xee66dfab), new u64(0xa831c66d, 0x2db43210),
+  new u64(0xb00327c8, 0x98fb213f), new u64(0xbf597fc7, 0xbeef0ee4),
+  new u64(0xc6e00bf3, 0x3da88fc2), new u64(0xd5a79147, 0x930aa725),
+  new u64(0x06ca6351, 0xe003826f), new u64(0x14292967, 0x0a0e6e70),
+  new u64(0x27b70a85, 0x46d22ffc), new u64(0x2e1b2138, 0x5c26c926),
+  new u64(0x4d2c6dfc, 0x5ac42aed), new u64(0x53380d13, 0x9d95b3df),
+  new u64(0x650a7354, 0x8baf63de), new u64(0x766a0abb, 0x3c77b2a8),
+  new u64(0x81c2c92e, 0x47edaee6), new u64(0x92722c85, 0x1482353b),
+  new u64(0xa2bfe8a1, 0x4cf10364), new u64(0xa81a664b, 0xbc423001),
+  new u64(0xc24b8b70, 0xd0f89791), new u64(0xc76c51a3, 0x0654be30),
+  new u64(0xd192e819, 0xd6ef5218), new u64(0xd6990624, 0x5565a910),
+  new u64(0xf40e3585, 0x5771202a), new u64(0x106aa070, 0x32bbd1b8),
+  new u64(0x19a4c116, 0xb8d2d0c8), new u64(0x1e376c08, 0x5141ab53),
+  new u64(0x2748774c, 0xdf8eeb99), new u64(0x34b0bcb5, 0xe19b48a8),
+  new u64(0x391c0cb3, 0xc5c95a63), new u64(0x4ed8aa4a, 0xe3418acb),
+  new u64(0x5b9cca4f, 0x7763e373), new u64(0x682e6ff3, 0xd6b2b8a3),
+  new u64(0x748f82ee, 0x5defb2fc), new u64(0x78a5636f, 0x43172f60),
+  new u64(0x84c87814, 0xa1f0ab72), new u64(0x8cc70208, 0x1a6439ec),
+  new u64(0x90befffa, 0x23631e28), new u64(0xa4506ceb, 0xde82bde9),
+  new u64(0xbef9a3f7, 0xb2c67915), new u64(0xc67178f2, 0xe372532b),
+  new u64(0xca273ece, 0xea26619c), new u64(0xd186b8c7, 0x21c0c207),
+  new u64(0xeada7dd6, 0xcde0eb1e), new u64(0xf57d4f7f, 0xee6ed178),
+  new u64(0x06f067aa, 0x72176fba), new u64(0x0a637dc5, 0xa2c898a6),
+  new u64(0x113f9804, 0xbef90dae), new u64(0x1b710b35, 0x131c471b),
+  new u64(0x28db77f5, 0x23047d84), new u64(0x32caab7b, 0x40c72493),
+  new u64(0x3c9ebe0a, 0x15c9bebc), new u64(0x431d67c4, 0x9c100d4c),
+  new u64(0x4cc5d4be, 0xcb3e42b6), new u64(0x597f299c, 0xfc657e2a),
+  new u64(0x5fcb6fab, 0x3ad6faec), new u64(0x6c44198c, 0x4a475817),
+];
 
-    return new bits(high, low);
-  }
+var iv = [
+  0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
+  0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
+  0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
+  0xa5,0x4f,0xf5,0x3a,0x5f,0x1d,0x36,0xf1,
+  0x51,0x0e,0x52,0x7f,0xad,0xe6,0x82,0xd1,
+  0x9b,0x05,0x68,0x8c,0x2b,0x3e,0x6c,0x1f,
+  0x1f,0x83,0xd9,0xab,0xfb,0x41,0xbd,0x6b,
+  0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79,
+];
 
-  function maj(x, y, z) {
-    return new bits(
-        (x.high & y.high) ^ (x.high & z.high) ^ (y.high & z.high),
-        (x.low & y.low) ^ (x.low & z.low) ^ (y.low & z.low)
-    );
-  }
+function crypto_hashblocks(x, m, n) {
+  var z = [], b = [], a = [], w = [], t, i, j;
 
-  function ch(x, y, z) {
-    return new bits(
-      (x.high & y.high) ^ (~x.high & z.high),
-      (x.low & y.low) ^ (~x.low & z.low)
-    );
-  }
+  for (i = 0; i < 8; i++) z[i] = a[i] = dl64(x, 8*i);
 
-  function rotr(x, n) {
-    if (n <= 32) {
-        return new bits(
-            (x.high >>> n) | (x.low << (32 - n)),
-            (x.low >>> n) | (x.high << (32 - n))
-        );
-    } else {
-        return new bits(
-            (x.low >>> n) | (x.high << (32 - n)),
-            (x.high >>> n) | (x.low << (32 - n))
-        );
-    }
-  }
+  var pos = 0;
+  while (n >= 128) {
+    for (i = 0; i < 16; i++) w[i] = dl64(m, 8*(i+pos));
 
-  function sigma0(x) {
-    var rotr28 = rotr(x, 28);
-    var rotr34 = rotr(x, 34);
-    var rotr39 = rotr(x, 39);
-
-    return new bits(
-        rotr28.high ^ rotr34.high ^ rotr39.high,
-        rotr28.low ^ rotr34.low ^ rotr39.low
-    );
-  }
-
-  function sigma1(x) {
-    var rotr14 = rotr(x, 14);
-    var rotr18 = rotr(x, 18);
-    var rotr41 = rotr(x, 41);
-
-    return new bits(
-        rotr14.high ^ rotr18.high ^ rotr41.high,
-        rotr14.low ^ rotr18.low ^ rotr41.low
-    );
-  }
-
-  function gamma0(x) {
-    var rotr1 = rotr(x, 1), rotr8 = rotr(x, 8), shr7 = shr(x, 7);
-
-    return new bits(
-        rotr1.high ^ rotr8.high ^ shr7.high,
-        rotr1.low ^ rotr8.low ^ shr7.low
-    );
-  }
-
-  function gamma1(x) {
-    var rotr19 = rotr(x, 19);
-    var rotr61 = rotr(x, 61);
-    var shr6 = shr(x, 6);
-
-    return new bits(
-        rotr19.high ^ rotr61.high ^ shr6.high,
-        rotr19.low ^ rotr61.low ^ shr6.low
-    );
-  }
-
-  function shr(x, n) {
-    if (n <= 32) {
-        return new bits(
-            x.high >>> n,
-            x.low >>> n | (x.high << (32 - n))
-        );
-    } else {
-        return new bits(
-            0,
-            x.high << (32 - n)
-        );
-    }
-  }
-
-  if (typeof len == 'undefined') len = data.length;
-  
-  var W = new Array(64),
-      a, b, c, d, e, f, g, h, i, j, l,
-      T1, T2,
-      charsize = 8,
-      words = [], datalen = len*charsize;
-
-  for (i = 0; i < datalen; i += charsize) {
-      words[i >> 5] |= data[i/charsize] << (32 - charsize - (i % 32));
-  }
-
-  words[datalen >> 5] |= 0x80 << (24 - datalen % 32);
-  words[(((datalen + 128) >> 10) << 5) + 31] = datalen;
-
-  l = words.length;
-  for (i = 0; i < l; i += 32) {
-      a = H[0];
-      b = H[1];
-      c = H[2];
-      d = H[3];
-      e = H[4];
-      f = H[5];
-      g = H[6];
-      h = H[7];
-
-      for (j = 0; j < 80; j++) {
-          if (j < 16) {
-              W[j] = new bits(words[j*2 + i], words[j*2 + i + 1]);
-          } else {
-              W[j] = safe_add_4(gamma1(W[j - 2]), W[j - 7], gamma0(W[j - 15]), W[j - 16]);
-          }
-
-          T1 = safe_add_5(h, sigma1(e), ch(e, f, g), K[j], W[j]);
-          T2 = safe_add_2(sigma0(a), maj(a, b, c));
-          h = g;
-          g = f;
-          f = e;
-          e = safe_add_2(d, T1);
-          d = c;
-          c = b;
-          b = a;
-          a = safe_add_2(T1, T2);
+    for (i = 0; i < 80; i++) {
+      for (j = 0; j < 8; j++) b[j] = a[j];
+      t = add64(a[7], Sigma1(a[4]), Ch(a[4], a[5], a[6]), K[i], w[i%16]);
+      b[7] = add64(t, Sigma0(a[0]), Maj(a[0], a[1], a[2]));
+      b[3] = add64(b[3], t);
+      for(j = 0; j < 8; j++) a[(j+1)%8] = b[j];
+      if (i%16 == 15) {
+        for (j = 0; j < 16; j++) {
+          w[j] = add64(w[j], w[(j+9)%16], sigma0(w[(j+1)%16]), sigma1(w[(j+14)%16]));
+        }
       }
+    }
 
-      H[0] = safe_add_2(a, H[0]);
-      H[1] = safe_add_2(b, H[1]);
-      H[2] = safe_add_2(c, H[2]);
-      H[3] = safe_add_2(d, H[3]);
-      H[4] = safe_add_2(e, H[4]);
-      H[5] = safe_add_2(f, H[5]);
-      H[6] = safe_add_2(g, H[6]);
-      H[7] = safe_add_2(h, H[7]);
+    for (i = 0; i < 8; i++) {
+      a[i] = add64(a[i], z[i]);
+      z[i] = a[i];
+    }
+
+    pos += 128;
+    n -= 128;
   }
 
-  var binarray = [];
-  l = H.length;
-  for (i = 0; i < l; i++) {
-      binarray.push(H[i].high);
-      binarray.push(H[i].low);
-  }
+  for (i = 0; i < 8; i++) ts64(x, 8*i, z[i]);
+  return n;
+}
 
-  l = binarray.length * 4;
-  for (i = 0; i < l; i += 1) {
-      out[i] = (binarray[i >> 2] >> ((3 - (i % 4)) * 8)) & 0xff;
-  }
+function crypto_hash(out, m, n) {
+  var h = iv.slice(0), x = [], i, b = n;
+
+  crypto_hashblocks(h, m, n);
+  //m += n;
+  n &= 127;
+  //m -= n;
+
+  i = 256; while(i--) x[i] = 0;
+  for (i = 0; i < n; i++) x[i] = m[i];
+  x[n] = 128;
+
+  n = 256-128*(n<112);
+  x[n-9] = b >> 61;
+  ts64(x, n-8, new u64(0, b << 3));
+  crypto_hashblocks(h, x, n);
+
+  i = 64; while(i--) out[i] = h[i];
 }
 
 // ed25519 
