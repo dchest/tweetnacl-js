@@ -1143,7 +1143,8 @@ var crypto_secretbox_KEYBYTES = 32,
     crypto_box_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES,
     crypto_sign_BYTES = 64,
     crypto_sign_PUBLICKEYBYTES = 32,
-    crypto_sign_SECRETKEYBYTES = 64;
+    crypto_sign_SECRETKEYBYTES = 64,
+    crypto_hash_BYTES = 64;
 
 exports.crypto_stream_xor = crypto_stream_xor;
 exports.crypto_stream = crypto_stream;
@@ -1182,7 +1183,7 @@ exports.crypto_box_BOXZEROBYTES = crypto_box_BOXZEROBYTES;
 exports.crypto_sign_BYTES = crypto_sign_BYTES;
 exports.crypto_sign_PUBLICKEYBYTES = crypto_sign_PUBLICKEYBYTES;
 exports.crypto_sign_SECRETKEYBYTES = crypto_sign_SECRETKEYBYTES;
-
+exports.crypto_hash_BYTES = crypto_hash_BYTES;
 
 // Additions.
 exports.crypto_randombytes = randombytes;

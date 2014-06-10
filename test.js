@@ -404,11 +404,71 @@ function sign_open_benchmark() {
   }, 0.1);
 }
 
+function crypto_hash_test() {
+  console.log('Testing crypto_hash');
+  var golden = [
+    {
+      data: [],
+      out : [207,131,225,53,126,239,184,189,241,84,40,80,214,109,128,7,214,32,228,5,11,87,21,220,131,244,169,33,211,108,233,206,71,208,209,60,93,133,242,176,255,131,24,210,135,126,236,47,99,185,49,189,71,65,122,129,165,56,50,122,249,39,218,62],
+    },
+    {
+      data: [97],
+      out : [31,64,252,146,218,36,22,148,117,9,121,238,108,245,130,242,213,215,210,142,24,51,93,224,90,188,84,208,86,14,15,83,2,134,12,101,43,240,141,86,2,82,170,94,116,33,5,70,243,105,251,187,206,140,18,207,199,149,123,38,82,254,154,117],
+    },
+    {
+      data: [97,98],
+      out:  [45,64,138,7,23,236,24,129,88,39,138,121,108,104,144,68,54,29,198,253,222,40,214,240,73,115,184,8,150,225,130,57,117,205,191,18,235,99,249,224,89,19,40,238,35,93,128,233,181,191,26,166,164,79,70,23,255,60,175,100,0,235,23,45],
+    },
+    {
+      data: [97,98,99],
+      out : [221,175,53,161,147,97,122,186,204,65,115,73,174,32,65,49,18,230,250,78,137,169,126,162,10,158,238,230,75,85,211,154,33,146,153,42,39,79,193,168,54,186,60,35,163,254,235,189,69,77,68,35,100,60,232,14,42,154,201,79,165,76,164,159],
+    },
+    {
+      data: [97,98,99,100],
+      out : [216,2,47,32,96,173,110,253,41,122,183,61,204,83,85,201,178,20,5,75,13,23,118,161,54,166,105,210,106,125,59,20,247,58,160,208,235,255,25,238,51,51,104,240,22,75,100,25,169,109,164,158,62,72,23,83,231,233,107,113,107,220,203,111],
+    },
+    {
+      data: [97,98,99,100,101],
+      out : [135,138,230,90,146,232,108,172,1,26,87,13,76,48,167,234,236,68,43,133,206,142,202,12,41,82,181,227,204,6,40,194,231,157,136,154,212,213,199,198,38,152,109,69,45,216,99,116,182,255,170,124,216,182,118,101,190,242,40,154,92,112,176,161],
+    }
+  ];
+
+  var out = [];
+  for (var i = 0; i < golden.length; i++) {
+    nacl.crypto_hash(out, golden[i].data, golden[i].data.length);
+    if (!bytes_equal(out, golden[i].out)) {
+      console.log(i, 'differ');
+      console.log('expected', golden[i].out, 'got', out);
+    } else {
+      console.log(i, 'OK');
+    }
+  }
+
+}
+
+function crypto_hash_benchmark() {
+  console.log('Benchmarking crypto_hash');
+  var m = [], out = [], start, elapsed, num = 255;
+  for (i = 0; i < 1024; i++) m[i] = i & 255;
+  start = new Date();
+  for (i = 0; i < num; i++) {
+    nacl.crypto_hash(out, m, m.length);
+  }
+  elapsed = (new Date()) - start;
+  console.log(' ' + (num*1000)/elapsed, 'ops/s');
+
+  benchmark(function(){
+    nacl.crypto_hash(out, m, m.length);
+  });
+
+}
+
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
 crypto_scalarmult_base_test();
 crypto_scalarmult_base_test_long();
+crypto_hash_test();
 secretbox_seal_open_test();
 crypto_randombytes_test();
 box_seal_open_test();
@@ -417,6 +477,7 @@ sign_open_test();
 crypto_stream_xor_benchmark();
 crypto_onetimeauth_benchmark();
 crypto_secretbox_benchmark();
+crypto_hash_benchmark();
 secretbox_seal_open_benchmark();
 secretbox_seal_open_array_benchmark();
 crypto_scalarmult_base_benchmark();
