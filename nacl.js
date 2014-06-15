@@ -607,9 +607,10 @@ function checkPairLengths(pk, sk) {
 exports.secretbox = exports.secretbox || {};
 
 exports.secretbox.seal = function(msg, nonce, key) {
-  var i, m = [], c = [], k, n;
+  var i, mb, m = [], c = [], k, n;
   for (i = 0; i < crypto_secretbox_ZEROBYTES; i++) m.push(0);
-  m = m.concat(getBytes(msg));
+  mb = getBytes(msg);
+  for (i = 0; i < mb.length; i++) m.push(mb[i]);
   k = getBytes(key);
   n = getBytes(nonce);
   checkLengths(k, n);
