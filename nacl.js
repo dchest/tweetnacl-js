@@ -6,10 +6,10 @@
 function L32(x, c) { return (x << c) | (x >>> (32 - c)); }
 
 function ld32(x, pos) {
-  var u = x[pos+3];
-  u = (u<<8)|x[pos+2];
-  u = (u<<8)|x[pos+1];
-  return (u<<8)|x[pos+0];
+  var u = x[pos+3] & 0xff;
+  u = (u<<8)|(x[pos+2] & 0xff);
+  u = (u<<8)|(x[pos+1] & 0xff);
+  return (u<<8)|(x[pos+0] & 0xff);
 }
 
 function st32(x, xpos, u) {
@@ -78,9 +78,9 @@ function crypto_stream_salsa20_xor(c,cpos,m,mpos,b,n,k) {
     crypto_core_salsa20(x,z,k,sigma);
     for(i = 0; i < 64; i++) c[cpos+i] = (m?m[mpos+i]:0) ^ x[i];
     u = 1;
-    for (i = 8;i < 16;++i) {
-      u = u + z[i] | 0;
-      z[i] = u;
+    for (i = 8; i < 16; i++) {
+      u = u + (z[i] & 0xff) | 0;
+      z[i] = u & 0xff;
       u >>>= 8;
     }
     b -= 64;
