@@ -367,10 +367,12 @@ secretbox_seal_open_test();
 crypto_randombytes_test();
 box_seal_open_test();
 
-crypto_stream_xor_benchmark();
-crypto_onetimeauth_benchmark();
-crypto_secretbox_benchmark();
-secretbox_seal_open_benchmark();
-secretbox_seal_open_array_benchmark();
-crypto_scalarmult_base_benchmark();
-box_seal_open_benchmark();
+if (process.env.BENCHMARK) {
+  crypto_stream_xor_benchmark();
+  crypto_onetimeauth_benchmark();
+  crypto_secretbox_benchmark();
+  secretbox_seal_open_benchmark();
+  secretbox_seal_open_array_benchmark();
+  crypto_scalarmult_base_benchmark();
+  box_seal_open_benchmark();
+}
