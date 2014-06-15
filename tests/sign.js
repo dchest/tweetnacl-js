@@ -30,7 +30,7 @@ function check(i, sk, pk) {
     } else {
       console.log("sign - OK");
     }
-    if (!nacl.sign.open(msg, sigFromC, pk)) {
+    if (nacl.sign.open(msg, sigFromC, pk) === false) {
       console.log("! verification failed");
     } else {
       console.log("open - OK");
