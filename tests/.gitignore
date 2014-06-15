@@ -1,2 +1,4 @@
 cscalarmult
+cbox
+csecretbox
 *.o
