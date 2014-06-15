@@ -22,7 +22,7 @@ function csecretbox(msg, n, k, callback) {
 
 function check(i, maxi, n, k, next) {
   var msg = crypto.randomBytes(i).toString('hex').substr(0,i);
-  console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
+  //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
   var box = nacl.secretbox.seal(msg, n, k);
   csecretbox(msg, n, k, function(boxFromC) {
     if (boxFromC != box) {
@@ -31,7 +31,8 @@ function check(i, maxi, n, k, next) {
       console.error("! secretboxes don't match\nJS: ", bj, "\nC : ", bc);
       process.exit(1);
     } else {
-      console.log("OK");
+      //console.log("OK");
+      process.stdout.write('.');
     }
     if (nacl.secretbox.open(boxFromC, n, k) === false) {
       console.log("! opening secretbox failed: ", boxFromC);
@@ -45,6 +46,7 @@ function check(i, maxi, n, k, next) {
   });
 }
 
+console.log("secretbox test");
 var k = [], n = [], i;
 for (i = 0; i < 32; i++) k[i] = i;
 for (i = 0; i < 24; i++) n[i] = i;

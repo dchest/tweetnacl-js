@@ -24,14 +24,15 @@ function cbox(msg, sk, pk, n, callback) {
 function check(i, maxi, pk, sk, next) {
   var msg = crypto.randomBytes(i).toString('base64').substr(0,i);
   var nonce = crypto.randomBytes(24);
-  console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
+  //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
   var box = nacl.box.seal(msg, nonce, pk, sk);
   cbox(msg, sk, pk, nonce, function(boxFromC) {
     if (boxFromC != box) {
       console.error("! boxes don't match\nJS: ", box, "\nC : ", boxFromC);
       process.exit(1);
     } else {
-      console.log("OK");
+      //console.log("OK");
+      process.stdout.write('.');
     }
     if (nacl.box.open(boxFromC, nonce, pk, sk) === false) {
       console.log("! opening box failed: ", boxFromC);
@@ -45,6 +46,7 @@ function check(i, maxi, pk, sk, next) {
   });
 }
 
+console.log("box test");
 var sk1 = [], pk1 = [], sk2 = [], pk2 = [], q = [];
 nacl.crypto_box_keypair(pk1, sk1);
 nacl.crypto_box_keypair(pk2, sk2);

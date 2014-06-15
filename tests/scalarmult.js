@@ -18,7 +18,7 @@ function check(i) {
   nacl.crypto_box_keypair(pk1, sk1);
   nacl.crypto_box_keypair(pk2, sk2);
 
-  console.log("\nTest #" + i);
+  //console.log("\nTest #" + i);
   nacl.crypto_scalarmult(q, sk1, pk2);
   hexQ = (new Buffer(q)).toString('hex');
   cscalarmult(sk1, pk2, function(cQ) {
@@ -26,11 +26,13 @@ function check(i) {
       console.error("! bad result\nJS: ", hexQ, "\nC : ", cQ);
       process.exit(1);
     } else {
-      console.log("OK");
+      //console.log("OK");
+      process.stdout.write('.');
     }
     if (i == NUMBER_OF_TESTS) { return; }
     check(i+1);
   });
 }
 
+console.log("scalarmult test");
 check(0);
