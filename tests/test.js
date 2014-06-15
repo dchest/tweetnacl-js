@@ -1,4 +1,4 @@
-var nacl = (typeof require !== 'undefined') ? require('./nacl.js') : window.nacl;
+var nacl = (typeof require !== 'undefined') ? require('../nacl.js') : window.nacl;
 
 if (!nacl) throw new Error('nacl not loaded');
 
