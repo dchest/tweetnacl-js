@@ -740,6 +740,8 @@ var D = [30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,651
     Y = [26200,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214],
     I = [41136,18958,6951,50414,58488,44335,6150,12099,55207,15867,153,11085,57099,20417,9344,11139];
 
+var Math_floor = Math.floor;
+
 function car25519(o) {
   var c;
   for (var i = 0; i < 16; i++) {
@@ -760,8 +762,9 @@ function sel25519(p, q, b) {
 }
 
 function pack25519(o, n) {
-  var i, j, b, m = new gf(), t = new gf();
-  for (i = 0; i < 16; i++) t[i] = n[i];
+  var i, j, b, m = new gf(), t = [];
+
+  i = 16; while(i--) t[i] = n[i];
   car25519(t);
   car25519(t);
   car25519(t);
@@ -935,7 +938,6 @@ function crypto_sign_keypair(pk, sk, seed) {
 }
 
 var L = [237,211,245,92,26,99,18,88,214,156,247,162,222,249,222,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16];
-var Math_floor = Math.floor;
 
 function modL(r, x) {
   var carry, i, j, k;
@@ -943,7 +945,7 @@ function modL(r, x) {
     carry = 0;
     for (j = i - 32, k = i - 12; j < k; ++j) {
       x[j] += carry - 16 * x[i] * L[j - (i - 32)];
-      carry = Math_floor((x[j] + 128) / 256);
+      carry = (x[j] + 128) >> 8;
       x[j] -= carry * 256;
     }
     x[j] += carry;
@@ -951,13 +953,13 @@ function modL(r, x) {
   }
   carry = 0;
   for (j = 0; j < 32; j++) {
-    x[j] += carry - Math_floor(x[31]/16) * L[j];
-    carry = Math_floor(x[j] / 256);
+    x[j] += carry - (x[31] >> 4) * L[j];
+    carry = x[j] >> 8;
     x[j] &= 255;
   }
   for (j = 0; j < 32; j++) x[j] -= carry * L[j];
   for (i = 0; i < 32; i++) {
-    x[i+1] += Math_floor(x[i] / 256);
+    x[i+1] += x[i] >> 8;
     r[i] = x[i] & 255;
   }
 }
