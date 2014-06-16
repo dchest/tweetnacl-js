@@ -512,32 +512,25 @@ function crypto_box_open(m, c, d, n, y, x) {
 // See for details: http://tweetnacl.cr.yp.to/
 //
 var u64 = function (h, l) {
-  this.high = h >>> 0;
-  this.low  = l >>> 0;
+  this.hi = h >>> 0;
+  this.lo  = l >>> 0;
 }
 
-function dl64(x, pos) {
-  var h, l;
-  h =  x[pos]   << 24;
-  h |= x[pos+1] << 16;
-  h |= x[pos+2] <<  8;
-  h |= x[pos+3];
-  l |= x[pos+4] << 24;
-  l |= x[pos+5] << 16;
-  l |= x[pos+6] <<  8;
-  l |= x[pos+7];
+function dl64(x, i) {
+  var h = (x[i] << 24) | (x[i+1] << 16) | (x[i+2] << 8) | x[i+3];
+  var l = (x[i+4] << 24) | (x[i+5] << 16) | (x[i+6] << 8) | x[i+7];
   return new u64(h, l);
 }
 
-function ts64(x, pos, u) {
-  x[pos]   = (u.high >> 24) & 0xff;
-  x[pos+1] = (u.high >> 16) & 0xff;
-  x[pos+2] = (u.high >>  8) & 0xff;
-  x[pos+3] =  u.high        & 0xff;
-  x[pos+4] = (u.low >> 24)  & 0xff;
-  x[pos+5] = (u.low >> 16)  & 0xff;
-  x[pos+6] = (u.low >>  8)  & 0xff;
-  x[pos+7] =  u.low         & 0xff;
+function ts64(x, i, u) {
+  x[i]   = (u.hi >> 24) & 0xff;
+  x[i+1] = (u.hi >> 16) & 0xff;
+  x[i+2] = (u.hi >>  8) & 0xff;
+  x[i+3] = u.hi & 0xff;
+  x[i+4] = (u.lo >> 24)  & 0xff;
+  x[i+5] = (u.lo >> 16)  & 0xff;
+  x[i+6] = (u.lo >>  8)  & 0xff;
+  x[i+7] = u.lo & 0xff;
 }
 
 function add64() {
@@ -545,10 +538,11 @@ function add64() {
       l, h, ar = arguments, alen = ar.length|0;
 
   for (var i = 0; i < alen; i++) {
-    l  = ar[i].low; h  = ar[i].high;
+    l  = ar[i].lo; h  = ar[i].hi;
     a += (l & m16); b += (l >>> 16);
     c += (h & m16); d += (h >>> 16);
   }
+
   b += (a >>> 16);
   c += (b >>> 16);
   d += (c >>> 16);
@@ -557,30 +551,30 @@ function add64() {
 }
 
 function shr(x, c) {
-  return new u64((x.high >>> c), (x.low >>> c) | (x.high << (32 - c)));
+  return new u64((x.hi >>> c), (x.lo >>> c) | (x.hi << (32 - c)));
 }
 
 function R(x, c) {
   var h, l, c1 = 32 - c;
   if (c < 32) {
-    h = (x.high >>> c) | (x.low  << c1);
-    l = (x.low  >>> c) | (x.high << c1);
+    h = (x.hi >>> c) | (x.lo  << c1);
+    l = (x.lo  >>> c) | (x.hi << c1);
   } else if (c < 64) {
-    h = (x.low  >>> c) | (x.high << c1);
-    l = (x.high >>> c) | (x.low  << c1);
+    h = (x.lo  >>> c) | (x.hi << c1);
+    l = (x.hi >>> c) | (x.lo  << c1);
   }
   return new u64(h, l);
 }
 
 function Ch(x, y, z) {
-  var h = (x.high & y.high) ^ (~x.high & z.high),
-      l = (x.low & y.low) ^ (~x.low & z.low);
+  var h = (x.hi & y.hi) ^ (~x.hi & z.hi),
+      l = (x.lo & y.lo) ^ (~x.lo & z.lo);
   return new u64(h, l);
 }
 
 function Maj(x, y, z) {
-  var h = (x.high & y.high) ^ (x.high & z.high) ^ (y.high & z.high),
-      l = (x.low & y.low) ^ (x.low & z.low) ^ (y.low & z.low);
+  var h = (x.hi & y.hi) ^ (x.hi & z.hi) ^ (y.hi & z.hi),
+      l = (x.lo & y.lo) ^ (x.lo & z.lo) ^ (y.lo & z.lo);
   return new u64(h, l);
 }
 
@@ -589,8 +583,8 @@ function Sigma0(x) {
   s[0] = R(x, 28);
   s[1] = R(x, 34);
   s[2] = R(x, 39);
-  h = s[0].high ^ s[1].high ^ s[2].high;
-  l = s[0].low ^ s[1].low ^ s[2].low;
+  h = s[0].hi ^ s[1].hi ^ s[2].hi;
+  l = s[0].lo ^ s[1].lo ^ s[2].lo;
   return new u64(h, l);
 }
 
@@ -599,8 +593,8 @@ function Sigma1(x) {
   s[0] = R(x, 14);
   s[1] = R(x, 18);
   s[2] = R(x, 41);
-  h = s[0].high ^ s[1].high ^ s[2].high;
-  l = s[0].low ^ s[1].low ^ s[2].low;
+  h = s[0].hi ^ s[1].hi ^ s[2].hi;
+  l = s[0].lo ^ s[1].lo ^ s[2].lo;
   return new u64(h, l);
 }
 
@@ -609,8 +603,8 @@ function sigma0(x) {
   s[0] = R(x, 1);
   s[1] = R(x, 8);
   s[2] = shr(x, 7);
-  h = s[0].high ^ s[1].high ^ s[2].high;
-  l = s[0].low ^ s[1].low ^ s[2].low;
+  h = s[0].hi ^ s[1].hi ^ s[2].hi;
+  l = s[0].lo ^ s[1].lo ^ s[2].lo;
   return new u64(h, l);
 }
 
@@ -619,8 +613,8 @@ function sigma1(x) {
   s[0] = R(x, 19);
   s[1] = R(x, 61);
   s[2] = shr(x, 6);
-  h = s[0].high ^ s[1].high ^ s[2].high;
-  l = s[0].low ^ s[1].low ^ s[2].low;
+  h = s[0].hi ^ s[1].hi ^ s[2].hi;
+  l = s[0].lo ^ s[1].lo ^ s[2].lo;
   return new u64(h, l); 
 }
 
@@ -681,18 +675,18 @@ var iv = [
 function crypto_hashblocks(x, m, n) {
   var z = [], b = [], a = [], w = [], t, i, j;
 
-  for (i = 0; i < 8; i++) z[i] = a[i] = dl64(x, 8*i);
+  i = 8; while(i--) z[i] = a[i] = dl64(x, 8*i);
 
   var pos = 0;
   while (n >= 128) {
-    for (i = 0; i < 16; i++) w[i] = dl64(m, 8*(i+pos));
+    i = 16; while(i--) w[i] = dl64(m ,8*i+pos);
 
     for (i = 0; i < 80; i++) {
-      for (j = 0; j < 8; j++) b[j] = a[j];
+      j = 8; while(j--)  b[j] = a[j];
       t = add64(a[7], Sigma1(a[4]), Ch(a[4], a[5], a[6]), K[i], w[i%16]);
       b[7] = add64(t, Sigma0(a[0]), Maj(a[0], a[1], a[2]));
       b[3] = add64(b[3], t);
-      for(j = 0; j < 8; j++) a[(j+1)%8] = b[j];
+      j = 8; while(j--) a[(j+1)%8] = b[j];
       if (i%16 == 15) {
         for (j = 0; j < 16; j++) {
           w[j] = add64(w[j], w[(j+9)%16], sigma0(w[(j+1)%16]), sigma1(w[(j+14)%16]));
@@ -714,15 +708,12 @@ function crypto_hashblocks(x, m, n) {
 }
 
 function crypto_hash(out, m, n) {
-  var h = iv.slice(0), x = [], i, b = n;
+  var h = iv.slice(0), x = new Array(256), i, b = n;
 
   crypto_hashblocks(h, m, n);
-  //m += n;
   n &= 127;
-  //m -= n;
 
-  i = 256; while(i--) x[i] = 0;
-  for (i = 0; i < n; i++) x[i] = m[i];
+  i = n; while(i--) x[i] = m[b-n+i];
   x[n] = 128;
 
   n = 256-128*(n<112);
@@ -733,16 +724,10 @@ function crypto_hash(out, m, n) {
   i = 64; while(i--) out[i] = h[i];
 }
 
-// ed25519 
+/* ed25519 */
+
 //
-// Written in 2014 by Devi Mandiri
-//
-// To the extent possible under law, the author(s) have dedicated all copyright and related and
-// neighboring rights to this software to the public domain worldwide. This software is distributed
-// without any warranty.
-//
-// You should have received a copy of the CC0 Public Domain Dedication along with this software.
-// If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+// Written in 2014 by Devi Mandiri. Public domain.
 //
 // Implementation derived from TweetNaCl version 20140427.
 // See for details: http://tweetnacl.cr.yp.to/
@@ -800,15 +785,14 @@ function pack25519(o, n) {
 function A(o, a, b) {
   var i = 16;
   while (i--) {
-    // make sure it's a number
-    o[i] = (a[i]|0) + (b[i]|0);
+    o[i] = (a[i] + b[i])|0;
   }
 }
 
 function Z(o, a, b) {
   var i = 16;
   while (i--) {
-    o[i] = (a[i]|0) - (b[i]|0);
+    o[i] = (a[i] - b[i])|0;
   }
 }
 
