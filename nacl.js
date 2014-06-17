@@ -770,9 +770,8 @@ function sel25519(p, q, b) {
 function pack25519(o, n) {
   var i, j, b;
   var m = new gf(),
-      t = new gf(); // = [] to pass test
+      t = []; // see https://github.com/dchest/tweetnacl-js/issues/5
 
-  //console.log(n); // uncomment to pass test
   for (i = 0; i < 16; i++) t[i] = n[i];
   car25519(t);
   car25519(t);
