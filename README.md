@@ -167,13 +167,14 @@ Length of hash in bytes.
 
 ### Random bytes generation
 
+Random number generation directly uses `window.crypto.getRandomValues` in
+browsers, and `crypto.randomBytes` in Node.js. It will throw exception if there
+is no way to generate random bytes.
+
 #### nacl.randomBytes(length)
 
 Returns a `Uint8Array` of the given length containing random bytes of
 cryptographic quality.
-
-(Internally, it uses `window.crypto.getRandomValues` in browsers, and
-`crypto.randomBytes` in Node.js).
 
 
 ### Utilities
