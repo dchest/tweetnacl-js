@@ -165,23 +165,35 @@ Returns SHA-512 hash of the message.
 Length of hash in bytes.
 
 
+### Random bytes generation
+
+#### nacl.randomBytes(length)
+
+Returns a `Uint8Array` of the given length containing random bytes of
+cryptographic quality.
+
+(Internally, it uses `window.crypto.getRandomValues` in browsers, and
+`crypto.randomBytes` in Node.js).
+
+
 ### Utilities
 
-### nacl.util.decodeUTF8(string)
+#### nacl.util.decodeUTF8(string)
 
 Decodes string and returns `Uint8Array` of bytes.
 
-### nacl.util.encodeUTF8(array)
+#### nacl.util.encodeUTF8(array)
 
 Encodes `Uint8Array` or `Array` of bytes into string.
 
-### nacl.util.decodeBase64(string)
+#### nacl.util.decodeBase64(string)
 
 Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 
-### nacl.util.encodeBase64(array)
+#### nacl.util.encodeBase64(array)
 
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
+
 
 ### Low-level API
 
