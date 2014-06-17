@@ -1288,7 +1288,7 @@ exports.sign.open = function(msg, sig, publicKey) {
   if (sig.length !== crypto_sign_BYTES)
     throw new Error('bad signature size');
   if (publicKey.length !== crypto_sign_PUBLICKEYBYTES)
-    throw new Error('bad publicKey size');
+    throw new Error('bad public key size');
   var i, sm = [], m = [];
   for (i = 0; i < sig.length; i++) sm.push(sig[i]);
   for (i = 0; i < msg.length; i++) sm.push(msg[i]);
