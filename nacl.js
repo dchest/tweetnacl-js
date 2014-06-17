@@ -1182,7 +1182,7 @@ exports.util.decodeUTF8 = function(s) {
 
 exports.util.encodeUTF8 = function(arr) {
   var s = [], i;
-  for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(b[i]));
+  for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
   return decodeURIComponent(escape(s.join('')));
 };
 
