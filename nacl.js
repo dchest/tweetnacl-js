@@ -682,7 +682,7 @@ function crypto_hashblocks(x, m, n) {
   while (n >= 128) {
     for (i = 0; i < 16; i++) w[i] = dl64(m, 8*i+pos);
     for (i = 0; i < 80; i++) {
-      j = 8; while(j--)  b[j] = a[j];
+      for (j = 0; j < 8; j++) b[j] = a[j];
       t = add64(a[7], Sigma1(a[4]), Ch(a[4], a[5], a[6]), K[i], w[i%16]);
       b[7] = add64(t, Sigma0(a[0]), Maj(a[0], a[1], a[2]));
       b[3] = add64(b[3], t);
