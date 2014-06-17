@@ -1236,6 +1236,7 @@ exports.secretbox.open = function(box, nonce, key) {
 
 exports.secretbox.keyLength = crypto_secretbox_KEYBYTES;
 exports.secretbox.nonceLength = crypto_secretbox_NONCEBYTES;
+exports.secretbox.overheadLength = crypto_secretbox_BOXZEROBYTES;
 
 exports.box = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
@@ -1271,7 +1272,9 @@ exports.box.keyPair = function() {
 
 exports.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
 exports.box.secretKeyLength = crypto_box_SECRETKEYBYTES;
+exports.box.sharedKeyLength = crypto_box_BEFORENMBYTES;
 exports.box.nonceLength = crypto_box_NONCEBYTES;
+exports.box.overheadLength = exports.secretbox.overheadLength;
 
 exports.sign = function(msg, secretKey) {
   checkArrayTypes(msg, secretKey);
