@@ -1,12 +1,21 @@
 CFLAGS=-O3
 
-all: cscalarmult cbox csecretbox
+all: csecretbox cscalarmult cbox chash csign
+
+csecretbox: csecretbox.o tweetnacl.o
 
 cscalarmult: cscalarmult.o tweetnacl.o
 
 cbox: cbox.o tweetnacl.o
 
-csecretbox: csecretbox.o tweetnacl.o
+chash: chash.o tweetnacl.o
+
+csign: csign.o tweetnacl.o
+
+test: test_secretbox test_scalarmult test_box test_hash test_sign
+
+test_secretbox: csecretbox
+	node ./secretbox.js
 
 test_scalarmult: cscalarmult
 	node ./scalarmult.js
@@ -14,10 +23,11 @@ test_scalarmult: cscalarmult
 test_box: cbox
 	node ./box.js
 
-test_secretbox: csecretbox
-	node ./secretbox.js
+test_hash: chash
+	node ./hash.js
 
-test: test_secretbox test_box test_scalarmult
+test_sign: csign
+	node ./sign.js
 
 clean:
-	rm *.o cscalarmult cbox csecretbox
+	rm *.o csecretbox cscalarmult cbox chash csign
