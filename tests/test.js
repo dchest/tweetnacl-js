@@ -370,6 +370,18 @@ function sign_open_test() {
   } else {
     console.log("OK");
   }
+
+  var vec = {
+    sk: [81,98,70,175,109,25,23,152,230,95,239,157,167,162,65,141,224,105,131,236,19,4,100,86,132,201,75,63,157,6,105,73,53,224,113,12,118,167,75,110,233,167,113,236,118,198,203,104,197,153,59,62,241,46,189,109,226,158,102,8,84,43,154,166],
+    pk: [53,224,113,12,118,167,75,110,233,167,113,236,118,198,203,104,197,153,59,62,241,46,189,109,226,158,102,8,84,43,154,166],
+    msg: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    sig: "7Mh/TpgCjZloCwL/WV8x387bB3CCKLGWyKhGqqx61n62ld/LSmXKNRyWjavuVrM/ILmEK1fazKCA3OQXZLymAQ=="
+  };
+  sig = nacl.sign(vec.msg, vec.sk);
+  console.log(sig);
+  if (sig != vec.sig) {
+    console.log("bad signature!\nexpected\n", vec.sig, "\ngot\n", sig);
+  }
 }
 
 function sign_open_benchmark() {
@@ -475,7 +487,7 @@ crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
 crypto_scalarmult_base_test();
-//crypto_scalarmult_base_test_long();
+crypto_scalarmult_base_test_long();
 crypto_hash_test();
 secretbox_seal_open_test();
 crypto_randombytes_test();
