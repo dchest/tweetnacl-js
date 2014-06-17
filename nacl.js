@@ -1146,7 +1146,7 @@ exports.lowlevel = {
   crypto_hash_BYTES : crypto_hash_BYTES
 };
 
-/* Encodings */
+/* High-level API */
 
 function checkLengths(k, n) {
   if (k.length !== crypto_secretbox_KEYBYTES)
@@ -1171,7 +1171,6 @@ function checkArrayTypes() {
   }
 }
 
-/* High-level API */
 exports.util = {};
 
 exports.util.decodeUTF8 = function(s) {
