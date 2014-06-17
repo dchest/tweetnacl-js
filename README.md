@@ -43,7 +43,7 @@ Generates a new random key pair for box and returns it as an object with
        secretKey: ...   // Uint8Array with 32-byte secret key
     }
 
-#### nacl.box (message, nonce, theirPublicKey, mySecretKey)
+#### nacl.box(message, nonce, theirPublicKey, mySecretKey)
 
 Encrypt and authenticates message using peer's public key, our secret key, and
 the given nonce, which must be unique for each distinct message for a key pair.
@@ -51,7 +51,7 @@ the given nonce, which must be unique for each distinct message for a key pair.
 Returns an encrypted and authenticated message, which is
 `nacl.box.overheadLength` longer than the original message.
 
-#### nacl.box.open (box, nonce, theirPublicKey, mySecretKey)
+#### nacl.box.open(box, nonce, theirPublicKey, mySecretKey)
 
 Authenticates and decrypts the given box with peer's public key, our secret
 key, and the given nonce.
