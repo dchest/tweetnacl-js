@@ -1155,7 +1155,7 @@ function checkLengths(k, n) {
     throw new Error('bad nonce size');
 }
 
-function checkPairLengths(pk, sk) {
+function checkBoxLengths(pk, sk) {
   if (pk.length !== crypto_box_PUBLICKEYBYTES)
     throw new Error('bad public key size');
   if (sk.length !== crypto_box_SECRETKEYBYTES)
@@ -1167,7 +1167,7 @@ function checkArrayTypes() {
   for (var i = 0; i < arguments.length; i++) {
      t = type.call(arguments[i]);
      if (t !== '[object Uint8Array]' && t !== '[object Array]')
-       throw new Error('unexpected type ' + t + ', use Uint8Array or Array');
+       throw new TypeError('unexpected type ' + t + ', use Uint8Array or Array');
   }
 }
 
@@ -1245,7 +1245,7 @@ exports.box = function(msg, nonce, publicKey, secretKey) {
 
 exports.box.before = function(publicKey, secretKey) {
   checkArrayTypes(publicKey, secretKey);
-  checkPairLengths(publicKey, secretKey);
+  checkBoxLengths(publicKey, secretKey);
   var k = [];
   crypto_box_beforenm(k, publicKey, secretKey);
   return new Uint8Array(k);
