@@ -1311,6 +1311,7 @@ exports.sign.secretKeyLength = crypto_sign_SECRETKEYBYTES;
 exports.sign.signatureLength = crypto_sign_BYTES;
 
 exports.hash = function(msg) {
+  checkArrayTypes(msg);
   var h = new Uint8Array(crypto_hash_BYTES);
   crypto_hash(h, msg, msg.length);
   return h;
