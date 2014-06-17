@@ -676,18 +676,17 @@ var iv = [
 function crypto_hashblocks(x, m, n) {
   var z = [], b = [], a = [], w = [], t, i, j;
 
-  i = 8; while(i--) z[i] = a[i] = dl64(x, 8*i);
+  for (i = 0; i < 8; i++) z[i] = a[i] = dl64(x, 8*i);
 
   var pos = 0;
   while (n >= 128) {
-    i = 16; while(i--) w[i] = dl64(m ,8*i+pos);
-
+    for (i = 0; i < 16; i++) w[i] = dl64(m, 8*i+pos);
     for (i = 0; i < 80; i++) {
       j = 8; while(j--)  b[j] = a[j];
       t = add64(a[7], Sigma1(a[4]), Ch(a[4], a[5], a[6]), K[i], w[i%16]);
       b[7] = add64(t, Sigma0(a[0]), Maj(a[0], a[1], a[2]));
       b[3] = add64(b[3], t);
-      j = 8; while(j--) a[(j+1)%8] = b[j];
+      for (j = 0; j < 8; j++) a[(j+1)%8] = b[j];
       if (i%16 == 15) {
         for (j = 0; j < 16; j++) {
           w[j] = add64(w[j], w[(j+9)%16], sigma0(w[(j+1)%16]), sigma1(w[(j+14)%16]));
@@ -709,12 +708,14 @@ function crypto_hashblocks(x, m, n) {
 }
 
 function crypto_hash(out, m, n) {
-  var h = iv.slice(0), x = new Array(256), i, b = n;
+  var h = iv.slice(0), x = new Array(256);
+  var i, b = n;
 
   crypto_hashblocks(h, m, n);
   n &= 127;
 
-  i = n; while(i--) x[i] = m[b-n+i];
+  for (i = 0; i < 256; i++) x[i] = 0;
+  for (i = 0; i < n; i++) x[i] = m[b-n+i];
   x[n] = 128;
 
   n = 256-128*(n<112);
@@ -722,7 +723,7 @@ function crypto_hash(out, m, n) {
   ts64(x, n-8, new u64(0, b << 3));
   crypto_hashblocks(h, x, n);
 
-  i = 64; while(i--) out[i] = h[i];
+  for (i = 0; i < 64; i++) out[i] = h[i];
 }
 
 /* ed25519 */
