@@ -21,20 +21,19 @@ function csecretbox(msg, n, k, callback) {
 }
 
 function check(i, maxi, n, k, next) {
-  var msg = crypto.randomBytes(i).toString('hex').substr(0,i);
+  var msg = nacl.util.randomBytes(i);
   //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
-  var box = nacl.secretbox.seal(msg, n, k);
-  csecretbox(msg, n, k, function(boxFromC) {
+  var box = nacl.util.encodeBase64(nacl.secretbox.seal(msg, n, k));
+  csecretbox(new Buffer(msg), n, k, function(boxFromC) {
     if (boxFromC != box) {
       bc = (new Buffer(boxFromC, 'base64')).toString('hex');
       bj = (new Buffer(box, 'base64')).toString('hex');
       console.error("! secretboxes don't match\nJS: ", bj, "\nC : ", bc);
       process.exit(1);
     } else {
-      //console.log("OK");
       process.stdout.write('.');
     }
-    if (nacl.secretbox.open(boxFromC, n, k) === false) {
+    if (nacl.secretbox.open(nacl.util.decodeBase64(boxFromC), n, k) === false) {
       console.log("! opening secretbox failed: ", boxFromC);
       process.exit(1);
     }

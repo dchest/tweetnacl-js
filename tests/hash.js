@@ -19,19 +19,16 @@ function chash(msg, callback) {
 }
 
 function check(i) {
-  var msgBuf = crypto.randomBytes(i);
-  var msg = [], h = [];
-  for (j = 0; j < msgBuf.length; j++) msg.push(msgBuf[j]);
-
+  var msg = nacl.util.randomBytes(i);
+  var h = [];
   //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
   nacl.crypto_hash(h, msg, msg.length);
-  chash(msgBuf, function(hexCH) {
+  chash(new Buffer(msg), function(hexCH) {
     hexH = (new Buffer(h)).toString('hex');
     if (hexCH != hexH) {
       console.error("! hashes don't match\nJS: ", hexH, "\nC : ", hexCH);
       process.exit(1);
     } else {
-      //console.log("OK");
       process.stdout.write('.');
     }
     if (i == 1000) { return; }

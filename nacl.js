@@ -1148,42 +1148,6 @@ exports.crypto_randombytes = randombytes;
 
 /* Encodings */
 
-function bytesFromUTF8(s) {
-  var b = [], i;
-  s = unescape(encodeURIComponent(s));
-  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
-  return b;
-}
-
-function bytesToUTF8(b) {
-  var s = [], i;
-  for (i = 0; i < b.length; i++) s.push(String.fromCharCode(b[i]));
-  return decodeURIComponent(escape(s.join('')));
-}
-
-function getBytes(s) {
-  return (typeof s === 'string') ? bytesFromUTF8(s) : s;
-}
-
-function encodeBase64(b) {
-  var i, s = [], len = b.length;
-  if (typeof btoa === 'undefined') {
-    return (new Buffer(b)).toString('base64');
-  }
-  for (i = 0; i < len; i++) s.push(String.fromCharCode(b[i]));
-  return btoa(s.join(''));
-}
-
-function decodeBase64(s) {
-  var b = [], i;
-  if (typeof atob === 'undefined') {
-    return Array.prototype.slice.call(new Buffer(s, 'base64'), 0);
-  }
-  s = atob(s);
-  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
-  return b;
-}
-
 function checkLengths(k, n) {
   if (k.length !== crypto_secretbox_KEYBYTES)
     throw new Error('bad key size');
@@ -1198,42 +1162,87 @@ function checkPairLengths(pk, sk) {
     throw new Error('bad secret key size');
 }
 
+function checkArrayTypes() {
+  var type = {}.toString, t;
+  for (var i = 0; i < arguments.length; i++) {
+     t = type.call(arguments[i]);
+     if (t !== '[object Uint8Array]' && t !== '[object Array]')
+       throw new Error('unexpected type ' + t + ', use Uint8Array or Array');
+  }
+}
+
 /* High-level API */
+exports.util = exports.utils || {};
+
+exports.util.decodeUTF8 = function(s) {
+  var b = [], i;
+  s = unescape(encodeURIComponent(s));
+  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
+  return new Uint8Array(b);
+};
+
+exports.util.encodeUTF8 = function(arr) {
+  var s = [], i;
+  for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(b[i]));
+  return decodeURIComponent(escape(s.join('')));
+};
+
+exports.util.encodeBase64 = function(arr) {
+  var i, s = [], len = arr.length;
+  if (typeof btoa === 'undefined') {
+    return (new Buffer(arr)).toString('base64');
+  }
+  for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
+  return btoa(s.join(''));
+}
+
+exports.util.decodeBase64 = function(s) {
+  var b = [], i;
+  if (typeof atob === 'undefined') {
+    return new Uint8Array(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
+  }
+  s = atob(s);
+  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
+  return new Uint8Array(b);
+}
+
+exports.util.randomBytes = function(n) {
+  var b = new Uint8Array(n);
+  randombytes(b, 0, n);
+  return b;
+}
+
 exports.secretbox = exports.secretbox || {};
 
 exports.secretbox.seal = function(msg, nonce, key) {
-  var i, mb, m = [], c = [], k, n;
+  checkArrayTypes(msg, nonce, key);
+  checkLengths(key, nonce);
+  var i, m = [], c = [];
   for (i = 0; i < crypto_secretbox_ZEROBYTES; i++) m.push(0);
-  mb = getBytes(msg);
-  for (i = 0; i < mb.length; i++) m.push(mb[i]);
-  k = getBytes(key);
-  n = getBytes(nonce);
-  checkLengths(k, n);
-  crypto_secretbox(c, m, m.length, n, k);
-  return encodeBase64(c.slice(crypto_secretbox_BOXZEROBYTES));
+  for (i = 0; i < msg.length; i++) m.push(msg[i]);
+  crypto_secretbox(c, m, m.length, nonce, key);
+  return new Uint8Array(c.slice(crypto_secretbox_BOXZEROBYTES));
 };
 
 exports.secretbox.open = function(box, nonce, key) {
-  var i, m = [], c = [], k, n;
+  checkArrayTypes(box, nonce, key);
+  checkLengths(key, nonce);
+  var i, m = [], c = [];
   for (i = 0; i < crypto_secretbox_BOXZEROBYTES; i++) c.push(0); 
-  try { c = c.concat(decodeBase64(box)); } catch(e) { return false; }
+  for (i = 0; i < box.length; i++) c.push(box[i]);
   if (c.length < 32) return false;
-  k = getBytes(key);
-  n = getBytes(nonce);
-  checkLengths(k, n);
-  if (!crypto_secretbox_open(m, c, c.length, n, k)) return false;
-  return bytesToUTF8(m.slice(crypto_secretbox_ZEROBYTES));
+  if (!crypto_secretbox_open(m, c, c.length, nonce, key)) return false;
+  return new Uint8Array(m.slice(crypto_secretbox_ZEROBYTES));
 };
 
 exports.box = exports.box || {};
 
 exports.box.before = function(publicKey, secretKey) {
-  var pk = getBytes(publicKey);
-  var sk = getBytes(secretKey);
+  checkArrayTypes(publicKey, secretKey);
+  checkPairLengths(publicKey, secretKey);
   var k = [];
-  checkPairLengths(pk, sk);
-  crypto_box_beforenm(k, pk, sk);
-  return k;
+  crypto_box_beforenm(k, publicKey, secretKey);
+  return new Uint8Array(k);
 };
 
 exports.box.sealAfter = exports.secretbox.seal;
@@ -1251,32 +1260,26 @@ exports.box.open = function(msg, nonce, publicKey, secretKey) {
 
 exports.sign = exports.sign || {};
 
-exports.sign = function(msg, key) {
-  var m = getBytes(msg);
-  var k = getBytes(key);
-  if (k.length !== crypto_sign_SECRETKEYBYTES) {
-    throw new Error('bad key size');
-  }
-  var mlen = m.length;
-  var sm = new Array(64+mlen);
-  crypto_sign(sm, m, mlen, k);
-  return encodeBase64(sm.slice(0,64));
+exports.sign = function(msg, secretKey) {
+  checkArrayTypes(msg, secretKey);
+  if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
+    throw new Error('bad secret key size');
+  var sm = new Array(64+msg.length);
+  crypto_sign(sm, msg, msg.length, secretKey);
+  return new Uint8Array(sm.slice(0, 64));
 };
 
-exports.sign.open = function(msg, signature, publickey) {
-  var sig;
-  try { sig = decodeBase64(signature);} catch(e) { return false; }
-  if (sig.length !== crypto_sign_BYTES) {
+exports.sign.open = function(msg, sig, publicKey) {
+  checkArrayTypes(msg, sig, publicKey);
+  if (sig.length !== crypto_sign_BYTES)
     throw new Error('bad signature size');
-  }
-  var pk = getBytes(publickey);
-  if (pk.length !== crypto_sign_PUBLICKEYBYTES) {
-    throw new Error('bad publickey size');
-  }
-  sig = sig.concat(getBytes(msg));
-  var m = [];
-  if (!crypto_sign_open(m, sig, sig.length, pk)) return false;
-  return bytesToUTF8(m);
+  if (publicKey.length !== crypto_sign_PUBLICKEYBYTES)
+    throw new Error('bad publicKey size');
+  var i, sm = [], m = [];
+  for (i = 0; i < sig.length; i++) sm.push(sig[i]);
+  for (i = 0; i < msg.length; i++) sm.push(msg[i]);
+  if (!crypto_sign_open(m, sm, sm.length, publicKey)) return false;
+  return new Uint8Array(m);
 };
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));

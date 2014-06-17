@@ -10,15 +10,6 @@ function bytes_equal(x, y) {
   return true;
 }
 
-function benchmark(fn, MB) {
-  var start = new Date(), MB = MB || 1;
-  for (i = 0; i < MB*1024; i++) {
-    fn();
-  }
-  var elapsed = (new Date()) - start;
-  console.log('', (MB*1000)/elapsed, 'MB/s');
-}
-
 /*
  * Test and benchmark.
  */
@@ -64,18 +55,6 @@ function crypto_stream_xor_test() {
   }
 
 }
-
-function crypto_stream_xor_benchmark() {
-  console.log('Benchmarking crypto_stream_xor');
-  var m = [], n = [], k = [], out = [];
-  for (i = 0; i < 1024; i++) m[i] = i & 255;
-  for (i = 0; i < 24; i++) n[i] = i;
-  for (i = 0; i < 32; i++) k[i] = i;
-  benchmark(function(){
-    nacl.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
-  });
-}
-
 
 function crypto_onetimeauth_test() {
   console.log('Testing crypto_onetimeauth');
@@ -123,19 +102,6 @@ function crypto_onetimeauth_test() {
   }
 }
 
-function crypto_onetimeauth_benchmark() {
-  console.log('Benchmarking crypto_onetimeauth');
-  var m = [], out = [];
-  var k = [0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1];
-  for (i = 0; i < 1024; i++) {
-    m[i] = i & 255;
-  }
-  benchmark(function(){
-    nacl.crypto_onetimeauth(out, 0, m, 0, m.length, k);
-  });
-}
-
-
 function crypto_secretbox_test() {
   console.log('Testing crypto_secretbox');
   var i, k = [], n = [], m = [], c = [];
@@ -179,65 +145,17 @@ function crypto_secretbox_test() {
   }
 }
 
-function crypto_secretbox_benchmark() {
-  console.log('Benchmarking crypto_secretbox');
-  var i, k = [], n = [], m = [], c = [];
-  for (i = 0; i < 32; i++) k[i] = 1;
-  for (i = 0; i < 24; i++) n[i] = 2;
-  for (i = 0; i < 1024; i++) m[i] = 3;
-  benchmark(function() {
-    nacl.crypto_secretbox(c, m, m.length, n, k);
-  });
-}
-
 function secretbox_seal_open_test() {
   console.log('Testing secretbox.seal and secrebox.open');
-  var key = '12345678901234567890123456789012';
-  var nonce = '123456789012345678901234';
-  var msg = 'привет!'
+  var key = nacl.util.decodeUTF8('12345678901234567890123456789012');
+  var nonce = nacl.util.decodeUTF8('123456789012345678901234');
+  var msg = nacl.util.decodeUTF8('привет!');
   var box = nacl.secretbox.seal(msg, nonce, key);
   var dec = nacl.secretbox.open(box, nonce, key);
-  if (msg === dec)
+  if (bytes_equal(msg, dec))
     console.log('OK');
   else
     console.log('expected ', msg, 'got', dec);
-}
-
-function secretbox_seal_open_benchmark() {
-  var key = '12345678901234567890123456789012';
-  var nonce = '123456789012345678901234';
-  var box = null;
-  var msg = '';
-  for (var i = 0; i < 1024; i++) msg += 'a';
-  console.log('Benchmarking secretbox.seal');
-  benchmark(function() {
-    box = nacl.secretbox.seal(msg, nonce, key);
-  });
-  console.log('Benchmarking secretbox.open (valid)');
-  benchmark(function() {
-    nacl.secretbox.open(box, nonce, key);
-  });
-  console.log('Benchmarking secretbox.open (invalid)');
-  box = 'A' + box.substr(1);
-  benchmark(function() {
-    nacl.secretbox.open(box, nonce, key);
-  });
-}
-
-function secretbox_seal_open_array_benchmark() {
-  var key = [], nonce = [], msg = [], box, i;
-  for (i = 0; i < 32; i++) key[i] = 1;
-  for (i = 0; i < 24; i++) nonce[i] = 2;
-  for (i = 0; i < 1024; i++) msg[i] = 3;
-
-  console.log('Benchmarking secretbox.seal (array)');
-  benchmark(function() {
-    box = nacl.secretbox.seal(msg, nonce, key);
-  });
-  console.log('Benchmarking secretbox.open (valid, array)');
-  benchmark(function() {
-    nacl.secretbox.open(box, nonce, key);
-  });
 }
 
 function crypto_scalarmult_base_test_long() {
@@ -284,18 +202,6 @@ function crypto_scalarmult_base_test() {
   }
 }
 
-function crypto_scalarmult_base_benchmark() {
-  console.log('Benchmarking crypto_scalarmult_base');
-  var n = [], q = [], i, start, elapsed, num = 70;
-  for (i = 0; i < 32; i++) n[i] = i;
-  start = new Date();
-  for (i = 0; i < num; i++) {
-    nacl.crypto_scalarmult_base(q, n);
-  }
-  elapsed = (new Date()) - start;
-  console.log(' ' + (num*1000)/elapsed, 'ops/s');
-}
-
 function crypto_randombytes_test() {
   console.log('Testing crypto_randombytes');
   var t = {}, tmp, s, i;
@@ -323,11 +229,11 @@ function box_seal_open_test() {
   }
   var pk1 = [];
   nacl.crypto_scalarmult_base(pk1, sk1);
-  var msg = [];
+  var msg = new Uint8Array(64);
   for (i = 0; i < 64; i++) msg[i] = 3;
-  var nonce = [];
+  var nonce = new Uint8Array(24);
   for (i = 0; i < 24; i++) nonce[i] = 4;
-  var box = nacl.box.seal(msg, nonce, pk1, sk2);
+  var box = nacl.util.encodeBase64(nacl.box.seal(msg, nonce, pk1, sk2));
   if (box != golden) {
     console.log('differ');
     console.log('expected', golden, 'got', box);
@@ -336,33 +242,11 @@ function box_seal_open_test() {
   }
 }
 
-function box_seal_open_benchmark() {
-  var pk1 = [], sk1 = [], pk2 = [], sk2 = [];
-  nacl.crypto_box_keypair(pk1, sk1);
-  nacl.crypto_box_keypair(pk2, sk2);
-  var nonce = '123456789012345678901234';
-  var box = null;
-  var msg = '';
-  for (var i = 0; i < 1024; i++) msg += 'a';
-  console.log('Benchmarking box.seal');
-  benchmark(function() {
-    box = nacl.box.seal(msg, nonce, pk1, sk2);
-  }, 0.1);
-  console.log('Benchmarking box.open (valid)');
-  benchmark(function() {
-    nacl.box.open(box, nonce, pk2, sk1);
-  }, 0.1);
-  console.log('Benchmarking box.open (invalid key)');
-  benchmark(function() {
-    nacl.box.open(box, nonce, pk2, sk2);
-  }, 0.1);
-}
-
 function sign_open_test() {
   console.log('Testing sign and sign.open');
   var sk = [], pk = [];
   nacl.crypto_sign_keypair(pk, sk);
-  var msg = "test message";
+  var msg = nacl.util.decodeUTF8("test message");
   var sig = nacl.sign(msg, sk);
   var result = nacl.sign.open(msg, sig, pk);
   if (!result) {
@@ -374,45 +258,13 @@ function sign_open_test() {
   var vec = {
     sk: [81,98,70,175,109,25,23,152,230,95,239,157,167,162,65,141,224,105,131,236,19,4,100,86,132,201,75,63,157,6,105,73,53,224,113,12,118,167,75,110,233,167,113,236,118,198,203,104,197,153,59,62,241,46,189,109,226,158,102,8,84,43,154,166],
     pk: [53,224,113,12,118,167,75,110,233,167,113,236,118,198,203,104,197,153,59,62,241,46,189,109,226,158,102,8,84,43,154,166],
-    msg: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    msg: nacl.util.decodeUTF8("xxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
     sig: "7Mh/TpgCjZloCwL/WV8x387bB3CCKLGWyKhGqqx61n62ld/LSmXKNRyWjavuVrM/ILmEK1fazKCA3OQXZLymAQ=="
   };
-  sig = nacl.sign(vec.msg, vec.sk);
+  sig = nacl.util.encodeBase64(nacl.sign(vec.msg, vec.sk));
   if (sig != vec.sig) {
     console.log("bad signature!\nexpected\n", vec.sig, "\ngot\n", sig);
   }
-}
-
-function sign_open_benchmark() {
-  var pk = [], sk = [], pk1 = [], sig1 = [];
-  for (var i = 0; i < 32;i ++) {
-    pk1[i] = 0;
-    sig1[i] = 0;
-    sig1[i+32] = 0;
-  }
-  nacl.crypto_sign_keypair(pk, sk);
-  var sig = null;
-  var msg = '', msg1 = [];
-  for (var i = 0; i < 128; i++) {
-    msg += 'a';
-    sig1[i+64] = 97;
-  }
-  console.log('Benchmarking sign');
-  benchmark(function() {
-    sig = nacl.sign(msg, sk);
-  }, 0.1);
-  console.log('Benchmarking sign.open (valid)');
-  benchmark(function() {
-    nacl.sign.open(msg, sig, pk);
-  }, 0.1);
-  console.log('Benchmarking sign.open (invalid signature)');
-  benchmark(function() {
-    nacl.crypto_sign_open(msg1, sig1, sig1.length, pk);
-  }, 0.1);
-  console.log('Benchmarking sign.open (invalid publickey)');
-  benchmark(function() {
-    nacl.sign.open(msg, sig, pk1);
-  }, 0.1);
 }
 
 function crypto_hash_test() {
@@ -465,21 +317,27 @@ function crypto_hash_test() {
 
 }
 
-function crypto_hash_benchmark() {
-  console.log('Benchmarking crypto_hash');
-  var m = [], out = [], start, elapsed, num = 255;
-  for (i = 0; i < 1024; i++) m[i] = i & 255;
-  start = new Date();
-  for (i = 0; i < num; i++) {
-    nacl.crypto_hash(out, m, m.length);
+function typecheck_test() {
+  console.log('Testing type checking');
+  var ex = false;
+  try {
+    nacl.secretbox.seal("one", "two", "three");
+  } catch(e) {
+    ex = true;
   }
-  elapsed = (new Date()) - start;
-  console.log(' ' + (num*1000)/elapsed, 'ops/s');
-
-  benchmark(function(){
-    nacl.crypto_hash(out, m, m.length);
-  });
-
+  if (!ex) {
+    console.error("failed to catch string with type check");
+  }
+  ex = false;
+  try {
+    nacl.secretbox.seal([1,2,3], [1,2,3], 1);
+  } catch(e) {
+    ex = true;
+  }
+  if (!ex) {
+    console.error("failed to catch number with type check");
+  }
+  console.log('OK');
 }
 
 crypto_stream_xor_test();
@@ -492,15 +350,4 @@ secretbox_seal_open_test();
 crypto_randombytes_test();
 box_seal_open_test();
 sign_open_test();
-
-if (process.env.BENCHMARK) {
-  crypto_stream_xor_benchmark();
-  crypto_onetimeauth_benchmark();
-  crypto_secretbox_benchmark();
-  crypto_hash_benchmark();
-  secretbox_seal_open_benchmark();
-  secretbox_seal_open_array_benchmark();
-  crypto_scalarmult_base_benchmark();
-  box_seal_open_benchmark();
-  sign_open_benchmark();
-}
+typecheck_test();
