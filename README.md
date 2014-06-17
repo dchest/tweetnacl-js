@@ -11,6 +11,18 @@ Public domain. Works in Node.js and browsers.
 Documentation
 =============
 
+* [High-level API](#high-level-api)
+  * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
+  * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
+  * [Signatures](#signatures)
+  * [Hashing](#hashing)
+  * [Random byte generation](#random-bytes-generation)
+  * [Utilities](#utilities)
+* [Low-level API](#low-level-api)
+* [Examples](#examples)
+* [Contributors](#contributors)
+
+
 High-level API
 --------------
 
@@ -196,7 +208,8 @@ Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
 
 
-### Low-level API
+Low-level API
+-------------
 
 Low-level NaCl functions and constants are provided with original names under
 `nacl.lowlevel` namespace.
@@ -246,12 +259,12 @@ differ from the C version due to JavaScript limitations: read the source.**
     nacl.lowlevel.crypto_hash_BYTES
 
 Examples
-========
+--------
 
 *TODO*
 
 Contributors
-=========
+------------
 
 JavaScript port:
 
