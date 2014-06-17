@@ -9,7 +9,7 @@ function csign(sk, msg, callback) {
   p.stdout.on('data', function(data) {
     result.push(data);
   });
-  p.on('close', function(code) {
+  p.on('exit', function(code) {
     var sigFromC = Buffer.concat(result).toString('base64');
     return callback(sigFromC);
   });
