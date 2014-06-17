@@ -18,7 +18,7 @@ function crypto_stream_xor_benchmark() {
   for (i = 0; i < 24; i++) n[i] = i;
   for (i = 0; i < 32; i++) k[i] = i;
   benchmark(function(){
-    nacl.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
+    nacl.lowlevel.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
   });
 }
 
@@ -30,7 +30,7 @@ function crypto_onetimeauth_benchmark() {
     m[i] = i & 255;
   }
   benchmark(function(){
-    nacl.crypto_onetimeauth(out, 0, m, 0, m.length, k);
+    nacl.lowlevel.crypto_onetimeauth(out, 0, m, 0, m.length, k);
   });
 }
 
@@ -41,7 +41,7 @@ function crypto_secretbox_benchmark() {
   for (i = 0; i < 24; i++) n[i] = 2;
   for (i = 0; i < 1024; i++) m[i] = 3;
   benchmark(function() {
-    nacl.crypto_secretbox(c, m, m.length, n, k);
+    nacl.lowlevel.crypto_secretbox(c, m, m.length, n, k);
   });
 }
 
@@ -50,9 +50,9 @@ function secretbox_seal_open_benchmark() {
   var nonce = nacl.util.decodeUTF8('123456789012345678901234');
   var box = null;
   var msg = nacl.util.decodeUTF8((new Array(1024)).join('a'));
-  console.log('Benchmarking secretbox.seal');
+  console.log('Benchmarking secretbox');
   benchmark(function() {
-    box = nacl.secretbox.seal(msg, nonce, key);
+    box = nacl.secretbox(msg, nonce, key);
   });
   console.log('Benchmarking secretbox.open (valid)');
   benchmark(function() {
@@ -74,9 +74,9 @@ function secretbox_seal_open_array_benchmark() {
   for (i = 0; i < 24; i++) nonce[i] = 2;
   for (i = 0; i < 1024; i++) msg[i] = 3;
 
-  console.log('Benchmarking secretbox.seal (array)');
+  console.log('Benchmarking secretbox (array)');
   benchmark(function() {
-    box = nacl.secretbox.seal(msg, nonce, key);
+    box = nacl.secretbox(msg, nonce, key);
   });
   console.log('Benchmarking secretbox.open (valid, array)');
   benchmark(function() {
@@ -90,7 +90,7 @@ function crypto_scalarmult_base_benchmark() {
   for (i = 0; i < 32; i++) n[i] = i;
   start = new Date();
   for (i = 0; i < num; i++) {
-    nacl.crypto_scalarmult_base(q, n);
+    nacl.lowlevel.crypto_scalarmult_base(q, n);
   }
   elapsed = (new Date()) - start;
   console.log(' ' + (num*1000)/elapsed, 'ops/s');
@@ -98,14 +98,14 @@ function crypto_scalarmult_base_benchmark() {
 
 function box_seal_open_benchmark() {
   var pk1 = [], sk1 = [], pk2 = [], sk2 = [];
-  nacl.crypto_box_keypair(pk1, sk1);
-  nacl.crypto_box_keypair(pk2, sk2);
+  nacl.lowlevel.crypto_box_keypair(pk1, sk1);
+  nacl.lowlevel.crypto_box_keypair(pk2, sk2);
   var nonce = nacl.util.decodeUTF8('123456789012345678901234');
   var msg = nacl.util.decodeUTF8((new Array(1024)).join('a'));
   var box = null;
-  console.log('Benchmarking box.seal');
+  console.log('Benchmarking box');
   benchmark(function() {
-    box = nacl.box.seal(msg, nonce, pk1, sk2);
+    box = nacl.box(msg, nonce, pk1, sk2);
   }, 0.1);
   console.log('Benchmarking box.open (valid)');
   benchmark(function() {
@@ -124,7 +124,7 @@ function sign_open_benchmark() {
     sig1[i] = 0;
     sig1[i+32] = 0;
   }
-  nacl.crypto_sign_keypair(pk, sk);
+  nacl.lowlevel.crypto_sign_keypair(pk, sk);
   var sig = null;
   var msg = nacl.util.decodeUTF8((new Array(128)).join('a'));
   var msg1 = new Uint8Array(0);
@@ -141,7 +141,7 @@ function sign_open_benchmark() {
   }, 0.01);
   console.log('Benchmarking sign.open (invalid signature)');
   benchmark(function() {
-    nacl.crypto_sign_open(msg1, sig1, sig1.length, pk);
+    nacl.lowlevel.crypto_sign_open(msg1, sig1, sig1.length, pk);
   }, 0.01);
   console.log('Benchmarking sign.open (invalid publickey)');
   benchmark(function() {
@@ -155,13 +155,13 @@ function crypto_hash_benchmark() {
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   start = new Date();
   for (i = 0; i < num; i++) {
-    nacl.crypto_hash(out, m, m.length);
+    nacl.lowlevel.crypto_hash(out, m, m.length);
   }
   elapsed = (new Date()) - start;
   console.log(' ' + (num*1000)/elapsed, 'ops/s');
 
   benchmark(function(){
-    nacl.crypto_hash(out, m, m.length);
+    nacl.lowlevel.crypto_hash(out, m, m.length);
   });
 }
 
