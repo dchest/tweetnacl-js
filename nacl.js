@@ -1195,7 +1195,7 @@ exports.util.encodeBase64 = function(arr) {
     for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
     return btoa(s.join(''));
   }
-}
+};
 
 exports.util.decodeBase64 = function(s) {
   if (typeof atob === 'undefined') {
@@ -1206,13 +1206,13 @@ exports.util.decodeBase64 = function(s) {
     for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
     return new Uint8Array(b);
   }
-}
+};
 
 exports.randomBytes = function(n) {
   var b = new Uint8Array(n);
   randombytes(b, 0, n);
   return b;
-}
+};
 
 exports.secretbox = function(msg, nonce, key) {
   checkArrayTypes(msg, nonce, key);
@@ -1234,6 +1234,9 @@ exports.secretbox.open = function(box, nonce, key) {
   if (!crypto_secretbox_open(m, c, c.length, nonce, key)) return false;
   return new Uint8Array(m.slice(crypto_secretbox_ZEROBYTES));
 };
+
+exports.secretbox.keyLength = crypto_secretbox_KEYBYTES;
+exports.secretbox.nonceLength = crypto_secretbox_NONCEBYTES;
 
 exports.box = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
@@ -1257,6 +1260,20 @@ exports.box.open = function(msg, nonce, publicKey, secretKey) {
 
 exports.box.open.after = exports.secretbox.open;
 
+exports.box.keyPair = function() {
+  var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+  var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
+  crypto_box_keypair(pk, sk);
+  return {
+    publicKey: pk,
+    secretKey: sk
+  };
+};
+
+exports.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
+exports.box.secretKeyLength = crypto_box_SECRETKEYBYTES;
+exports.box.nonceLength = crypto_box_NONCEBYTES;
+
 exports.sign = function(msg, secretKey) {
   checkArrayTypes(msg, secretKey);
   if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
@@ -1278,5 +1295,27 @@ exports.sign.open = function(msg, sig, publicKey) {
   if (!crypto_sign_open(m, sm, sm.length, publicKey)) return false;
   return new Uint8Array(m);
 };
+
+exports.sign.keyPair = function() {
+  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+  var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+  crypto_sign_keypair(pk, sk);
+  return {
+    publicKey: pk,
+    secretKey: sk
+  };
+};
+
+exports.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;
+exports.sign.secretKeyLength = crypto_sign_SECRETKEYBYTES;
+exports.sign.signatureLength = crypto_sign_BYTES;
+
+exports.hash = function(msg) {
+  var h = new Uint8Array(crypto_hash_BYTES);
+  crypto_hash(h, msg, msg.length);
+  return h;
+}
+
+exports.hash.hashLength = crypto_hash_BYTES;
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));

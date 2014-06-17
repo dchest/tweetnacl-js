@@ -218,6 +218,17 @@ function crypto_randombytes_test() {
   console.log('OK');
 }
 
+function randomBytes_test() {
+  var x1 = nacl.randomBytes(49);
+  if (x1.length != 49) {
+    console.error('bad random array length');
+  }
+  var x2 = nacl.randomBytes(49);
+  if (bytes_equal(x1, x2)) {
+    console.log('random bytes equal!');
+  }
+}
+
 function box_seal_open_test() {
   console.log('Testing box and box.open');
   var golden = 'eOowsZ0jQeu9ulQYD4Ie7CZc+GMSVJvqijdlKou5Twe3inPtFwgIXm' +
@@ -244,11 +255,10 @@ function box_seal_open_test() {
 
 function sign_open_test() {
   console.log('Testing sign and sign.open');
-  var sk = [], pk = [];
-  nacl.lowlevel.crypto_sign_keypair(pk, sk);
+  var keys = nacl.sign.keyPair();
   var msg = nacl.util.decodeUTF8("test message");
-  var sig = nacl.sign(msg, sk);
-  var result = nacl.sign.open(msg, sig, pk);
+  var sig = nacl.sign(msg, keys.secretKey);
+  var result = nacl.sign.open(msg, sig, keys.publicKey);
   if (!result) {
     console.log("verification failed")
   } else {
@@ -304,12 +314,12 @@ function crypto_hash_test() {
     [[131,63,146,72,171,74,59,158,81,49,247,69,253,161,255,210,221,67,91,48,233,101,149,126,120,41,28,122,183,54,5,253,25,18,176,121,78,92,35,58,176,161,45,32,90,57,119,141,25,184,53,21,214,164,112,3,241,156,222,229,29,152,199,224 ],[ 72,111,119,32,99,97,110,32,121,111,117,32,119,114,105,116,101,32,97,32,98,105,103,32,115,121,115,116,101,109,32,119,105,116,104,111,117,116,32,67,43,43,63,32,32,45,80,97,117,108,32,71,108,105,99,107]],
   ];
 
-  var out = [];
+  var out;
   for (var i = 0; i < golden.length; i++) {
-    nacl.lowlevel.crypto_hash(out, golden[i][1], golden[i][1].length);
+    out = nacl.hash(golden[i][1]);
     if (!bytes_equal(out, golden[i][0])) {
       console.log(i, 'differ');
-      console.log('expected', golden[i][0].join(','), 'got', out.join(','));
+      console.log('expected', golden[i][0], 'got', out);
     } else {
       console.log(i, 'OK');
     }
@@ -343,11 +353,12 @@ function typecheck_test() {
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
-crypto_scalarmult_base_test();
-crypto_scalarmult_base_test_long();
+crypto_randombytes_test();
 crypto_hash_test();
 secretbox_seal_open_test();
-crypto_randombytes_test();
+randomBytes_test();
 box_seal_open_test();
 sign_open_test();
 typecheck_test();
+crypto_scalarmult_base_test();
+crypto_scalarmult_base_test_long();
