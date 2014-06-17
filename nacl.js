@@ -1,5 +1,6 @@
 (function(exports) {
-  'use strict';
+'use strict';
+/* jshint newcap: false */
 
 /* XSalsa20 */
 
@@ -514,7 +515,7 @@ function crypto_box_open(m, c, d, n, y, x) {
 var u64 = function (h, l) {
   this.hi = h >>> 0;
   this.lo  = l >>> 0;
-}
+};
 
 function dl64(x, i) {
   var h = (x[i] << 24) | (x[i+1] << 16) | (x[i+2] << 8) | x[i+3];
@@ -732,7 +733,7 @@ function crypto_hash(out, m, n) {
 // Implementation derived from TweetNaCl version 20140427.
 // See for details: http://tweetnacl.cr.yp.to/
 //
-var gf = function() { return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];}
+var gf = function() { return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; };
 var gf0 = new gf(), gf1 = new gf(); gf1[0] = [1];
 var D = [30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,65139,11119,27886,20995],
     D2 = [61785,9906,39828,60374,45398,33411,5274,224,53552,61171,33010,6542,64743,22239,55772,9222],
@@ -1022,7 +1023,7 @@ function crypto_sign(sm, m, n, sk) {
 
 function pow2523(o, i) {
   var c = new gf(), a;
-  var a = 16; while(a--) c[a] = i[a];
+  a = 16; while(a--) c[a] = i[a];
   a = 250;
   do {
       S(c, c);
