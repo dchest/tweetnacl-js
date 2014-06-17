@@ -16,7 +16,7 @@ Documentation
   * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
   * [Signatures](#signatures)
   * [Hashing](#hashing)
-  * [Random byte generation](#random-bytes-generation)
+  * [Random bytes generation](#random-bytes-generation)
   * [Utilities](#utilities)
 * [Low-level API](#low-level-api)
 * [Examples](#examples)
