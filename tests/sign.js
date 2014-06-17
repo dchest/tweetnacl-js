@@ -21,8 +21,8 @@ function csign(sk, msg, callback) {
 }
 
 function check(i, sk, pk) {
-  //var msg = crypto.randomBytes(i).toString('base64');
-  var msg = new Array(i).join('x');
+  var msg = crypto.randomBytes(i).toString('base64').substring(0, i);
+  //var msg = new Array(i).join('x');
   console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
   var sig = nacl.sign(msg, sk);
   csign(sk, msg, function(sigFromC) {
