@@ -21,7 +21,7 @@ function csign(sk, msg, callback) {
 }
 
 function check(i, sk, pk) {
-  var msg = nacl.util.randomBytes(i);
+  var msg = nacl.randomBytes(i);
   //var msg = new Array(i).join('x');
   //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
   var sig = nacl.util.encodeBase64(nacl.sign(msg, sk));
@@ -46,5 +46,5 @@ function check(i, sk, pk) {
 }
 
 var sk = [], pk = [];
-nacl.crypto_sign_keypair(pk, sk);
+nacl.lowlevel.crypto_sign_keypair(pk, sk);
 check(0, sk, pk);

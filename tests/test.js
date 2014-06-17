@@ -45,7 +45,7 @@ function crypto_stream_xor_test() {
 
   for (var i = 0; i < golden.length; i++) {
     var out = [];
-    nacl.crypto_stream_xor(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].n, golden[i].k);
+    nacl.lowlevel.crypto_stream_xor(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].n, golden[i].k);
     if (!bytes_equal(out, golden[i].out)) {
       console.log(i, 'differ');
       console.log('expected', golden[i].out, 'got', out);
@@ -92,7 +92,7 @@ function crypto_onetimeauth_test() {
   }
   for (var i = 0; i < golden.length; i++) {
     var out = [];
-    nacl.crypto_onetimeauth(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].k);
+    nacl.lowlevel.crypto_onetimeauth(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].k);
     if (!bytes_equal(out, golden[i].out)) {
       console.log(i, 'differ');
       console.log('expected', golden[i].out, 'got', out);
@@ -109,9 +109,9 @@ function crypto_secretbox_test() {
   for (i = 0; i < 24; i++) n[i] = 2;
   for (i = 0; i < 64; i++) m[i] = 3;
   // Pad m.
-  for (i = 0; i < nacl.crypto_secretbox_ZEROBYTES; i++) m.unshift(0);
+  for (i = 0; i < nacl.lowlevel.crypto_secretbox_ZEROBYTES; i++) m.unshift(0);
 
-  nacl.crypto_secretbox(c, m, m.length, n, k);
+  nacl.lowlevel.crypto_secretbox(c, m, m.length, n, k);
 
   var golden = [132, 66, 188, 49, 63, 70, 38, 241, 53, 158, 59, 80, 18, 43,
     108, 230, 254, 102, 221, 254, 125, 57, 209, 78, 99, 126, 180, 253, 91, 69,
@@ -121,7 +121,7 @@ function crypto_secretbox_test() {
     101, 173];
 
   // Unpad c.
-  out = c.slice(nacl.crypto_secretbox_BOXZEROBYTES);
+  out = c.slice(nacl.lowlevel.crypto_secretbox_BOXZEROBYTES);
 
   if (!bytes_equal(out, golden)) {
     console.log(0, 'differ');
@@ -132,7 +132,7 @@ function crypto_secretbox_test() {
 
   // Try opening.
   var opened = [];
-  if (!nacl.crypto_secretbox_open(opened, c, c.length, n, k)) {
+  if (!nacl.lowlevel.crypto_secretbox_open(opened, c, c.length, n, k)) {
     console.log('open failed');
   } else {
     console.log('opened - OK');
@@ -146,11 +146,11 @@ function crypto_secretbox_test() {
 }
 
 function secretbox_seal_open_test() {
-  console.log('Testing secretbox.seal and secrebox.open');
+  console.log('Testing secretbox and secrebox.open');
   var key = nacl.util.decodeUTF8('12345678901234567890123456789012');
   var nonce = nacl.util.decodeUTF8('123456789012345678901234');
   var msg = nacl.util.decodeUTF8('привет!');
-  var box = nacl.secretbox.seal(msg, nonce, key);
+  var box = nacl.secretbox(msg, nonce, key);
   var dec = nacl.secretbox.open(box, nonce, key);
   if (bytes_equal(msg, dec))
     console.log('OK');
@@ -169,7 +169,7 @@ function crypto_scalarmult_base_test_long() {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   var output = [];
   for (var j = 0; j < 200; j++) {
-    nacl.crypto_scalarmult_base(output, input);
+    nacl.lowlevel.crypto_scalarmult_base(output, input);
     var tmp = input; input = output; output = tmp;
   }
   if (!bytes_equal(input, golden)) {
@@ -192,7 +192,7 @@ function crypto_scalarmult_base_test() {
   ];
   for (var i = 0; i < golden.length; i++) {
     var out = [];
-    nacl.crypto_scalarmult_base(out, golden[i].n);
+    nacl.lowlevel.crypto_scalarmult_base(out, golden[i].n);
     if (!bytes_equal(out, golden[i].q)) {
       console.log(i, 'differ');
       console.log('expected', golden[i].q, 'got', out);
@@ -207,7 +207,7 @@ function crypto_randombytes_test() {
   var t = {}, tmp, s, i;
   for (var i = 0; i < 10000; i++) {
     tmp = [];
-    nacl.crypto_randombytes(tmp, 0, 32);
+    nacl.lowlevel.crypto_randombytes(tmp, 0, 32);
     s = tmp.join(',');
     if (t[s]) {
       console.log("duplicate random sequence! ", s);
@@ -219,7 +219,7 @@ function crypto_randombytes_test() {
 }
 
 function box_seal_open_test() {
-  console.log('Testing box.seal and box.open');
+  console.log('Testing box and box.open');
   var golden = 'eOowsZ0jQeu9ulQYD4Ie7CZc+GMSVJvqijdlKou5Twe3inPtFwgIXm' +
                '3dDpQ7veuHVQeaN+sx2GFjziQRZKR2KcBTnzMLSRTNE1s4VbwqLfw=';
   var sk1 = [], sk2 = [], i;
@@ -228,12 +228,12 @@ function box_seal_open_test() {
     sk2[i] = 2;
   }
   var pk1 = [];
-  nacl.crypto_scalarmult_base(pk1, sk1);
+  nacl.lowlevel.crypto_scalarmult_base(pk1, sk1);
   var msg = new Uint8Array(64);
   for (i = 0; i < 64; i++) msg[i] = 3;
   var nonce = new Uint8Array(24);
   for (i = 0; i < 24; i++) nonce[i] = 4;
-  var box = nacl.util.encodeBase64(nacl.box.seal(msg, nonce, pk1, sk2));
+  var box = nacl.util.encodeBase64(nacl.box(msg, nonce, pk1, sk2));
   if (box != golden) {
     console.log('differ');
     console.log('expected', golden, 'got', box);
@@ -245,7 +245,7 @@ function box_seal_open_test() {
 function sign_open_test() {
   console.log('Testing sign and sign.open');
   var sk = [], pk = [];
-  nacl.crypto_sign_keypair(pk, sk);
+  nacl.lowlevel.crypto_sign_keypair(pk, sk);
   var msg = nacl.util.decodeUTF8("test message");
   var sig = nacl.sign(msg, sk);
   var result = nacl.sign.open(msg, sig, pk);
@@ -306,7 +306,7 @@ function crypto_hash_test() {
 
   var out = [];
   for (var i = 0; i < golden.length; i++) {
-    nacl.crypto_hash(out, golden[i][1], golden[i][1].length);
+    nacl.lowlevel.crypto_hash(out, golden[i][1], golden[i][1].length);
     if (!bytes_equal(out, golden[i][0])) {
       console.log(i, 'differ');
       console.log('expected', golden[i][0].join(','), 'got', out.join(','));
@@ -321,7 +321,7 @@ function typecheck_test() {
   console.log('Testing type checking');
   var ex = false;
   try {
-    nacl.secretbox.seal("one", "two", "three");
+    nacl.secretbox("one", "two", "three");
   } catch(e) {
     ex = true;
   }
@@ -330,7 +330,7 @@ function typecheck_test() {
   }
   ex = false;
   try {
-    nacl.secretbox.seal([1,2,3], [1,2,3], 1);
+    nacl.secretbox([1,2,3], [1,2,3], 1);
   } catch(e) {
     ex = true;
   }

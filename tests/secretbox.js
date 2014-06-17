@@ -21,9 +21,9 @@ function csecretbox(msg, n, k, callback) {
 }
 
 function check(i, maxi, n, k, next) {
-  var msg = nacl.util.randomBytes(i);
+  var msg = nacl.randomBytes(i);
   //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
-  var box = nacl.util.encodeBase64(nacl.secretbox.seal(msg, n, k));
+  var box = nacl.util.encodeBase64(nacl.secretbox(msg, n, k));
   csecretbox(new Buffer(msg), n, k, function(boxFromC) {
     if (boxFromC != box) {
       bc = (new Buffer(boxFromC, 'base64')).toString('hex');

@@ -19,10 +19,10 @@ function chash(msg, callback) {
 }
 
 function check(i) {
-  var msg = nacl.util.randomBytes(i);
+  var msg = nacl.randomBytes(i);
   var h = [];
   //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
-  nacl.crypto_hash(h, msg, msg.length);
+  nacl.lowlevel.crypto_hash(h, msg, msg.length);
   chash(new Buffer(msg), function(hexCH) {
     hexH = (new Buffer(h)).toString('hex');
     if (hexCH != hexH) {

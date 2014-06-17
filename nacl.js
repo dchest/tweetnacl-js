@@ -1104,47 +1104,47 @@ var crypto_secretbox_KEYBYTES = 32,
     crypto_sign_SECRETKEYBYTES = 64,
     crypto_hash_BYTES = 64;
 
-exports.crypto_stream_xor = crypto_stream_xor;
-exports.crypto_stream = crypto_stream;
-exports.crypto_stream_salsa20_xor = crypto_stream_salsa20_xor;
-exports.crypto_stream_salsa20 = crypto_stream_salsa20;
-exports.crypto_onetimeauth = crypto_onetimeauth;
-exports.crypto_onetimeauth_verify = crypto_onetimeauth_verify;
-exports.crypto_verify_16 = crypto_verify_16;
-exports.crypto_verify_32 = crypto_verify_32;
-exports.crypto_secretbox = crypto_secretbox;
-exports.crypto_secretbox_open = crypto_secretbox_open;
-exports.crypto_scalarmult = crypto_scalarmult;
-exports.crypto_scalarmult_base = crypto_scalarmult_base;
-exports.crypto_box_beforenm = crypto_box_beforenm;
-exports.crypto_box_afternm = crypto_box_afternm;
-exports.crypto_box = crypto_box;
-exports.crypto_box_open = crypto_box_open;
-exports.crypto_box_keypair = crypto_box_keypair;
-exports.crypto_hash = crypto_hash;
-exports.crypto_sign = crypto_sign;
-exports.crypto_sign_keypair = crypto_sign_keypair;
-exports.crypto_sign_open = crypto_sign_open;
+exports.lowlevel = {
+  crypto_stream_xor : crypto_stream_xor,
+  crypto_stream : crypto_stream,
+  crypto_stream_salsa20_xor : crypto_stream_salsa20_xor,
+  crypto_stream_salsa20 : crypto_stream_salsa20,
+  crypto_onetimeauth : crypto_onetimeauth,
+  crypto_onetimeauth_verify : crypto_onetimeauth_verify,
+  crypto_verify_16 : crypto_verify_16,
+  crypto_verify_32 : crypto_verify_32,
+  crypto_secretbox : crypto_secretbox,
+  crypto_secretbox_open : crypto_secretbox_open,
+  crypto_scalarmult : crypto_scalarmult,
+  crypto_scalarmult_base : crypto_scalarmult_base,
+  crypto_box_beforenm : crypto_box_beforenm,
+  crypto_box_afternm : crypto_box_afternm,
+  crypto_box : crypto_box,
+  crypto_box_open : crypto_box_open,
+  crypto_box_keypair : crypto_box_keypair,
+  crypto_hash : crypto_hash,
+  crypto_sign : crypto_sign,
+  crypto_sign_keypair : crypto_sign_keypair,
+  crypto_sign_open : crypto_sign_open,
+  crypto_randombytes : randombytes, // addition
 
-exports.crypto_secretbox_KEYBYTES = crypto_secretbox_KEYBYTES;
-exports.crypto_secretbox_NONCEBYTES = crypto_secretbox_NONCEBYTES;
-exports.crypto_secretbox_ZEROBYTES = crypto_secretbox_ZEROBYTES;
-exports.crypto_secretbox_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES;
-exports.crypto_scalarmult_BYTES = crypto_scalarmult_BYTES;
-exports.crypto_scalarmult_SCALARBYTES = crypto_scalarmult_SCALARBYTES;
-exports.crypto_box_PUBLICKEYBYTES = crypto_box_PUBLICKEYBYTES;
-exports.crypto_box_SECRETKEYBYTES = crypto_box_SECRETKEYBYTES;
-exports.crypto_box_BEFORENMBYTES = crypto_box_BEFORENMBYTES;
-exports.crypto_box_NONCEBYTES = crypto_box_NONCEBYTES;
-exports.crypto_box_ZEROBYTES = crypto_box_ZEROBYTES;
-exports.crypto_box_BOXZEROBYTES = crypto_box_BOXZEROBYTES;
-exports.crypto_sign_BYTES = crypto_sign_BYTES;
-exports.crypto_sign_PUBLICKEYBYTES = crypto_sign_PUBLICKEYBYTES;
-exports.crypto_sign_SECRETKEYBYTES = crypto_sign_SECRETKEYBYTES;
-exports.crypto_hash_BYTES = crypto_hash_BYTES;
-
-// Additions.
-exports.crypto_randombytes = randombytes;
+  crypto_secretbox_KEYBYTES : crypto_secretbox_KEYBYTES,
+  crypto_secretbox_NONCEBYTES : crypto_secretbox_NONCEBYTES,
+  crypto_secretbox_ZEROBYTES : crypto_secretbox_ZEROBYTES,
+  crypto_secretbox_BOXZEROBYTES : crypto_secretbox_BOXZEROBYTES,
+  crypto_scalarmult_BYTES : crypto_scalarmult_BYTES,
+  crypto_scalarmult_SCALARBYTES : crypto_scalarmult_SCALARBYTES,
+  crypto_box_PUBLICKEYBYTES : crypto_box_PUBLICKEYBYTES,
+  crypto_box_SECRETKEYBYTES : crypto_box_SECRETKEYBYTES,
+  crypto_box_BEFORENMBYTES : crypto_box_BEFORENMBYTES,
+  crypto_box_NONCEBYTES : crypto_box_NONCEBYTES,
+  crypto_box_ZEROBYTES : crypto_box_ZEROBYTES,
+  crypto_box_BOXZEROBYTES : crypto_box_BOXZEROBYTES,
+  crypto_sign_BYTES : crypto_sign_BYTES,
+  crypto_sign_PUBLICKEYBYTES : crypto_sign_PUBLICKEYBYTES,
+  crypto_sign_SECRETKEYBYTES : crypto_sign_SECRETKEYBYTES,
+  crypto_hash_BYTES : crypto_hash_BYTES
+};
 
 /* Encodings */
 
@@ -1172,7 +1172,7 @@ function checkArrayTypes() {
 }
 
 /* High-level API */
-exports.util = exports.utils || {};
+exports.util = {};
 
 exports.util.decodeUTF8 = function(s) {
   var b = [], i;
@@ -1206,15 +1206,13 @@ exports.util.decodeBase64 = function(s) {
   return new Uint8Array(b);
 }
 
-exports.util.randomBytes = function(n) {
+exports.randomBytes = function(n) {
   var b = new Uint8Array(n);
   randombytes(b, 0, n);
   return b;
 }
 
-exports.secretbox = exports.secretbox || {};
-
-exports.secretbox.seal = function(msg, nonce, key) {
+exports.secretbox = function(msg, nonce, key) {
   checkArrayTypes(msg, nonce, key);
   checkLengths(key, nonce);
   var i, m = [], c = [];
@@ -1235,7 +1233,10 @@ exports.secretbox.open = function(box, nonce, key) {
   return new Uint8Array(m.slice(crypto_secretbox_ZEROBYTES));
 };
 
-exports.box = exports.box || {};
+exports.box = function(msg, nonce, publicKey, secretKey) {
+  var k = exports.box.before(publicKey, secretKey);
+  return exports.secretbox(msg, nonce, k);
+};
 
 exports.box.before = function(publicKey, secretKey) {
   checkArrayTypes(publicKey, secretKey);
@@ -1245,20 +1246,14 @@ exports.box.before = function(publicKey, secretKey) {
   return new Uint8Array(k);
 };
 
-exports.box.sealAfter = exports.secretbox.seal;
-exports.box.openAfter = exports.secretbox.open;
-
-exports.box.seal = function(msg, nonce, publicKey, secretKey) {
-  var k = exports.box.before(publicKey, secretKey);
-  return exports.secretbox.seal(msg, nonce, k);
-};
+exports.box.after = exports.secretbox;
 
 exports.box.open = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
   return exports.secretbox.open(msg, nonce, k);
 };
 
-exports.sign = exports.sign || {};
+exports.box.open.after = exports.secretbox.open;
 
 exports.sign = function(msg, secretKey) {
   checkArrayTypes(msg, secretKey);

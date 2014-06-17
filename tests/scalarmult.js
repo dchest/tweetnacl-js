@@ -15,11 +15,11 @@ function cscalarmult(n, p, callback) {
 
 function check(i) {
   var sk1 = [], pk1 = [], sk2 = [], pk2 = [], q = [];
-  nacl.crypto_box_keypair(pk1, sk1);
-  nacl.crypto_box_keypair(pk2, sk2);
+  nacl.lowlevel.crypto_box_keypair(pk1, sk1);
+  nacl.lowlevel.crypto_box_keypair(pk2, sk2);
 
   //console.log("\nTest #" + i);
-  nacl.crypto_scalarmult(q, sk1, pk2);
+  nacl.lowlevel.crypto_scalarmult(q, sk1, pk2);
   hexQ = (new Buffer(q)).toString('hex');
   cscalarmult(sk1, pk2, function(cQ) {
     if (hexQ != cQ) {
