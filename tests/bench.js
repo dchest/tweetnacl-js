@@ -3,7 +3,8 @@ var nacl = (typeof require !== 'undefined') ? require('../nacl.js') : window.nac
 if (!nacl) throw new Error('nacl not loaded');
 
 function benchmark(fn, MB) {
-  var start = new Date(), MB = MB || 1;
+  var start = new Date();
+  MB = MB || 1;
   for (i = 0; i < MB*1024; i++) {
     fn();
   }
@@ -128,7 +129,7 @@ function sign_open_benchmark() {
   var sig = null;
   var msg = nacl.util.decodeUTF8((new Array(128)).join('a'));
   var msg1 = new Uint8Array(0);
-  for (var i = 0; i < 128; i++) {
+  for (i = 0; i < 128; i++) {
     sig1[i+64] = 97;
   }
   console.log('Benchmarking sign');

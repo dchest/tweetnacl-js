@@ -1314,7 +1314,7 @@ exports.hash = function(msg) {
   var h = new Uint8Array(crypto_hash_BYTES);
   crypto_hash(h, msg, msg.length);
   return h;
-}
+};
 
 exports.hash.hashLength = crypto_hash_BYTES;
 

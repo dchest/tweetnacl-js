@@ -90,7 +90,7 @@ function crypto_onetimeauth_test() {
     golden[2].m.push(0);
     golden[3].m.push(0);
   }
-  for (var i = 0; i < golden.length; i++) {
+  for (i = 0; i < golden.length; i++) {
     var out = [];
     nacl.lowlevel.crypto_onetimeauth(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].k);
     if (!bytes_equal(out, golden[i].out)) {
@@ -205,7 +205,7 @@ function crypto_scalarmult_base_test() {
 function crypto_randombytes_test() {
   console.log('Testing crypto_randombytes');
   var t = {}, tmp, s, i;
-  for (var i = 0; i < 10000; i++) {
+  for (i = 0; i < 10000; i++) {
     tmp = [];
     nacl.lowlevel.crypto_randombytes(tmp, 0, 32);
     s = tmp.join(',');
@@ -260,7 +260,7 @@ function sign_open_test() {
   var sig = nacl.sign(msg, keys.secretKey);
   var result = nacl.sign.open(msg, sig, keys.publicKey);
   if (!result) {
-    console.log("verification failed")
+    console.log("verification failed");
   } else {
     console.log("OK");
   }
