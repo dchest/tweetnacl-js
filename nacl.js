@@ -1188,22 +1188,24 @@ exports.util.encodeUTF8 = function(arr) {
 };
 
 exports.util.encodeBase64 = function(arr) {
-  var i, s = [], len = arr.length;
   if (typeof btoa === 'undefined') {
     return (new Buffer(arr)).toString('base64');
+  } else {
+    var i, s = [], len = arr.length;
+    for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
+    return btoa(s.join(''));
   }
-  for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
-  return btoa(s.join(''));
 }
 
 exports.util.decodeBase64 = function(s) {
-  var b = [], i;
   if (typeof atob === 'undefined') {
     return new Uint8Array(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
+  } else {
+    var b = [], i;
+    s = atob(s);
+    for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
+    return new Uint8Array(b);
   }
-  s = atob(s);
-  for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
-  return new Uint8Array(b);
 }
 
 exports.randomBytes = function(n) {
