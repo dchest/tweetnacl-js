@@ -4,20 +4,20 @@ var spawn = require('child_process').spawn;
 
 function csign(sk, msg, callback) {
   var hexsk = (new Buffer(sk)).toString('hex');
-  var csign = spawn('./csign', [hexsk]);
+  var p = spawn('./csign', [hexsk]);
   var result = [];
-  csign.stdout.on('data', function(data) {
+  p.stdout.on('data', function(data) {
     result.push(data);
   });
-  csign.on('close', function(code) {
+  p.on('close', function(code) {
     var sigFromC = Buffer.concat(result).toString('base64');
     return callback(sigFromC);
   });
-  csign.on('error', function(err) {
+  p.on('error', function(err) {
     throw err;
   });
-  csign.stdin.write(msg);
-  csign.stdin.end();
+  p.stdin.write(msg);
+  p.stdin.end();
 }
 
 function check(i, sk, pk) {

@@ -744,6 +744,10 @@ var D = [30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,651
 
 var Math_floor = Math.floor;
 
+function set25519(r, a) {
+  for (var i = 0; i < 16; i++) r[i] = a[i]|0;
+}
+
 function car25519(o) {
   var c;
   for (var i = 0; i < 16; i++) {
@@ -764,9 +768,12 @@ function sel25519(p, q, b) {
 }
 
 function pack25519(o, n) {
-  var i, j, b, m = new gf(), t = [];
+  var i, j, b;
+  var m = new gf(),
+      t = new gf(); // = [] to pass test
 
-  i = 16; while(i--) t[i] = n[i];
+  //console.log(n); // uncomment to pass test
+  for (i = 0; i < 16; i++) t[i] = n[i];
   car25519(t);
   car25519(t);
   car25519(t);
@@ -787,23 +794,38 @@ function pack25519(o, n) {
   }
 }
 
-function A(o, a, b) {
-  var i = 16;
-  while (i--) {
-    o[i] = (a[i] + b[i])|0;
+function neq25519(a, b) {
+  var c = new Array(32),
+      d = new Array(32);
+  pack25519(c, a);
+  pack25519(d, b);
+  return crypto_verify_32(c, 0, d, 0);
+}
+
+function par25519(a) {
+  var d = new Array(32);
+  pack25519(d, a);
+  return d[0] & 1;
+}
+
+function unpack25519(o, n) {
+  for (var i = 0; i < 16; i++) {
+    o[i] = n[2*i] + (n[2*i+1] << 8);
   }
+  o[15] &= 32767;
+}
+
+function A(o, a, b) {
+  for (var i = 0; i < 16; i++) o[i] = (a[i] + b[i])|0;
 }
 
 function Z(o, a, b) {
-  var i = 16;
-  while (i--) {
-    o[i] = (a[i] - b[i])|0;
-  }
+  for (var i = 0; i < 16; i++) o[i] = (a[i] - b[i])|0;
 }
 
 function M(o, a, b) {
   var i, j, t = [];
-  i = 31; while(i--) t[i] = 0;
+  for (i = 0; i < 31; i++) t[i] = 0;
   for (i = 0; i < 16; i++) {
     for (j = 0; j < 16; j++) {
       t[i+j] += a[i] * b[j];
@@ -812,7 +834,7 @@ function M(o, a, b) {
   for (i = 0; i < 15; i++) {
     t[i] += 38 * t[i+16];
   }
-  i = 16; while(i--) o[i] = t[i];
+  for (i = 0; i < 16; i++) o[i] = t[i];
   car25519(o);
   car25519(o);
 }
@@ -823,20 +845,22 @@ function S(o, a) {
 
 function inv25519(o, i) {
   var c = new gf(), a;
-  a = 16; while (a--) c[a] = i[a];
-  a = 253;
-  do {
+  for (a = 0; a < 16; a++) c[a] = i[a];
+  for (a = 253; a >= 0; a--) {
     S(c, c);
     if(a != 2 && a != 4) M(c, c, i);
-  } while (a--);
-  a = 16; while (a--) o[a] = c[a];
+  }
+  for (a = 0; a < 16; a++) o[a] = c[a];
 }
 
-function unpack25519(o, n) {
-  for (var i = 0; i < 16; i++) {
-    o[i] = n[2*i] + (n[2*i+1] << 8);
+function pow2523(o, i) {
+  var c = new gf(), a;
+  for (a = 0; a < 16; a++) c[a] = i[a];
+  for (a = 250; a >= 0; a--) {
+      S(c, c);
+      if(a != 1) M(c, c, i);
   }
-  o[15] &= 32767;
+  for (a = 0; a < 16; a++) o[a] = c[a];
 }
 
 function add(p, q) {
@@ -858,6 +882,7 @@ function add(p, q) {
   Z(f, d, c);
   A(g, d, c);
   A(h, b, a);
+
   M(p[0], e, f);
   M(p[1], h, g);
   M(p[2], g, f);
@@ -870,12 +895,6 @@ function cswap(p, q, b) {
   }
 }
 
-function par25519(a) {
-  var d = new Array(32);
-  pack25519(d, a);
-  return d[0] & 1;
-}
-
 function pack(r, p) {
   var tx = new gf(), ty = new gf(), zi = new gf();
   inv25519(zi, p[2]);
@@ -885,29 +904,23 @@ function pack(r, p) {
   r[31] ^= par25519(tx) << 7;
 }
 
-function set25519(r, a) {
-  var i = 16; while(i--) r[i] = a[i]|0;
-}
-
 function scalarmult(p, q, s) {
-  var b;
+  var b, i;
   set25519(p[0], gf0);
   set25519(p[1], gf1);
   set25519(p[2], gf1);
   set25519(p[3], gf0);
-  var i = 255;
-  do {
+  for (i = 255; i >= 0; --i) {
     b = (s[(i/8)|0] >> (i&7)) & 1;
     cswap(p, q, b);
     add(q, p);
     add(p, p);
     cswap(p, q, b);
-  } while (i--);
+  }
 }
 
 function scalarbase(p, s) {
-  var i = 4, q = [];
-  while (i--) q[i] = new gf();
+  var q = [new gf(), new gf(), new gf(), new gf()];
   set25519(q[0], X);
   set25519(q[1], Y);
   set25519(q[2], gf1);
@@ -915,17 +928,13 @@ function scalarbase(p, s) {
   scalarmult(p, q, s);
 }
 
-function crypto_sign_keypair(pk, sk, seed) {
-  var p = [], d = new Array(64), skseed = [];
+function crypto_sign_keypair(pk, sk) {
+  var p = [], d = new Array(64);
   var i = 4; while(i--) p[i] = new gf();
 
-  if (typeof seed !== 'undefined') {
-    skseed = skseed.concat(seed);
-  } else {
-    randombytes(skseed, 0, 32);
-  }
+  randombytes(sk, 0, 32);
 
-  crypto_hash(d, skseed, 32);
+  crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
@@ -933,10 +942,7 @@ function crypto_sign_keypair(pk, sk, seed) {
   scalarbase(p, d);
   pack(pk, p);
 
-  for (i = 0; i < 32; i++) {
-    sk[i] = skseed[i];
-    sk[i+32] = pk[i];
-  }
+  for (i = 0; i < 32; i++) sk[i+32] = pk[i];
 }
 
 var L = [237,211,245,92,26,99,18,88,214,156,247,162,222,249,222,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16];
@@ -967,30 +973,25 @@ function modL(r, x) {
 }
 
 function reduce(r) {
-  var x = new Array(64), i = 64;
-  while (i--) {
+  var x = new Array(64), i;
+  for (i = 0; i < 64; i++) {
     x[i] = r[i];
     r[i] = 0;
   }
   modL(r, x);
 }
 
+// Note: difference from C - smlen returned, not passed as argument.
 function crypto_sign(sm, m, n, sk) {
-  var d = new Array(64),
-      h = new Array(64),
-      r = new Array(64),
-      x = new Array(64),
-      p = [], j;
-
-  var i = 4; while (i--) p[i] = new gf();
+  var d = new Array(64), h = new Array(64), r = new Array(64);
+  var i, j, x = new Array(64);
+  var p = [new gf(), new gf(), new gf(), new gf()];
 
   crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
 
-  // passing smlen as arguments doesn't work (at my box),
-  // smlen moved as return
   var smlen = n + 64;
 
   for (i = 0; i < n; i++) sm[64 + i] = m[i];
@@ -1005,9 +1006,8 @@ function crypto_sign(sm, m, n, sk) {
   crypto_hash(h, sm, n + 64);
   reduce(h);
 
-  i = 64; while(i--) x[i] = 0;
-  i = 32; while(i--) x[i] = r[i];
-
+  for (i = 0; i < 64; i++) x[i] = 0;
+  for (i = 0; i < 32; i++) x[i] = r[i];
   for (i = 0; i < 32; i++) {
     for (j = 0; j < 32; j++) {
       x[i+j] += h[i] * d[j];
@@ -1020,25 +1020,6 @@ function crypto_sign(sm, m, n, sk) {
       sm[i+32] = xrest[i];
   }
   return smlen;
-}
-
-function pow2523(o, i) {
-  var c = new gf(), a;
-  a = 16; while(a--) c[a] = i[a];
-  a = 250;
-  do {
-      S(c, c);
-      if(a != 1) M(c, c, i);
-  } while (a--);
-  a = 16; while(a--) o[a] = c[a];
-}
-
-function neq25519(a, b) {
-  var c = new Array(32),
-      d = new Array(32);
-  pack25519(c, a);
-  pack25519(d, b);
-  return crypto_verify_32(c, 0, d, 0);
 }
 
 function unpackneg(r, p) {
@@ -1082,16 +1063,10 @@ function unpackneg(r, p) {
 function crypto_sign_open(m, sm, n, pk) {
   var i, t = new Array(32),
       h = new Array(64),
-      p = [], q = [],
+      p = [new gf(), new gf(), new gf(), new gf()],
+      q = [new gf(), new gf(), new gf(), new gf()],
       x = [];
 
-  i = 4;
-  while (i--) {
-    p[i] = new gf();
-    q[i] = new gf();
-  }
-
-  //mlen = -1; // doesn't work
   if (n < 64) return -1;
 
   if (unpackneg(q, pk)) return false;
@@ -1109,11 +1084,7 @@ function crypto_sign_open(m, sm, n, pk) {
   n -= 64;
   if (crypto_verify_32(sm, 0, t, 0)) return false;
 
-  //mlen = n;
-  for (i = 0; i < n; i++) {
-    m[i] = sm[i + 64];
-  }
-
+  for (i = 0; i < n; i++) m[i] = sm[i + 64];
   return true;
 }
 
