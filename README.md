@@ -6,7 +6,10 @@ to JavaScript.
 
 Public domain. Works in Node.js and browsers.
 
+[Demo](https://dchest.github.io/tweetnacl-js/)
+
 **!!! Do not use yet. In development. Alpha. Will break things. !!!**
+
 
 Documentation
 =============
