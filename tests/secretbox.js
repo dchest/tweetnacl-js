@@ -34,7 +34,7 @@ function check(i, maxi, n, k, next) {
       process.stdout.write('.');
     }
     if (nacl.secretbox.open(nacl.util.decodeBase64(boxFromC), n, k) === false) {
-      console.log("! opening secretbox failed: ", boxFromC);
+      console.error("! opening secretbox failed: ", "msg:\n", msg, "box:\n", boxFromC, "\n");
       process.exit(1);
     }
     if (i >= maxi) {
