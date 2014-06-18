@@ -10,6 +10,8 @@ Public domain. Works in Node.js and browsers.
 
 **!!! Do not use yet. In development. Alpha. Will break things. !!!**
 
+[![Build Status](https://travis-ci.org/dchest/tweetnacl-js.png)](https://travis-ci.org/dchest/tweetnacl-js)
+
 
 Documentation
 =============
