@@ -1,4 +1,8 @@
+// Written in 2014 by Dmitry Chestnykh.
+// Public domain.
+
 (function(m) {
+"use strict";
 
 m.route.mode = 'hash';
 
