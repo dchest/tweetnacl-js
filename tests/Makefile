@@ -12,7 +12,7 @@ chash: chash.o tweetnacl.o
 
 csign: csign.o tweetnacl.o
 
-test: simpletest test_secretbox test_scalarmult test_box test_hash test_sign
+test: simpletest test_secretbox test_scalarmult test_box test_hash test_sign test_signinput clean
 
 simpletest:
 	node ./test.js
@@ -31,6 +31,9 @@ test_hash: chash
 
 test_sign: csign
 	node ./sign.js
+
+test_signinput:
+	node ./sign.input.js
 
 clean:
 	rm *.o csecretbox cscalarmult cbox chash csign
