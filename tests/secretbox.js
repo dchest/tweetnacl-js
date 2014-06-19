@@ -46,7 +46,9 @@ function check(i, maxi, n, k, next) {
 }
 
 console.log("secretbox test");
-var k = [], n = [], i;
+var k = new Uint8Array(nacl.secretbox.keyLength),
+    n = new Uint8Array(nacl.secretbox.nonceLength),
+    i;
 for (i = 0; i < 32; i++) k[i] = i;
 for (i = 0; i < 24; i++) n[i] = i;
 check(0, 1024, n, k, function() {  // I'm sorry...

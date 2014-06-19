@@ -46,7 +46,10 @@ function check(i, maxi, pk, sk, next) {
 }
 
 console.log("box test");
-var sk1 = [], pk1 = [], sk2 = [], pk2 = [], q = [];
+var sk1 = new Uint8Array(nacl.box.secretKeyLength),
+    sk2 = new Uint8Array(nacl.box.secretKeyLength),
+    pk1 = new Uint8Array(nacl.box.publicKeyLength),
+    pk2 = new Uint8Array(nacl.box.publicKeyLength);
 nacl.lowlevel.crypto_box_keypair(pk1, sk1);
 nacl.lowlevel.crypto_box_keypair(pk2, sk2);
 check(0, 1024, pk1, sk2, function() {

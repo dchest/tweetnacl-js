@@ -45,6 +45,7 @@ function check(i, sk, pk) {
   });
 }
 
-var sk = [], pk = [];
+var sk = new Uint8Array(nacl.sign.secretKeyLength),
+    pk = new Uint8Array(nacl.sign.publicKeyLength);
 nacl.lowlevel.crypto_sign_keypair(pk, sk);
 check(0, sk, pk);
