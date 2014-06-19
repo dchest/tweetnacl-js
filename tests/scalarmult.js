@@ -1,4 +1,4 @@
-var NUMBER_OF_TESTS = 100;
+var NUMBER_OF_TESTS = 1000;
 
 var nacl = require('../nacl.js');
 var execFile = require('child_process').execFile;
@@ -25,8 +25,8 @@ function check(i) {
   //console.log('\nTest #' + i);
   nacl.lowlevel.crypto_scalarmult(q1, sk1, pk2);
   nacl.lowlevel.crypto_scalarmult(q2, sk2, pk1);
-  for (var i = 0; i < q1.length; i++) {
-    if (q1[i] != q2[i]) {
+  for (var j = 0; j < q1.length; j++) {
+    if (q1[j] != q2[j]) {
       console.error('shared keys differ:\n', (new Buffer(q1)).toString('hex'), '\n', (new Buffer(q2).toString('hex')));
       process.exit(1);
     }
@@ -39,7 +39,7 @@ function check(i) {
     } else {
       process.stdout.write('.');
     }
-    if (i == NUMBER_OF_TESTS) { return; }
+    if (i >= NUMBER_OF_TESTS) { return; }
     check(i+1);
   });
 }
