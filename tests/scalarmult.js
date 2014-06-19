@@ -1,4 +1,4 @@
-var NUMBER_OF_TESTS = 1000;
+var NUMBER_OF_TESTS = 100;
 
 var nacl = require('../nacl.js');
 var execFile = require('child_process').execFile;
