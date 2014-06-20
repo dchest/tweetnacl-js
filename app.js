@@ -572,6 +572,7 @@ app.sign.view = function(ctrl) {
   }
 
   return [
+      m('.alert.alert-warning[style=margin-bottom:0]', m.trust('JavaScriptCore (Safari) produces incorrect results! See <a href="https://github.com/dchest/tweetnacl-js/issues/12">issue #12</a>.')),
       m('.bar', [
         m('.container', [
           m('ul.nav.nav-pills', [
