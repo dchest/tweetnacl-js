@@ -285,7 +285,7 @@ function car25519(o) {
   for (var i = 0; i < 16; i++) {
       o[i] += 65536;
       c = Math_floor(o[i] / 65536);
-      o[(i+1)*(i<15)] += c - 1 + 37 * (c-1) * (i==15);
+      o[(i+1)*(i<15?1:0)] += c - 1 + 37 * (c-1) * (i==15?1:0);
       o[i] -= (c * 65536);
   }
 }
@@ -859,7 +859,7 @@ function crypto_hash(out, m, n) {
   for (i = 0; i < n; i++) x[i] = m[b-n+i];
   x[n] = 128;
 
-  n = 256-128*(n<112);
+  n = 256-128*(n<112?1:0);
   x[n-9] = b >> 61;
   ts64(x, n-8, new u64(0, b << 3));
   crypto_hashblocks(h, x, n);
