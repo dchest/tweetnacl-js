@@ -20,12 +20,13 @@ function csign(sk, msg, callback) {
   p.stdin.end();
 }
 
-function check(i, sk, pk) {
+function check(i) {
+  var keys = nacl.sign.keyPair();
   var msg = nacl.randomBytes(i);
   //var msg = new Array(i).join('x');
   //console.log("\nTest #" + i + " (Message length: " + msg.length + ")");
-  var sig = nacl.util.encodeBase64(nacl.sign(msg, sk));
-  csign(sk, new Buffer(msg), function(sigFromC) {
+  var sig = nacl.util.encodeBase64(nacl.sign(msg, keys.secretKey));
+  csign(keys.secretKey, new Buffer(msg), function(sigFromC) {
     if (sigFromC != sig) {
       console.error("! signatures don't match\nJS: ", sig, "\nC : ", sigFromC);
       process.exit(1);
@@ -33,7 +34,7 @@ function check(i, sk, pk) {
       //console.log("sign - OK");
       process.stdout.write('.');
     }
-    if (nacl.sign.open(nacl.util.decodeBase64(msg), nacl.util.decodeBase64(sigFromC), pk) === false) {
+    if (nacl.sign.open(nacl.util.decodeBase64(msg), nacl.util.decodeBase64(sigFromC), keys.publicKey) === false) {
       console.log("! verification failed");
       process.exit(1);
     } else {
@@ -41,11 +42,8 @@ function check(i, sk, pk) {
       process.stdout.write('.');
     }
     if (i == 100) { return; }
-    check(i+1, sk, pk);
+    check(i+1);
   });
 }
 
-var sk = new Uint8Array(nacl.sign.secretKeyLength),
-    pk = new Uint8Array(nacl.sign.publicKeyLength);
-nacl.lowlevel.crypto_sign_keypair(pk, sk);
-check(0, sk, pk);
+check(0);

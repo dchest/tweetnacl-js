@@ -14,7 +14,10 @@ function benchmark(fn, MB) {
 
 function crypto_stream_xor_benchmark() {
   console.log('Benchmarking crypto_stream_xor');
-  var m = [], n = [], k = [], out = [];
+  var m = new Uint8Array(1024),
+      n = new Uint8Array(24),
+      k = new Uint8Array(32),
+      out = new Uint8Array(1024);
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   for (i = 0; i < 24; i++) n[i] = i;
   for (i = 0; i < 32; i++) k[i] = i;
@@ -25,8 +28,9 @@ function crypto_stream_xor_benchmark() {
 
 function crypto_onetimeauth_benchmark() {
   console.log('Benchmarking crypto_onetimeauth');
-  var m = [], out = [];
-  var k = [0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1];
+  var m = new Uint8Array(1024),
+      out = new Uint8Array(1024),
+      k = new Uint8Array([0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1]);
   for (i = 0; i < 1024; i++) {
     m[i] = i & 255;
   }
@@ -37,7 +41,8 @@ function crypto_onetimeauth_benchmark() {
 
 function crypto_secretbox_benchmark() {
   console.log('Benchmarking crypto_secretbox');
-  var i, k = [], n = [], m = [], c = [];
+  var i, k = new Uint8Array(32), n = new Uint8Array(24),
+      m = new Uint8Array(1024), c = new Uint8Array(1024);
   for (i = 0; i < 32; i++) k[i] = 1;
   for (i = 0; i < 24; i++) n[i] = 2;
   for (i = 0; i < 1024; i++) m[i] = 3;
@@ -87,7 +92,8 @@ function secretbox_seal_open_array_benchmark() {
 
 function crypto_scalarmult_base_benchmark() {
   console.log('Benchmarking crypto_scalarmult_base');
-  var n = [], q = [], i, start, elapsed, num = 70;
+  var n = new Uint8Array(32), q = new Uint8Array(32),
+      i, start, elapsed, num = 70;
   for (i = 0; i < 32; i++) n[i] = i;
   start = new Date();
   for (i = 0; i < num; i++) {
@@ -98,7 +104,8 @@ function crypto_scalarmult_base_benchmark() {
 }
 
 function box_seal_open_benchmark() {
-  var pk1 = [], sk1 = [], pk2 = [], sk2 = [];
+  var pk1 = new Uint8Array(32), sk1 = new Uint8Array(32),
+      pk2 = new Uint8Array(32), sk2 = new Uint8Array(32);
   nacl.lowlevel.crypto_box_keypair(pk1, sk1);
   nacl.lowlevel.crypto_box_keypair(pk2, sk2);
   var nonce = nacl.util.decodeUTF8('123456789012345678901234');
@@ -119,7 +126,8 @@ function box_seal_open_benchmark() {
 }
 
 function sign_open_benchmark() {
-  var pk = [], sk = [], pk1 = [], sig1 = [];
+  var pk = new Uint8Array(32), sk = new Uint8Array(64),
+      pk1 = new Uint8Array(32), sig1 = new Uint8Array(64);
   for (var i = 0; i < 32;i ++) {
     pk1[i] = 0;
     sig1[i] = 0;
@@ -152,7 +160,8 @@ function sign_open_benchmark() {
 
 function crypto_hash_benchmark() {
   console.log('Benchmarking crypto_hash');
-  var m = [], out = [], start, elapsed, num = 255;
+  var m = new Uint8Array(1024), out = new Uint8Array(64),
+      start, elapsed, num = 255;
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   start = new Date();
   for (i = 0; i < num; i++) {

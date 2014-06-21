@@ -207,9 +207,9 @@ function crypto_randombytes_test() {
   console.log('Testing crypto_randombytes');
   var t = {}, tmp, s, i;
   for (i = 0; i < 10000; i++) {
-    tmp = [];
-    nacl.lowlevel.crypto_randombytes(tmp, 0, 32);
-    s = tmp.join(',');
+    tmp = new Uint8Array(32);
+    nacl.lowlevel.crypto_randombytes(tmp, 32);
+    s = nacl.util.encodeBase64(tmp);
     if (t[s]) {
       console.log("duplicate random sequence! ", s);
       return;

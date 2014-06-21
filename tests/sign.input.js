@@ -18,6 +18,7 @@ zlib.gunzip(gzdata, function(err, data) {
   if (err) throw err;
   var lines = data.toString().split('\n');
   for (var i = 0; i < lines.length; i++) {
+    if (lines[i].length == 0) break;
     var vals = lines[i].split(':');
     var sk = new Uint8Array((new Buffer(vals[0], 'hex')).toJSON());
     var pk = new Uint8Array((new Buffer(vals[1], 'hex')).toJSON());
@@ -36,5 +37,5 @@ zlib.gunzip(gzdata, function(err, data) {
     }
     process.stdout.write('.');
   }
-  console.log('OK (' + i + ' items');
+  console.log('OK (' + i + ' items)');
 });
