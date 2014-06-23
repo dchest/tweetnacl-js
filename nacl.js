@@ -948,14 +948,13 @@ function checkArrayTypes() {
 exports.util = {};
 
 exports.util.decodeUTF8 = function(s) {
-  s = unescape(encodeURIComponent(s));
-  var b = new Uint8Array(s.length), i;
-  for (i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+  var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+  for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
   return b;
 };
 
 exports.util.encodeUTF8 = function(arr) {
-  var s = [], i;
+  var i, s = [], i;
   for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
   return decodeURIComponent(escape(s.join('')));
 };
@@ -974,10 +973,9 @@ exports.util.decodeBase64 = function(s) {
   if (typeof atob === 'undefined') {
     return new Uint8Array(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
   } else {
-    var b = [], i;
-    s = atob(s);
-    for (i = 0; i < s.length; i++) b.push(s.charCodeAt(i));
-    return new Uint8Array(b);
+    var i, d = atob(s), b = new Uint8Array(d.length);
+    for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+    return b;
   }
 };
 

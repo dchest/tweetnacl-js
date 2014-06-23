@@ -3,8 +3,8 @@ all: build
 build:
 	uglifyjs nacl.js -c -m -o nacl.min.js
 
-test: build
+test:
 	cd tests && make test
 
-bench: build
+bench:
 	cd tests && make bench
