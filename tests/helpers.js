@@ -21,6 +21,7 @@ function NodeLogger() {
 
   this.error = function() {
     console.error.apply(console, arguments);
+    process.exit(1);
   };
 
   this.start = this.print.bind(this, '\n');

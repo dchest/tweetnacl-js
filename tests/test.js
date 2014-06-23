@@ -41,8 +41,7 @@ function crypto_stream_xor_test() {
     var out = [];
     nacl.lowlevel.crypto_stream_xor(out, 0, new Uint8Array(golden[i].m), 0, golden[i].m.length, new Uint8Array(golden[i].n), new Uint8Array(golden[i].k));
     if (!helpers.bytesEqual(out, golden[i].out)) {
-      log.error(i, 'differ');
-      log.error('expected', golden[i].out, 'got', out);
+      log.error(i, 'differ\n', 'expected', golden[i].out, 'got', out);
     } else {
       log.ok();
     }
@@ -88,8 +87,7 @@ function crypto_onetimeauth_test() {
     var out = [];
     nacl.lowlevel.crypto_onetimeauth(out, 0, golden[i].m, 0, golden[i].m.length, golden[i].k);
     if (!helpers.bytesEqual(out, golden[i].out)) {
-      log.error(i, 'differ');
-      log.error('expected', golden[i].out, 'got', out);
+      log.error(i, 'differ', 'expected', golden[i].out, 'got', out);
     } else {
       log.ok();
     }
@@ -119,8 +117,7 @@ function crypto_secretbox_test() {
   out = c.subarray(nacl.lowlevel.crypto_secretbox_BOXZEROBYTES);
 
   if (!helpers.bytesEqual(out, golden)) {
-    log.error(0, 'differ');
-    log.error('expected', golden, 'got', out);
+    log.error('differ! expected', golden, 'got', out);
   } else {
     log.ok();
   }
@@ -133,8 +130,7 @@ function crypto_secretbox_test() {
     log.ok();
   }
   if (!helpers.bytesEqual(opened, m)) {
-    log.error(1, 'differ');
-    log.error('expected', m, 'got', opened);
+    log.error('differ! expected', m, 'got', opened);
   } else {
     log.ok();
   }
@@ -188,8 +184,7 @@ function crypto_scalarmult_base_test() {
     var out = [];
     nacl.lowlevel.crypto_scalarmult_base(out, golden[i].n);
     if (!helpers.bytesEqual(out, golden[i].q)) {
-      log.error(i, 'differ');
-      log.error('expected', golden[i].q, 'got', out);
+      log.error(i, 'differ\n', 'expected', golden[i].q, 'got', out);
     } else {
       log.ok();
     }
