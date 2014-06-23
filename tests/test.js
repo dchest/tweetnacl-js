@@ -280,6 +280,25 @@ function sign_open_test() {
   }
 }
 
+function crypto_hashblocks_test() {
+  var m, n, h, eh, ex, i, j;
+  console.log('Testing crypto_hashblocks');
+  for (i = 0; i < 5; i++) { // same test
+    m = new Uint8Array(128);
+    n = m.length;
+    h = new Uint8Array(64);
+    nacl.lowlevel.crypto_hashblocks(h, m, n);
+    eh = nacl.util.encodeBase64(h);
+    ex = 'rTpdqDjr+DBdcUL/hfy+23+ov4bW98qZHGsVsDnXC78p9lFSiZI1GG/XEB1fLo86HDWNJHZTFFBWjA2Z11bcPA==';
+    if (eh != ex) {
+      console.log('hashblocks differ\n', ex, '\n', eh, '\n');
+    } else {
+      console.log('OK');
+    }
+  }
+}
+
+
 function crypto_hash_test() {
   console.log('Testing crypto_hash');
   // golden taken from https://code.google.com/p/go/source/browse/src/pkg/crypto/sha512/sha512_test.go
@@ -357,6 +376,7 @@ crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
 crypto_randombytes_test();
+crypto_hashblocks_test();
 crypto_hash_test();
 secretbox_seal_open_test();
 randomBytes_test();
