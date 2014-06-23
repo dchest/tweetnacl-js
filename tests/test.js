@@ -141,7 +141,7 @@ function crypto_secretbox_test() {
 }
 
 function secretbox_seal_open_test() {
-  log.start('Testing secretbox and secrebox.open');
+  log.start('Testing secretbox and secretbox.open');
   var key = nacl.util.decodeUTF8('12345678901234567890123456789012');
   var nonce = nacl.util.decodeUTF8('123456789012345678901234');
   var msg = nacl.util.decodeUTF8('привет!');
