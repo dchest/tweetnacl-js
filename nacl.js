@@ -9,7 +9,7 @@
 
 /* jshint newcap: false */
 
-var u64 = function (h, l) { this.hi = h >>> 0; this.lo  = l >>> 0; };
+var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo  = l|0 >>> 0; };
 var gf = function() { return new Float64Array(16); };
 
 function randombytes(x, n) {
