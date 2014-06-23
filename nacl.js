@@ -847,7 +847,7 @@ var iv = new Uint8Array([
 ]);
 
 function crypto_hash(out, m, n) {
-  var h = new Uint8Array(64), x = new Array(256);
+  var h = new Uint8Array(64), x = new Uint8Array(256);
   var i, b = n;
 
   for (i = 0; i < 64; i++) h[i] = iv[i];
