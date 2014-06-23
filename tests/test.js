@@ -374,6 +374,46 @@ function typecheck_test() {
   }
 }
 
+function encodeDecodeBase64_test() {
+  log.start('Testing nacl.util.encodeBase64');
+  var s = new Uint8Array([208,159,209,128,208,184,208,178,208,181,209,130,44,32,78,97,67,108]);
+  var en = nacl.util.encodeBase64(s);
+  var ex = "0J/RgNC40LLQtdGCLCBOYUNs";
+  if (en != ex) {
+    log.error('bad encoding! expected', ex, 'got', en);
+  } else {
+    log.ok();
+  }
+  log.start('Testing nacl.util.decodeBase64');
+  var de = nacl.util.decodeBase64(en);
+  if (!helpers.bytesEqual(s, de)) {
+    log.error('bad decoding! expected', s, 'got', de);
+  } else {
+    log.ok();
+  }
+}
+
+function encodeDecodeUTF8_test() {
+  log.start('Testing nacl.util.decodeUTF8');
+  var s = "Привет, NaCl";
+  var de = nacl.util.decodeUTF8(s);
+  var ex = new Uint8Array([208,159,209,128,208,184,208,178,208,181,209,130,44,32,78,97,67,108]);
+  if (!helpers.bytesEqual(ex, de)) {
+    log.error('bad decoding! expected', ex, 'got', de);
+  } else {
+    log.ok();
+  }
+  log.start('Testing nacl.util.encodeUTF8');
+  var en = nacl.util.encodeUTF8(de);
+  if (en != s) {
+    log.error('bad encoding! expected', s, 'got', en);
+  } else {
+    log.ok();
+  }
+}
+
+encodeDecodeBase64_test();
+encodeDecodeUTF8_test();
 crypto_stream_xor_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
