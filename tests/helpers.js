@@ -30,18 +30,30 @@ function BrowserLogger() {
   var el = document.createElement('pre');
   document.body.appendChild(el);
 
+  function escape(s) {
+    var reps = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;'
+    };
+    return String(s).replace(/[&<>"'\/]/g, function (x) { return reps[x]; });
+  }
+
   this.print = function() {
-    var s = arguments.length ? Array.prototype.slice.call(arguments).join(' ') : '';
-    el.innerText += s + '\n';
+    var s = escape(arguments.length ? Array.prototype.slice.call(arguments).join(' ') : '');
+    el.innerHTML += s + '\n';
   };
 
   this.ok = function() {
-    el.innerText += '.';
+    el.innerHTML += '.';
   };
 
   this.error = function() {
-    var s = arguments.length ? Array.prototype.slice.call(arguments) : '';
-    el.innerText += 'ERROR: ' + s + '\n';
+    var s = escape(arguments.length ? Array.prototype.slice.call(arguments) : '');
+    el.innerHTML += 'ERROR: ' + s + '\n';
   };
 
   this.start = this.print.bind(this, '\n');
