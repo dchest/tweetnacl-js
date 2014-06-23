@@ -1246,9 +1246,11 @@ exports.sign = function(msg, secretKey) {
   checkArrayTypes(msg, secretKey);
   if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
     throw new Error('bad secret key size');
-  var sm = new Uint8Array(64+msg.length);
+  var sm = new Uint8Array(crypto_sign_BYTES+msg.length);
   crypto_sign(sm, msg, msg.length, secretKey);
-  return sm.subarray(0, 64); //TODO: copy only 64 bytes, not subarray
+  var sig = new Uint8Array(crypto_sign_BYTES);
+  for (var i = 0; i < sig.length; i++) sig[i] = sm[i];
+  return sig;
 };
 
 exports.sign.open = function(msg, sig, publicKey) {
