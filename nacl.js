@@ -9,7 +9,7 @@
 
 /* jshint newcap: false */
 
-var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo  = l|0 >>> 0; };
+var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function() { return new Float64Array(16); };
 
 function randombytes(x, n) {
@@ -674,11 +674,10 @@ function crypto_box_open(m, c, d, n, y, x) {
 }
 
 function add64() {
-  var a = 0, b = 0, c = 0, d = 0, m16 = 65535,
-      l, h, ar = arguments, alen = ar.length|0;
-
-  for (var i = 0; i < alen; i++) {
-    l  = ar[i].lo; h  = ar[i].hi;
+  var a = 0, b = 0, c = 0, d = 0, m16 = 65535, l, h, i;
+  for (i = 0; i < arguments.length; i++) {
+    l = arguments[i].lo;
+    h = arguments[i].hi;
     a += (l & m16); b += (l >>> 16);
     c += (h & m16); d += (h >>> 16);
   }
@@ -694,14 +693,23 @@ function shr64(x, c) {
   return new u64((x.hi >>> c), (x.lo >>> c) | (x.hi << (32 - c)));
 }
 
+function xor64() {
+  var l = 0, h = 0, i;
+  for (i = 0; i < arguments.length; i++) {
+    l ^= arguments[i].lo;
+    h ^= arguments[i].hi;
+  }
+  return new u64(h, l);
+}
+
 function R(x, c) {
   var h, l, c1 = 32 - c;
   if (c < 32) {
-    h = (x.hi >>> c) | (x.lo  << c1);
-    l = (x.lo  >>> c) | (x.hi << c1);
+    h = (x.hi >>> c) | (x.lo << c1);
+    l = (x.lo >>> c) | (x.hi << c1);
   } else if (c < 64) {
-    h = (x.lo  >>> c) | (x.hi << c1);
-    l = (x.hi >>> c) | (x.lo  << c1);
+    h = (x.lo >>> c) | (x.hi << c1);
+    l = (x.hi >>> c) | (x.lo << c1);
   }
   return new u64(h, l);
 }
@@ -718,45 +726,10 @@ function Maj(x, y, z) {
   return new u64(h, l);
 }
 
-function Sigma0(x) {
-  var s = [], h, l;
-  s[0] = R(x, 28);
-  s[1] = R(x, 34);
-  s[2] = R(x, 39);
-  h = s[0].hi ^ s[1].hi ^ s[2].hi;
-  l = s[0].lo ^ s[1].lo ^ s[2].lo;
-  return new u64(h, l);
-}
-
-function Sigma1(x) {
-  var s = [], h, l;
-  s[0] = R(x, 14);
-  s[1] = R(x, 18);
-  s[2] = R(x, 41);
-  h = s[0].hi ^ s[1].hi ^ s[2].hi;
-  l = s[0].lo ^ s[1].lo ^ s[2].lo;
-  return new u64(h, l);
-}
-
-function sigma0(x) {
-  var s = [], h, l;
-  s[0] = R(x, 1);
-  s[1] = R(x, 8);
-  s[2] = shr64(x, 7);
-  h = s[0].hi ^ s[1].hi ^ s[2].hi;
-  l = s[0].lo ^ s[1].lo ^ s[2].lo;
-  return new u64(h, l);
-}
-
-function sigma1(x) {
-  var s = [], h, l;
-  s[0] = R(x, 19);
-  s[1] = R(x, 61);
-  s[2] = shr64(x, 6);
-  h = s[0].hi ^ s[1].hi ^ s[2].hi;
-  l = s[0].lo ^ s[1].lo ^ s[2].lo;
-  return new u64(h, l); 
-}
+function Sigma0(x) { return xor64(R(x,28), R(x,34), R(x,39)); }
+function Sigma1(x) { return xor64(R(x,14), R(x,18), R(x,41)); }
+function sigma0(x) { return xor64(R(x, 1), R(x, 8), shr64(x,7)); }
+function sigma1(x) { return xor64(R(x,19), R(x,61), shr64(x,6)); }
 
 var K = [
   new u64(0x428a2f98, 0xd728ae22), new u64(0x71374491, 0x23ef65cd),
