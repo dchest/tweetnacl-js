@@ -54,26 +54,6 @@ function crypto_secretbox_benchmark() {
 }
 
 function secretbox_seal_open_benchmark() {
-  var key = nacl.util.decodeUTF8('12345678901234567890123456789012');
-  var nonce = nacl.util.decodeUTF8('123456789012345678901234');
-  var box = null;
-  var msg = nacl.util.decodeUTF8((new Array(1024)).join('a'));
-  log.start('Benchmarking secretbox');
-  benchmark(function() {
-    box = nacl.secretbox(msg, nonce, key);
-  });
-  log.start('Benchmarking secretbox.open (valid)');
-  benchmark(function() {
-    nacl.secretbox.open(box, nonce, key);
-  });
-  log.start('Benchmarking secretbox.open (invalid)');
-  for (var i = 0; i < 10; i++) box[i] = 0;
-  benchmark(function() {
-    nacl.secretbox.open(box, nonce, key);
-  });
-}
-
-function secretbox_seal_open_array_benchmark() {
   var key = new Uint8Array(32),
       nonce = new Uint8Array(24),
       msg = new Uint8Array(1024),
@@ -82,11 +62,11 @@ function secretbox_seal_open_array_benchmark() {
   for (i = 0; i < 24; i++) nonce[i] = 2;
   for (i = 0; i < 1024; i++) msg[i] = 3;
 
-  log.start('Benchmarking secretbox (array)');
+  log.start('Benchmarking secretbox');
   benchmark(function() {
     box = nacl.secretbox(msg, nonce, key);
   });
-  log.start('Benchmarking secretbox.open (valid, array)');
+  log.start('Benchmarking secretbox.open');
   benchmark(function() {
     nacl.secretbox.open(box, nonce, key);
   });
@@ -182,7 +162,6 @@ crypto_onetimeauth_benchmark();
 crypto_secretbox_benchmark();
 crypto_hash_benchmark();
 secretbox_seal_open_benchmark();
-secretbox_seal_open_array_benchmark();
 crypto_scalarmult_base_benchmark();
 box_seal_open_benchmark();
 sign_open_benchmark();
