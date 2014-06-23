@@ -1,4 +1,4 @@
-all: uglify
+all: build
 
 build:
 	uglifyjs nacl.js -c -m -o nacl.min.js
