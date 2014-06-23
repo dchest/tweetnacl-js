@@ -393,255 +393,58 @@ function pow2523(o, i) {
   for (a = 0; a < 16; a++) o[a] = c[a];
 }
 
-var crypto_scalarmult = (function() {
-  // Implementation derived from curve25519/ref: version 20081011
-  // Matthew Dempsky. Public domain.
-  // Derived from public domain code by D. J. Bernstein.
 
-  function add(out, outpos, a, apos, b, bpos) {
-    var j, u = 0;
-    for (j = 0; j < 31; ++j) {
-      u = (u + ((a[apos+j] + b[bpos+j]) | 0)) | 0;
-      out[outpos+j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + ((a[apos+31] + b[bpos+31]) | 0)) | 0;
-    out[outpos+31] = u;
+function crypto_scalarmult(q, n, p) {
+  var z = new Uint8Array(32);
+  var x = new Float64Array(80), r, i;
+  var a = new gf(), b = new gf(), c = new gf(),
+      d = new gf(), e = new gf(), f = new gf();
+  for (i = 0; i < 31; i++) z[i] = n[i];
+  z[31]=(n[31]&127)|64;
+  z[0]&=248;
+  unpack25519(x,p);
+  for (i = 0; i < 16; i++) {
+    b[i]=x[i];
+    d[i]=a[i]=c[i]=0;
   }
-
-  function sub(out, outpos, a, apos, b, bpos) {
-    var j, u = 218;
-    for (j = 0; j < 31; ++j) {
-      u = (u + ((((a[apos+j] + 65280) | 0) - b[bpos+j]) | 0)) | 0;
-      out[outpos+j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + ((a[apos+31] - b[bpos+31]) | 0)) | 0;
-    out[outpos+31] = u;
+  a[0]=d[0]=1;
+  for (i=254;i>=0;--i) {
+    r=(z[i>>>3]>>>(i&7))&1;
+    sel25519(a,b,r);
+    sel25519(c,d,r);
+    A(e,a,c);
+    Z(a,a,c);
+    A(c,b,d);
+    Z(b,b,d);
+    S(d,e);
+    S(f,a);
+    M(a,c,a);
+    M(c,b,e);
+    A(e,a,c);
+    Z(a,a,c);
+    S(b,a);
+    Z(c,d,f);
+    M(a,c,_121665);
+    A(a,a,d);
+    M(c,c,a);
+    M(a,d,f);
+    M(d,b,x);
+    S(b,e);
+    sel25519(a,b,r);
+    sel25519(c,d,r);
   }
-
-  function squeeze(a, apos) {
-    var j, u = 0;
-    for (j = 0; j < 31; ++j) {
-      u = (u + a[apos+j]) | 0;
-      a[apos+j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + a[apos+31]) | 0;
-    a[apos+31] = u & 127;
-    u = (19 * (u >>> 7)) | 0;
-    for (j = 0; j < 31; ++j) {
-      u = (u + a[apos+j]) | 0;
-      a[apos+j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + a[apos+31]) | 0;
-    a[apos+31] = u;
+  for (i = 0; i < 16; i++) {
+    x[i+16]=a[i];
+    x[i+32]=c[i];
+    x[i+48]=b[i];
+    x[i+64]=d[i];
   }
-
-  var minusp = new Uint32Array([
-   19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128
-  ]);
-
-  function freeze(a, apos) {
-    var aorig = new Uint32Array(32), j, negative;
-    for (j = 0; j < 32; ++j) aorig[j] = a[apos+j];
-    add(a, apos, a, apos, minusp, 0);
-    negative = -((a[apos+31] >>> 7) & 1);
-    for (j = 0; j < 32; ++j) a[apos+j] ^= negative & (aorig[j] ^ a[apos+j]);
-  }
-
-  function mult(out, outpos, a, apos, b, bpos) {
-    var i, j, u;
-    for (i = 0; i < 32; ++i) {
-      u = 0;
-      for (j = 0; j <= i; ++j) u = (u + ((a[apos+j] * b[bpos+(i-j)]) | 0)) | 0;
-      for (j = i + 1; j < 32; ++j) u = (u + (((38 * a[apos+j]) | 0) * b[bpos+(i+32-j)]) | 0) | 0;
-      out[outpos+i] = u;
-    }
-    squeeze(out, outpos);
-  }
-
-  function mult121665(out, outpos, a, apos) {
-    var j, u = 0;
-    for (j = 0; j < 31; ++j) {
-      u = (u + ((121665 * a[apos+j]) | 0)) | 0;
-      out[outpos+j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + ((121665 * a[apos+31]) | 0)) | 0;
-    out[outpos+31] = u & 127;
-    u = (19 * (u >>> 7)) | 0;
-    for (j = 0; j < 31; ++j) {
-      u = (u + out[outpos+j]) | 0;
-      out[outpos+j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + out[outpos+j]) | 0;
-    out[outpos+j] = u;
-  }
-
-  function square(out, outpos, a, apos) {
-    var i, j, u;
-    for (i = 0; i < 32; ++i) {
-      u = 0;
-      for (j = 0; j < i - j; ++j) u = (u + ((a[apos+j] * a[apos+(i-j)]) | 0)) | 0;
-      for (j = i + 1; j < i + 32 - j; ++j) u = (u + ((((38 * a[apos+j]) | 0) * a[apos+(i+32-j)]) | 0)) | 0;
-      u = (u * 2) | 0;
-      if ((i & 1) === 0) {
-        u = (u + ((a[apos+(i/2|0)] * a[apos+(i/2|0)]) | 0)) | 0;
-        u = (u + ((((38 * a[apos+((i/2|0)+16)]) | 0) * a[apos+((i/2|0)+16)]) | 0)) | 0;
-      }
-      out[outpos+i] = u;
-    }
-    squeeze(out, outpos);
-  }
-
-  function select(p, ppos, q, qpos, r, rpos, s, spos, b) {
-    var j, t, bminus1;
-    bminus1 = (b - 1) >>> 0;
-    for (j = 0; j < 64; ++j) {
-      t = bminus1 & (r[rpos+j] ^ s[spos+j]);
-      p[ppos+j] = s[spos+j] ^ t;
-      q[qpos+j] = r[rpos+j] ^ t;
-    }
-  }
-
-  function mainloop(work, workpos, e, epos) {
-    var xzm1 = new Uint32Array(64),
-        xzm = new Uint32Array(64),
-        xzmb = new Uint32Array(64),
-        xzm1b = new Uint32Array(64),
-        xznb = new Uint32Array(64),
-        xzn1b = new Uint32Array(64),
-        a0 = new Uint32Array(64),
-        a1 = new Uint32Array(64),
-        b0 = new Uint32Array(64),
-        b1 = new Uint32Array(64),
-        c1 = new Uint32Array(64),
-        r = new Uint32Array(32),
-        s = new Uint32Array(32),
-        t = new Uint32Array(32),
-        u = new Uint32Array(32),
-        j, b, pos;
-
-    for (j = 0; j < 32; ++j) xzm1[j] = work[workpos+j];
-    xzm1[32] = 1;
-    for (j = 33; j < 64; ++j) xzm1[j] = 0;
-
-    xzm[0] = 1;
-    for (j = 1; j < 64; ++j) xzm[j] = 0;
-
-    for (pos = 254; pos >= 0; --pos) {
-      b = e[epos + (pos/8|0)] >>> (pos & 7);
-      b &= 1;
-      select(xzmb, 0, xzm1b, 0, xzm, 0, xzm1, 0, b);
-      add(a0, 0, xzmb, 0, xzmb, 32);
-      sub(a0, 32, xzmb, 0, xzmb, 32);
-      add(a1, 0, xzm1b, 0, xzm1b, 32);
-      sub(a1, 32, xzm1b, 0, xzm1b, 32);
-      square(b0, 0, a0, 0);
-      square(b0, 32, a0, 32);
-      mult(b1, 0, a1, 0, a0, 32);
-      mult(b1, 32, a1, 32, a0, 0);
-      add(c1, 0, b1, 0, b1, 32);
-      sub(c1, 32, b1, 0, b1, 32);
-      square(r, 0, c1, 32);
-      sub(s, 0, b0, 0, b0, 32);
-      mult121665(t, 0, s, 0);
-      add(u, 0, t, 0, b0, 0);
-      mult(xznb, 0, b0, 0, b0, 32);
-      mult(xznb, 32, s, 0, u, 0);
-      square(xzn1b, 0, c1, 0);
-      mult(xzn1b, 32, r, 0, work, workpos);
-      select(xzm, 0, xzm1, 0, xznb, 0, xzn1b, 0, b);
-    }
-    for (j = 0; j < 64; ++j) work[workpos+j] = xzm[j];
-  }
-
-  function recip(out, outpos, z, zpos) {
-    var z2 = new Uint32Array(32),
-        z9 = new Uint32Array(32),
-        z11 = new Uint32Array(32),
-        z2_5_0 = new Uint32Array(32),
-        z2_10_0 = new Uint32Array(32),
-        z2_20_0 = new Uint32Array(32),
-        z2_50_0 = new Uint32Array(32),
-        z2_100_0 = new Uint32Array(32),
-        t0 = new Uint32Array(32),
-        t1 = new Uint32Array(32),
-        i;
-
-    /* 2 */ square(z2, 0, z, zpos);
-    /* 4 */ square(t1, 0, z2, 0);
-    /* 8 */ square(t0, 0, t1, 0);
-    /* 9 */ mult(z9, 0, t0, 0, z, zpos);
-    /* 11 */ mult(z11, 0, z9, 0, z2, 0);
-    /* 22 */ square(t0, 0, z11, 0);
-    /* 2^5 - 2^0 = 31 */ mult(z2_5_0, 0, t0, 0, z9, 0);
-
-    /* 2^6 - 2^1 */ square(t0, 0, z2_5_0, 0);
-    /* 2^7 - 2^2 */ square(t1, 0, t0, 0);
-    /* 2^8 - 2^3 */ square(t0, 0, t1, 0);
-    /* 2^9 - 2^4 */ square(t1, 0, t0, 0);
-    /* 2^10 - 2^5 */ square(t0, 0, t1, 0);
-    /* 2^10 - 2^0 */ mult(z2_10_0, 0, t0, 0, z2_5_0, 0);
-
-    /* 2^11 - 2^1 */ square(t0, 0, z2_10_0, 0);
-    /* 2^12 - 2^2 */ square(t1, 0, t0, 0);
-    /* 2^20 - 2^10 */ for (i = 2; i < 10; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
-    /* 2^20 - 2^0 */ mult(z2_20_0, 0, t1, 0, z2_10_0, 0);
-
-    /* 2^21 - 2^1 */ square(t0, 0, z2_20_0, 0);
-    /* 2^22 - 2^2 */ square(t1, 0, t0, 0);
-    /* 2^40 - 2^20 */ for (i = 2; i < 20; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
-    /* 2^40 - 2^0 */ mult(t0, 0, t1, 0, z2_20_0, 0);
-
-    /* 2^41 - 2^1 */ square(t1, 0, t0, 0);
-    /* 2^42 - 2^2 */ square(t0, 0, t1, 0);
-    /* 2^50 - 2^10 */ for (i = 2; i < 10; i += 2) { square(t1, 0, t0, 0); square(t0, 0, t1, 0); }
-    /* 2^50 - 2^0 */ mult(z2_50_0, 0, t0, 0, z2_10_0, 0);
-
-    /* 2^51 - 2^1 */ square(t0, 0, z2_50_0, 0);
-    /* 2^52 - 2^2 */ square(t1, 0, t0, 0);
-    /* 2^100 - 2^50 */ for (i = 2; i < 50; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
-    /* 2^100 - 2^0 */ mult(z2_100_0, 0, t1, 0, z2_50_0, 0);
-
-    /* 2^101 - 2^1 */ square(t1, 0, z2_100_0, 0);
-    /* 2^102 - 2^2 */ square(t0, 0, t1, 0);
-    /* 2^200 - 2^100 */ for (i = 2; i < 100; i += 2) { square(t1, 0, t0, 0); square(t0, 0, t1, 0); }
-    /* 2^200 - 2^0 */ mult(t1, 0, t0, 0, z2_100_0, 0);
-
-    /* 2^201 - 2^1 */ square(t0, 0, t1, 0);
-    /* 2^202 - 2^2 */ square(t1, 0, t0, 0);
-    /* 2^250 - 2^50 */ for (i = 2; i < 50; i += 2) { square(t0, 0, t1, 0); square(t1, 0, t0, 0); }
-    /* 2^250 - 2^0 */ mult(t0, 0, t1, 0, z2_50_0, 0);
-
-    /* 2^251 - 2^1 */ square(t1, 0, t0, 0);
-    /* 2^252 - 2^2 */ square(t0, 0, t1, 0);
-    /* 2^253 - 2^3 */ square(t1, 0, t0, 0);
-    /* 2^254 - 2^4 */ square(t0, 0, t1, 0);
-    /* 2^255 - 2^5 */ square(t1, 0, t0, 0);
-    /* 2^255 - 21 */ mult(out, outpos, t1, 0, z11, 0);
-  }
-
-  return function(q, n, p) {
-    var work = new Uint32Array(96),
-        e = new Uint8Array(32),
-        i;
-    for (i = 0; i < 32; ++i) e[i] = n[i];
-    e[0] &= 248;
-    e[31] &= 127;
-    e[31] |= 64;
-    for (i = 0; i < 32; ++i) work[i] = p[i];
-    mainloop(work, 0, e, 0);
-    recip(work, 32, work, 32);
-    mult(work, 64, work, 0, work, 32);
-    freeze(work, 64);
-    for (i = 0; i < 32; ++i) q[i] = work[64 + i];
-  };
-
-})();
+  var x32 = x.subarray(32);
+  var x16 = x.subarray(16);
+  inv25519(x32,x32);
+  M(x16,x16,x32);
+  pack25519(q,x16);
+}
 
 function crypto_scalarmult_base(q, n) {
   crypto_scalarmult(q, n, _9);
