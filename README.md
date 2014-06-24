@@ -18,7 +18,7 @@ Public domain. Works in Node.js and browsers.
 Documentation
 =============
 
-* [High-level API](#high-level-api)
+* [API](#api)
   * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
   * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
   * [Scalar multiplication](#scalar-multiplication)
@@ -31,11 +31,11 @@ Documentation
 * [Contributors](#contributors)
 
 
-High-level API
---------------
+API
+---
 
-All high-level API functions accept and return bytes as `Uint8Array`s.  If you
-need to encode or decode strings, use functions from `nacl.util` namespace.
+All API functions accept and return bytes as `Uint8Array`s.  If you need to
+encode or decode strings, use functions from `nacl.util` namespace.
 
 ### Public-key authenticated encryption (box)
 
@@ -236,56 +236,6 @@ Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
 
-
-Low-level API
--------------
-
-Low-level NaCl functions and constants are provided with original names under
-`nacl.lowlevel` namespace.
-
-**It is not recommended to use these low-level functions unless you know what you
-are doing, and even if you know, be careful as function arguments sometimes
-differ from the C version due to JavaScript limitations: read the source.**
-
-    nacl.lowlevel.crypto_stream_xor
-    nacl.lowlevel.crypto_stream
-    nacl.lowlevel.crypto_stream_salsa20_xor
-    nacl.lowlevel.crypto_stream_salsa20
-    nacl.lowlevel.crypto_onetimeauth
-    nacl.lowlevel.crypto_onetimeauth_verify
-    nacl.lowlevel.crypto_verify_16
-    nacl.lowlevel.crypto_verify_32
-    nacl.lowlevel.crypto_secretbox
-    nacl.lowlevel.crypto_secretbox_open
-    nacl.lowlevel.crypto_scalarmult
-    nacl.lowlevel.crypto_scalarmult_base
-    nacl.lowlevel.crypto_box_beforenm
-    nacl.lowlevel.crypto_box_afternm
-    nacl.lowlevel.crypto_box
-    nacl.lowlevel.crypto_box_open
-    nacl.lowlevel.crypto_box_keypair
-    nacl.lowlevel.crypto_hash
-    nacl.lowlevel.crypto_sign
-    nacl.lowlevel.crypto_sign_keypair
-    nacl.lowlevel.crypto_sign_open
-    nacl.lowlevel.crypto_randombytes
-
-    nacl.lowlevel.crypto_secretbox_KEYBYTES
-    nacl.lowlevel.crypto_secretbox_NONCEBYTES
-    nacl.lowlevel.crypto_secretbox_ZEROBYTES
-    nacl.lowlevel.crypto_secretbox_BOXZEROBYTES
-    nacl.lowlevel.crypto_scalarmult_BYTES
-    nacl.lowlevel.crypto_scalarmult_SCALARBYTES
-    nacl.lowlevel.crypto_box_PUBLICKEYBYTES
-    nacl.lowlevel.crypto_box_SECRETKEYBYTES
-    nacl.lowlevel.crypto_box_BEFORENMBYTES
-    nacl.lowlevel.crypto_box_NONCEBYTES
-    nacl.lowlevel.crypto_box_ZEROBYTES
-    nacl.lowlevel.crypto_box_BOXZEROBYTES
-    nacl.lowlevel.crypto_sign_BYTES
-    nacl.lowlevel.crypto_sign_PUBLICKEYBYTES
-    nacl.lowlevel.crypto_sign_SECRETKEYBYTES
-    nacl.lowlevel.crypto_hash_BYTES
 
 Examples
 --------
