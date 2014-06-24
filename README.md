@@ -255,6 +255,7 @@ Original authors of [NaCl](http://nacl.cr.yp.to) and [TweetNaCl](http://tweetnac
 (who are *not* responsible for any errors in this implementation):
 
   * [Daniel J. Bernstein](http://cr.yp.to/djb.html)
+  * Wesley Janssen
   * [Tanja Lange](http://hyperelliptic.org/tanja)
   * [Peter Schwabe](http://www.cryptojedi.org/users/peter/)
   * [Matthew Dempsky](https://github.com/mdempsky)
