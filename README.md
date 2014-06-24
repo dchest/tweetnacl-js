@@ -26,7 +26,6 @@ Documentation
   * [Hashing](#hashing)
   * [Random bytes generation](#random-bytes-generation)
   * [Utilities](#utilities)
-* [Low-level API](#low-level-api)
 * [Examples](#examples)
 * [Contributors](#contributors)
 
