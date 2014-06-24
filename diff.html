@@ -33,8 +33,8 @@
 (function(exports) {
 'use strict';
 
-// Written in 2014 by Dmitry Chestnykh. Public domain.
-// Written in 2014 by Devi Mandiri. Public domain.
+// Ported in 2014 by Dmitry Chestnykh and Devi Mandiri.
+// Public domain.
 //
 // Implementation derived from TweetNaCl version 20140427.
 // See for details: http://tweetnacl.cr.yp.to/
@@ -1109,13 +1109,33 @@ exports.secretbox.open = function(box, nonce, key) {
   var m = new Uint8Array(c.length);
   for (var i = 0; i < box.length; i++) c[i+crypto_secretbox_BOXZEROBYTES] = box[i];
   if (c.length < 32) return false;
-  if (!crypto_secretbox_open(m, c, c.length, nonce, key)) return false;
+  if (crypto_secretbox_open(m, c, c.length, nonce, key) !== 0) return false;
   return m.subarray(crypto_secretbox_ZEROBYTES);
 };
 
 exports.secretbox.keyLength = crypto_secretbox_KEYBYTES;
 exports.secretbox.nonceLength = crypto_secretbox_NONCEBYTES;
 exports.secretbox.overheadLength = crypto_secretbox_BOXZEROBYTES;
+
+exports.scalarMult = function(n, p) {
+  checkArrayTypes(n, p);
+  if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+  if (p.length != crypto_scalarmult_BYTES) throw new Error('bad p size');
+  var q = new Uint8Array(crypto_scalarmult_BYTES);
+  crypto_scalarmult(q, n, p);
+  return q;
+};
+
+exports.scalarMult.base = function(n) {
+  checkArrayTypes(n);
+  if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+  var q = new Uint8Array(crypto_scalarmult_BYTES);
+  crypto_scalarmult_base(q, n);
+  return q;
+};
+
+exports.scalarMult.scalarLength = crypto_scalarmult_SCALARBYTES;
+exports.scalarMult.groupElementLength = crypto_scalarmult_BYTES;
 
 exports.box = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
@@ -1174,7 +1194,7 @@ exports.sign.open = function(msg, sig, publicKey) {
   var i;
   for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
   for (i = 0; i < msg.length; i++) sm[i+crypto_sign_BYTES] = msg[i];
-  if (!crypto_sign_open(m, sm, sm.length, publicKey)) return false;
+  if (crypto_sign_open(m, sm, sm.length, publicKey) !== 0) return false;
   return m.subarray(crypto_sign_BYTES);
 };
 
@@ -1199,6 +1219,7 @@ exports.hash = function(msg) {
 exports.hash.hashLength = crypto_hash_BYTES;
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));
+
 </code></pre>
 </div>
 
