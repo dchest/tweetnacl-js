@@ -13,12 +13,13 @@ var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function() { return new Float64Array(16); };
 
 function randombytes(x, n) {
-  var values;
-   if (typeof window !== 'undefined' && window.crypto) {
+  var values, prng;
+   if (typeof window !== 'undefined' && (window.crypto || window.msCrypto)) {
      values = new Uint8Array(n);
-     window.crypto.getRandomValues(values);
+     prng = window.crypto ? window.crypto : window.msCrypto;
+     prng.getRandomValues(values);
    } else if (typeof require !== 'undefined') {
-     var prng = require('crypto');
+     prng = require('crypto');
      values = prng ? prng.randomBytes(n) : null;
    } else {
      throw new Error('no PRNG');
