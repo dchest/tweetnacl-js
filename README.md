@@ -132,6 +132,8 @@ Length of overhead added to secret box compared to original message.
 
 ### Scalar multiplication
 
+Implements *curve25519*.
+
 #### nacl.scalarMult(n, p)
 
 Multiplies an integer `n` by a group element `p` and returns the resulting
