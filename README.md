@@ -21,6 +21,7 @@ Documentation
 * [High-level API](#high-level-api)
   * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
   * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
+  * [Scalar multiplication](#scalar-multiplication)
   * [Signatures](#signatures)
   * [Hashing](#hashing)
   * [Random bytes generation](#random-bytes-generation)
@@ -128,6 +129,27 @@ Length of nonce in bytes.
 #### nacl.secretbox.overheadLength = 16
 
 Length of overhead added to secret box compared to original message.
+
+
+### Scalar multiplication
+
+#### nacl.scalarMult(n, p)
+
+Multiplies an integer `n` by a group element `p` and returns the resulting
+group element.
+
+#### nacl.scalarMult.base(n)
+
+Multiplies an integer `n` by a standard group element and returns the resulting
+group element.
+
+#### nacl.scalarMult.scalarLength = 32
+
+Length of scalar in bytes.
+
+#### nacl.scalarMult.groupElementLength = 32
+
+Length of group element in bytes.
 
 
 ### Signatures

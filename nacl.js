@@ -1015,6 +1015,26 @@ exports.secretbox.keyLength = crypto_secretbox_KEYBYTES;
 exports.secretbox.nonceLength = crypto_secretbox_NONCEBYTES;
 exports.secretbox.overheadLength = crypto_secretbox_BOXZEROBYTES;
 
+exports.scalarMult = function(n, p) {
+  checkArrayTypes(n, p);
+  if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+  if (p.length != crypto_scalarmult_BYTES) throw new Error('bad p size');
+  var q = new Uint8Array(crypto_scalarmult_BYTES);
+  crypto_scalarmult(q, n, p);
+  return q;
+};
+
+exports.scalarMult.base = function(n) {
+  checkArrayTypes(n);
+  if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+  var q = new Uint8Array(crypto_scalarmult_BYTES);
+  crypto_scalarmult_base(q, n);
+  return q;
+};
+
+exports.scalarMult.scalarLength = crypto_scalarmult_SCALARBYTES;
+exports.scalarMult.groupElementLength = crypto_scalarmult_BYTES;
+
 exports.box = function(msg, nonce, publicKey, secretKey) {
   var k = exports.box.before(publicKey, secretKey);
   return exports.secretbox(msg, nonce, k);
