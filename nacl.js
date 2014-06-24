@@ -285,7 +285,7 @@ function car25519(o) {
   for (var i = 0; i < 16; i++) {
       o[i] += 65536;
       c = Math_floor(o[i] / 65536);
-      o[(i+1)*(i<15?1:0)] += c - 1 + 37 * (c-1) * (i==15?1:0);
+      o[(i+1)*(i<15?1:0)] += c - 1 + 37 * (c-1) * (i===15?1:0);
       o[i] -= (c * 65536);
   }
 }
@@ -591,7 +591,7 @@ function crypto_hashblocks(x, m, n) {
       b[7] = add64(t, Sigma0(a[0]), Maj(a[0], a[1], a[2]));
       b[3] = add64(b[3], t);
       for (j = 0; j < 8; j++) a[(j+1)%8] = b[j];
-      if (i%16 == 15) {
+      if (i%16 === 15) {
         for (j = 0; j < 16; j++) {
           w[j] = add64(w[j], w[(j+9)%16], sigma0(w[(j+1)%16]), sigma1(w[(j+14)%16]));
         }
@@ -829,7 +829,7 @@ function unpackneg(r, p) {
   M(chk, chk, den);
   if (neq25519(chk, num)) return -1;
 
-  if (par25519(r[0]) == (p[31]>>7)) Z(r[0], gf0, r[0]);
+  if (par25519(r[0]) === (p[31]>>7)) Z(r[0], gf0, r[0]);
 
   M(r[3], r[0], r[1]);
   return 0;

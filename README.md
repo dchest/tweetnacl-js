@@ -2,7 +2,9 @@ TweetNaCl.js
 ============
 
 Port of [TweetNaCl](http://tweetnacl.cr.yp.to) / [NaCl](http://nacl.cr.yp.to/)
-to JavaScript.
+to JavaScript. The goal of this project is to produce a translation of
+TweetNaCl to JavaScript which is as close as possible to the original C
+implementation, plus a thin layer of idiomatic high-level API on top of it.
 
 Public domain. Works in Node.js and browsers.
 
