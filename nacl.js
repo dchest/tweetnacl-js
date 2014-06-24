@@ -30,7 +30,7 @@ function randombytes(x, n) {
 }
 
 var _0 = new Uint8Array(16);
-var _9 = new Float64Array(32); _9[0] = 9;
+var _9 = new Uint8Array(32); _9[0] = 9;
 
 var gf0 = new gf();
 var gf1 = new gf(); gf1[0] = 1;
