@@ -636,7 +636,7 @@ function crypto_hash(out, m, n) {
   x[n] = 128;
 
   n = 256-128*(n<112?1:0);
-  x[n-9] = b >> 61;
+  x[n-9] = 0;
   ts64(x, n-8, new u64(0, b << 3));
   crypto_hashblocks(h, x, n);
 
