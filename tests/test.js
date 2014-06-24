@@ -124,7 +124,7 @@ function crypto_secretbox_test() {
 
   // Try opening.
   var opened = new Uint8Array(m.length);
-  if (!nacl.lowlevel.crypto_secretbox_open(opened, c, c.length, n, k)) {
+  if (nacl.lowlevel.crypto_secretbox_open(opened, c, c.length, n, k) !== 0) {
     log.error('open failed');
   } else {
     log.ok();
