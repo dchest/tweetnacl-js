@@ -448,6 +448,33 @@ function encodeDecodeUTF8_test() {
   }
 }
 
+function boxKeyPairFromSecretKey_test() {
+  log.start('Testing nacl.box.keyPair.fromSecretKey');
+  var keys1 = nacl.box.keyPair();
+  var keys2 = nacl.box.keyPair.fromSecretKey(keys1.secretKey);
+  if (!helpers.bytesEqual(keys1.publicKey, keys2.publicKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.publicKey), 'got', nacl.util.encodeBase64(keys2.publicKey));
+  } else if (!helpers.bytesEqual(keys1.secretKey, keys2.secretKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.secretKey), 'got', nacl.util.encodeBase64(keys2.secretKey));
+  } else {
+    log.ok();
+  }
+}
+
+function signKeyPairFromSecretKey_test() {
+  log.start('Testing nacl.sign.keyPair.fromSecretKey');
+  var keys1 = nacl.sign.keyPair();
+  var keys2 = nacl.sign.keyPair.fromSecretKey(keys1.secretKey);
+  if (!helpers.bytesEqual(keys1.publicKey, keys2.publicKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.publicKey), 'got', nacl.util.encodeBase64(keys2.publicKey));
+  } else if (!helpers.bytesEqual(keys1.secretKey, keys2.secretKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.secretKey), 'got', nacl.util.encodeBase64(keys2.secretKey));
+  } else {
+    log.ok();
+  }
+}
+
+typecheck_test();
 encodeDecodeBase64_test();
 encodeDecodeUTF8_test();
 crypto_stream_xor_test();
@@ -460,7 +487,8 @@ secretbox_seal_open_test();
 randomBytes_test();
 box_seal_open_test();
 sign_open_test();
-typecheck_test();
+boxKeyPairFromSecretKey_test();
+signKeyPairFromSecretKey_test();
 scalarMultBase_test();
 scalarMult_test();
 crypto_scalarmult_base_test();

@@ -50,6 +50,12 @@ Generates a new random key pair for box and returns it as an object with
        secretKey: ...   // Uint8Array with 32-byte secret key
     }
 
+
+#### nacl.box.keyPair.fromSecretKey(secretKey)
+
+Returns a key pair for box with public key corresponding to the given secret
+key.
+
 #### nacl.box(message, nonce, theirPublicKey, mySecretKey)
 
 Encrypt and authenticates message using peer's public key, our secret key, and
@@ -166,6 +172,10 @@ Generates new random key pair for signing and returns it as an object with
        publicKey: ...,  // Uint8Array with 32-byte public key
        secretKey: ...   // Uint8Array with 64-byte secret key
     }
+
+#### nacl.box.keyPair.fromSecretKey(secretKey)
+
+Returns a signing key pair with public key corresponding to the given secret key.
 
 #### nacl.sign(message, secretKey)
 

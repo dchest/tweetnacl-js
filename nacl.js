@@ -1064,6 +1064,15 @@ exports.box.keyPair = function() {
   return {publicKey: pk, secretKey: sk};
 };
 
+exports.box.keyPair.fromSecretKey = function(secretKey) {
+  checkArrayTypes(secretKey);
+  if (secretKey.length !== crypto_box_SECRETKEYBYTES)
+    throw new Error('bad secret key size');
+  var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+  crypto_scalarmult_base(pk, secretKey);
+  return {publicKey: pk, secretKey: secretKey};
+};
+
 exports.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
 exports.box.secretKeyLength = crypto_box_SECRETKEYBYTES;
 exports.box.sharedKeyLength = crypto_box_BEFORENMBYTES;
@@ -1101,6 +1110,16 @@ exports.sign.keyPair = function() {
   var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
   crypto_sign_keypair(pk, sk);
   return {publicKey: pk, secretKey: sk};
+};
+
+exports.sign.keyPair.fromSecretKey = function(secretKey) {
+  checkArrayTypes(secretKey);
+  if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
+    throw new Error('bad secret key size');
+  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+  var i;
+  for (i = 0; i < 32; i++) pk[i] = secretKey[32+i];
+  return {publicKey: pk, secretKey: secretKey};
 };
 
 exports.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;
