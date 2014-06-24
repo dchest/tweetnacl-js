@@ -27,6 +27,7 @@ Documentation
   * [Random bytes generation](#random-bytes-generation)
   * [Utilities](#utilities)
 * [Examples](#examples)
+* [System requirements](#system-requirements)
 * [Contributors](#contributors)
 
 
@@ -246,6 +247,23 @@ Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 #### nacl.util.encodeBase64(array)
 
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
+
+
+System requirements
+-------------------
+
+TweetNaCl-js supports modern browsers that have a cryptographically secure
+pseudorandom number generator and typed arrays, including the latest versions
+of:
+
+* Chrome
+* Firefox
+* Safari (Mac, iOS)
+* Internet Explorer 11
+
+Other systems:
+
+* Node.js (we test on 0.10 and later)
 
 
 Examples
