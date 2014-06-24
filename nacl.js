@@ -14,10 +14,12 @@ var gf = function() { return new Float64Array(16); };
 
 function randombytes(x, n) {
   var values, prng;
-   if (typeof window !== 'undefined' && (window.crypto || window.msCrypto)) {
+   if (typeof window !== 'undefined' && window.crypto) {
      values = new Uint8Array(n);
-     prng = window.crypto ? window.crypto : window.msCrypto;
-     prng.getRandomValues(values);
+     window.crypto.getRandomValues(values);
+   } else if (typeof window !== 'undefined' && window.msCrypto) {
+     values = new Uint8Array(n);
+     window.msCrypto.getRandomValues(values);
    } else if (typeof require !== 'undefined') {
      prng = require('crypto');
      values = prng ? prng.randomBytes(n) : null;
