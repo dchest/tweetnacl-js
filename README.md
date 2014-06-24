@@ -249,7 +249,7 @@ Contributors
 JavaScript port:
 
  * [Dmitry Chestnykh](http://github.com/dchest) (ported xsalsa20, poly1305, curve25519)
- * [Devi Mandiri](https://github.com/devi) (ported ed25519, sha512)
+ * [Devi Mandiri](https://github.com/devi) (ported curve25519, ed25519, sha512)
 
 Original authors of [NaCl](http://nacl.cr.yp.to) and [TweetNaCl](http://tweetnacl.cr.yp.to)
 (who are *not* responsible for any errors in this implementation):
