@@ -954,7 +954,7 @@ exports.util.decodeUTF8 = function(s) {
 };
 
 exports.util.encodeUTF8 = function(arr) {
-  var i, s = [], i;
+  var i, s = [];
   for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
   return decodeURIComponent(escape(s.join('')));
 };
