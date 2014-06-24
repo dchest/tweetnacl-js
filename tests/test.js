@@ -152,7 +152,7 @@ function secretbox_seal_open_test() {
 function crypto_scalarmult_base_test_long() {
   // This takes takes a bit of time.
   // Similar to https://code.google.com/p/go/source/browse/curve25519/curve25519_test.go?repo=crypto
-  log.start('Testing crypto_scalarmult (long test)');
+  log.start('Testing crypto_scalarmult_base (long test)');
   var golden = [0x89, 0x16, 0x1f, 0xde, 0x88, 0x7b, 0x2b, 0x53, 0xde, 0x54,
     0x9a, 0xf4, 0x83, 0x94, 0x01, 0x06, 0xec, 0xc1, 0x14, 0xd6, 0x98, 0x2d,
     0xaa, 0x98, 0x25, 0x6d, 0xe2, 0x3b, 0xdf, 0x77, 0x66, 0x1a];
@@ -171,7 +171,7 @@ function crypto_scalarmult_base_test_long() {
 }
 
 function crypto_scalarmult_base_test() {
-  log.start('Testing crypto_scalarmult');
+  log.start('Testing crypto_scalarmult_base');
   var golden = [
     {
       q: [143, 64, 197, 173, 182, 143, 37, 98, 74, 229, 178, 20, 234, 118, 122, 110,
@@ -183,6 +183,47 @@ function crypto_scalarmult_base_test() {
   for (var i = 0; i < golden.length; i++) {
     var out = [];
     nacl.lowlevel.crypto_scalarmult_base(out, golden[i].n);
+    if (!helpers.bytesEqual(out, golden[i].q)) {
+      log.error(i, 'differ\n', 'expected', golden[i].q, 'got', out);
+    } else {
+      log.ok();
+    }
+  }
+}
+
+function scalarMultBase_test() {
+  log.start('Testing nacl.scalarMult.base');
+  var golden = [
+    {
+      q: new Uint8Array([143, 64, 197, 173, 182, 143, 37, 98, 74, 229, 178, 20, 234, 118, 122, 110,
+          201, 77, 130, 157, 61, 123, 94, 26, 209, 186, 111, 62, 33, 56, 40, 95]),
+      n: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31])
+    }
+  ];
+  for (var i = 0; i < golden.length; i++) {
+    var out = nacl.scalarMult.base(golden[i].n);
+    if (!helpers.bytesEqual(out, golden[i].q)) {
+      log.error(i, 'differ\n', 'expected', golden[i].q, 'got', out);
+    } else {
+      log.ok();
+    }
+  }
+}
+
+function scalarMult_test() {
+  log.start('Testing nacl.scalarMult');
+  var golden = [
+    {
+      q: new Uint8Array([143, 64, 197, 173, 182, 143, 37, 98, 74, 229, 178, 20, 234, 118, 122, 110,
+          201, 77, 130, 157, 61, 123, 94, 26, 209, 186, 111, 62, 33, 56, 40, 95]),
+      n: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]),
+      p: new Uint8Array([9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+    }
+  ];
+  for (var i = 0; i < golden.length; i++) {
+    var out = nacl.scalarMult(golden[i].n, golden[i].p);
     if (!helpers.bytesEqual(out, golden[i].q)) {
       log.error(i, 'differ\n', 'expected', golden[i].q, 'got', out);
     } else {
@@ -407,6 +448,33 @@ function encodeDecodeUTF8_test() {
   }
 }
 
+function boxKeyPairFromSecretKey_test() {
+  log.start('Testing nacl.box.keyPair.fromSecretKey');
+  var keys1 = nacl.box.keyPair();
+  var keys2 = nacl.box.keyPair.fromSecretKey(keys1.secretKey);
+  if (!helpers.bytesEqual(keys1.publicKey, keys2.publicKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.publicKey), 'got', nacl.util.encodeBase64(keys2.publicKey));
+  } else if (!helpers.bytesEqual(keys1.secretKey, keys2.secretKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.secretKey), 'got', nacl.util.encodeBase64(keys2.secretKey));
+  } else {
+    log.ok();
+  }
+}
+
+function signKeyPairFromSecretKey_test() {
+  log.start('Testing nacl.sign.keyPair.fromSecretKey');
+  var keys1 = nacl.sign.keyPair();
+  var keys2 = nacl.sign.keyPair.fromSecretKey(keys1.secretKey);
+  if (!helpers.bytesEqual(keys1.publicKey, keys2.publicKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.publicKey), 'got', nacl.util.encodeBase64(keys2.publicKey));
+  } else if (!helpers.bytesEqual(keys1.secretKey, keys2.secretKey)) {
+    log.error('differ! expected', nacl.util.encodeBase64(keys1.secretKey), 'got', nacl.util.encodeBase64(keys2.secretKey));
+  } else {
+    log.ok();
+  }
+}
+
+typecheck_test();
 encodeDecodeBase64_test();
 encodeDecodeUTF8_test();
 crypto_stream_xor_test();
@@ -419,7 +487,10 @@ secretbox_seal_open_test();
 randomBytes_test();
 box_seal_open_test();
 sign_open_test();
-typecheck_test();
+boxKeyPairFromSecretKey_test();
+signKeyPairFromSecretKey_test();
+scalarMultBase_test();
+scalarMult_test();
 crypto_scalarmult_base_test();
 crypto_scalarmult_base_test_long();
 
