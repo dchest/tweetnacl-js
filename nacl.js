@@ -221,7 +221,7 @@ function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
     add1305(h,c);
     for (i = 0; i < 17; i++) {
       x[i] = 0;
-      for (j = 0; j < 17; j++) x[i] += (h[j] * ((j <= i) ? r[i - j] : ((320 * r[i + 17 - j])|0))) | 0;
+      for (j = 0; j < 17; j++) x[i] = (x[i] + (h[j] * ((j <= i) ? r[i - j] : ((320 * r[i + 17 - j])|0))) | 0) | 0;
     }
     for (i = 0; i < 17; i++) h[i] = x[i];
     u = 0;
