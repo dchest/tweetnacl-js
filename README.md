@@ -25,6 +25,7 @@ Documentation
   * [Signatures](#signatures)
   * [Hashing](#hashing)
   * [Random bytes generation](#random-bytes-generation)
+  * [Constant-time comparison](#constant-time-comparison)
   * [Utilities](#utilities)
 * [Examples](#examples)
 * [System requirements](#system-requirements)
@@ -228,6 +229,17 @@ is no way to generate random bytes.
 
 Returns a `Uint8Array` of the given length containing random bytes of
 cryptographic quality.
+
+
+### Constant-time comparison
+
+#### nacl.verify(x, y)
+
+Compares `x` and `y` in constant time and returns `true` if their lengths are
+non-zero and equal, and their contents are equal.
+
+Returns `false` if either of the arguments has zero length, or arguments have
+different lengths, or their contents differ.
 
 
 ### Utilities
