@@ -382,7 +382,7 @@ function inv25519(o, i) {
   for (a = 0; a < 16; a++) c[a] = i[a];
   for (a = 253; a >= 0; a--) {
     S(c, c);
-    if(a != 2 && a != 4) M(c, c, i);
+    if(a !== 2 && a !== 4) M(c, c, i);
   }
   for (a = 0; a < 16; a++) o[a] = c[a];
 }
@@ -1021,7 +1021,7 @@ exports.secretbox.overheadLength = crypto_secretbox_BOXZEROBYTES;
 exports.scalarMult = function(n, p) {
   checkArrayTypes(n, p);
   if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
-  if (p.length != crypto_scalarmult_BYTES) throw new Error('bad p size');
+  if (p.length !== crypto_scalarmult_BYTES) throw new Error('bad p size');
   var q = new Uint8Array(crypto_scalarmult_BYTES);
   crypto_scalarmult(q, n, p);
   return q;
@@ -1142,7 +1142,7 @@ exports.verify = function(x, y) {
   checkArrayTypes(x, y);
   // Zero length arguments are considered not equal.
   if (x.length === 0 || y.length === 0) return false;
-  if (x.length != y.length) return false;
+  if (x.length !== y.length) return false;
   return (vn(x, 0, y, 0, x.length) === 0) ? true : false;
 };
 
