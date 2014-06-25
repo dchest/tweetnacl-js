@@ -1,7 +1,7 @@
 // Testing with data/sign.input.gz taken from
 // http://ed25519.cr.yp.to/python/sign.input
 
-var nacl = require('../nacl.min.js');
+var nacl = require('./nacl-include');
 var zlib = require('zlib');
 var fs = require('fs');
 

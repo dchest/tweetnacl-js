@@ -1,4 +1,4 @@
-var nacl = require('../nacl.min.js');
+var nacl = require('./nacl-include');
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
 

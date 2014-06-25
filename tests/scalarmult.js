@@ -1,6 +1,6 @@
 var NUMBER_OF_TESTS = 1000;
 
-var nacl = require('../nacl.min.js');
+var nacl = require('./nacl-include');
 var execFile = require('child_process').execFile;
 
 function cscalarmult(n, p, callback) {
