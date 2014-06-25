@@ -175,7 +175,7 @@ Generates new random key pair for signing and returns it as an object with
        secretKey: ...   // Uint8Array with 64-byte secret key
     }
 
-#### nacl.box.keyPair.fromSecretKey(secretKey)
+#### nacl.sign.keyPair.fromSecretKey(secretKey)
 
 Returns a signing key pair with public key corresponding to the given secret key.
 
