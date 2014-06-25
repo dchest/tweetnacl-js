@@ -1,4 +1,4 @@
-var nacl = (typeof require !== 'undefined') ? require('../nacl.min.js') : window.nacl;
+var nacl = (typeof require !== 'undefined') ? require('./nacl-include') : window.nacl;
 var helpers = (typeof require !== 'undefined') ? require('./helpers') : window.helpers;
 var log = helpers.log;
 
@@ -131,6 +131,13 @@ function crypto_secretbox_test() {
   }
   if (!helpers.bytesEqual(opened, m)) {
     log.error('differ! expected', m, 'got', opened);
+  } else {
+    log.ok();
+  }
+
+  for (i = 0; i < 10; i++) c[i] = 0;
+  if (nacl.lowlevel.crypto_secretbox_open(opened, c, c.length, m, k) === 0) {
+    log.error('opened invalid secretbox');
   } else {
     log.ok();
   }
@@ -281,9 +288,23 @@ function box_seal_open_test() {
   for (i = 0; i < 64; i++) msg[i] = 3;
   var nonce = new Uint8Array(24);
   for (i = 0; i < 24; i++) nonce[i] = 4;
-  var box = nacl.util.encodeBase64(nacl.box(msg, nonce, pk1, sk2));
-  if (box != golden) {
-    log.error('differ! expected', golden, 'got', box);
+  var box = nacl.box(msg, nonce, pk1, sk2);
+  var eb = nacl.util.encodeBase64(box);
+  if (eb != golden) {
+    log.error('differ! expected', golden, 'got', eb);
+  } else {
+    log.ok();
+  }
+
+  var opened = nacl.box.open(box, nonce, pk1, sk2);
+  if (opened === false) {
+    log.error('failed to open box');
+  } else {
+    log.ok();
+  }
+  var badpk = nacl.box.keyPair().publicKey;
+  if (nacl.box.open(box, nonce, badpk, sk2) !== false) {
+    log.error('opened box with bad key');
   } else {
     log.ok();
   }
@@ -474,6 +495,54 @@ function signKeyPairFromSecretKey_test() {
   }
 }
 
+function verify_test() {
+  log.start('Testing nacl.verify');
+  var i;
+  var x = new Uint8Array(0);
+  var y = new Uint8Array(0);
+  if (nacl.verify(x, y)) {
+    log.error('verified arrays of zero length');
+  } else {
+    log.ok();
+  }
+  x = new Uint8Array(0);
+  y = new Uint8Array(10);
+  if (nacl.verify(x, y)) {
+    log.error('verified arrays of zero/different length');
+  } else {
+    log.ok();
+  }
+  x = new Uint8Array(10);
+  y = new Uint8Array(11);
+  if (nacl.verify(x, y)) {
+    log.error('verified arrays of different length');
+  } else {
+    log.ok();
+  }
+  x = new Uint8Array(32);
+  y = new Uint8Array(32);
+  if (!nacl.verify(x, y)) {
+    log.error('failed to verify equal arrays');
+  } else {
+    log.ok();
+  }
+  x = new Uint8Array(77);
+  for (i = 0; i < x.length; i++) x[i] = i&0xff;
+  y = new Uint8Array(77);
+  for (i = 0; i < y.length; i++) y[i] = i&0xff;
+  if (!nacl.verify(x, y)) {
+    log.error('failed to verify equal arrays');
+  } else {
+    log.ok();
+  }
+  y[32] = 99;
+  if (nacl.verify(x, y)) {
+    log.error('verified unequal arrays');
+  } else {
+    log.ok();
+  }
+}
+
 typecheck_test();
 encodeDecodeBase64_test();
 encodeDecodeUTF8_test();
@@ -486,6 +555,7 @@ crypto_hash_test();
 secretbox_seal_open_test();
 randomBytes_test();
 box_seal_open_test();
+verify_test();
 sign_open_test();
 boxKeyPairFromSecretKey_test();
 signKeyPairFromSecretKey_test();
