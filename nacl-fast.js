@@ -309,13 +309,17 @@ function crypto_stream_salsa20(c,cpos,b,n,k) {
 function crypto_stream(c,cpos,d,n,k) {
   var s = new Uint8Array(32);
   crypto_core_hsalsa20(s,n,k,sigma);
-  return crypto_stream_salsa20(c,cpos,d,n.subarray(16),s);
+  var sn = new Uint8Array(8);
+  for (var i = 0; i < 8; i++) sn[i] = n[i+16];
+  return crypto_stream_salsa20(c,cpos,d,sn,s);
 }
 
 function crypto_stream_xor(c,cpos,m,mpos,d,n,k) {
   var s = new Uint8Array(32);
   crypto_core_hsalsa20(s,n,k,sigma);
-  return crypto_stream_salsa20_xor(c,cpos,m,mpos,d,n.subarray(16),s);
+  var sn = new Uint8Array(8);
+  for (var i = 0; i < 8; i++) sn[i] = n[i+16];
+  return crypto_stream_salsa20_xor(c,cpos,m,mpos,d,sn,s);
 }
 
 function add1305(h, c) {
