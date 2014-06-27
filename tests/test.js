@@ -49,6 +49,23 @@ function crypto_stream_xor_test() {
 
 }
 
+function crypto_stream_test() {
+  log.start('Testing crypto_stream');
+  // Compare it with crypto_stream_xor with zero-filled array.
+  var out = new Uint8Array(77);
+  var outx = new Uint8Array(77);
+  var inx = new Uint8Array(77);
+  var k = new Uint8Array(32);
+  var n = new Uint8Array(24);
+  nacl.lowlevel.crypto_stream(out, 0, out.length, n, k);
+  nacl.lowlevel.crypto_stream_xor(outx, 0, inx, 0, inx.length, n, k);
+  if (!helpers.bytesEqual(out, outx)) {
+    log.error('differ! expected', outx, 'got', out);
+  } else {
+    log.ok();
+  }
+}
+
 function crypto_onetimeauth_test() {
   helpers.log.start('Testing crypto_onetimeauth');
   var golden = [
@@ -547,6 +564,7 @@ typecheck_test();
 encodeDecodeBase64_test();
 encodeDecodeUTF8_test();
 crypto_stream_xor_test();
+crypto_stream_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
 crypto_randombytes_test();
