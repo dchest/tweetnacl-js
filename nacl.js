@@ -12,25 +12,8 @@
 var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function() { return new Float64Array(16); };
 
-function randombytes(x, n) {
-  var values, prng;
-   if (typeof window !== 'undefined' && window.crypto) {
-     values = new Uint8Array(n);
-     window.crypto.getRandomValues(values);
-   } else if (typeof window !== 'undefined' && window.msCrypto) {
-     values = new Uint8Array(n);
-     window.msCrypto.getRandomValues(values);
-   } else if (typeof require !== 'undefined') {
-     prng = require('crypto');
-     values = prng ? prng.randomBytes(n) : null;
-   } else {
-     throw new Error('no PRNG');
-   }
-   if (!values || values.length !== n) {
-     throw new Error('PRNG failed');
-   }
-   for (var i = 0; i < values.length; i++) x[i] = values[i];
-}
+//  Pluggable, initialized in high-level API below.
+var randombytes = function(/* x, n */) { throw new Error('no PRNG'); };
 
 var _0 = new Uint8Array(16);
 var _9 = new Uint8Array(32); _9[0] = 9;
@@ -1146,5 +1129,39 @@ exports.verify = function(x, y) {
   if (x.length !== y.length) return false;
   return (vn(x, 0, y, 0, x.length) === 0) ? true : false;
 };
+
+exports.setPRNG = function(fn) {
+  randombytes = fn;
+};
+
+(function() {
+  // Initialize PRNG if environment provides CSPRNG.
+  // If not, methods calling randombytes will throw.
+  var crypto;
+  if (typeof window !== 'undefined') {
+    // Browser.
+    if (window.crypto && window.crypto.getRandomValues) {
+      crypto = window.crypto; // Standard
+    } else if (window.msCrypto && window.msCrypto.getRandomValues) {
+      crypto = window.msCrypto; // Internet Explorer 11+
+    }
+    if (crypto) {
+      exports.setPRNG(function(x, n) {
+        var i, v = new Uint8Array(n);
+        crypto.getRandomValues(v);
+        for (i = 0; i < n; i++) x[i] = v[i];
+      });
+    }
+  } else if (typeof require !== 'undefined') {
+    // Node.js.
+    crypto = require('crypto');
+    if (crypto) {
+      exports.setPRNG(function(x, n) {
+        var i, v = crypto.randomBytes(n);
+        for (i = 0; i < n; i++) x[i] = v[i];
+      });
+    }
+  }
+})();
 
 })(typeof exports !== 'undefined' ? exports : (window.nacl = window.nacl || {}));

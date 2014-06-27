@@ -223,14 +223,35 @@ Length of hash in bytes.
 
 ### Random bytes generation
 
-Random number generation directly uses `window.crypto.getRandomValues` in
-browsers, and `crypto.randomBytes` in Node.js. It will throw exception if there
-is no way to generate random bytes.
-
 #### nacl.randomBytes(length)
 
 Returns a `Uint8Array` of the given length containing random bytes of
 cryptographic quality.
+
+**Implementation note**
+
+TweetNaCl-js uses the following methods to generate random bytes,
+depending on environment it runs in:
+
+* `window.crypto.getRandomValues` (WebCrypto standard)
+* `window.msCrypto.getRandomValues` (Internet Explorer 11)
+* `crypto.randomBytes` (Node.js)
+
+If environment doesn't provide a suitable PRNG, the following functions,
+which require random numbers, will throw exception:
+
+* `nacl.randomBytes`
+* `nacl.box.keyPair`
+* `nacl.sign.keyPair`
+
+Other functions are deterministic and will continue working.
+
+If you have a cryptographically-strong source of entropy (not `Math.random`!),
+and you know what you are doing, you can plug it into TweetNaCl-js like this:
+
+    nacl.setPRNG(function(x, n) {
+      // ... copy n random bytes into x ...
+    });
 
 
 ### Constant-time comparison
