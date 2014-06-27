@@ -259,13 +259,11 @@ function scalarMult_test() {
   }
 }
 
-function crypto_randombytes_test() {
-  log.start('Testing crypto_randombytes');
-  var t = {}, tmp, s, i;
+function randomBytes_test() {
+  log.start('Testing nacl.randomBytes');
+  var t = {}, s, i;
   for (i = 0; i < 10000; i++) {
-    tmp = new Uint8Array(32);
-    nacl.lowlevel.crypto_randombytes(tmp, 32);
-    s = nacl.util.encodeBase64(tmp);
+    s = nacl.util.encodeBase64(nacl.randomBytes(32));
     if (t[s]) {
       log.error("duplicate random sequence! ", s);
       return;
@@ -570,7 +568,7 @@ crypto_stream_xor_test();
 crypto_stream_test();
 crypto_onetimeauth_test();
 crypto_secretbox_test();
-crypto_randombytes_test();
+randomBytes_test();
 crypto_hashblocks_test();
 crypto_hash_test();
 secretbox_seal_open_test();

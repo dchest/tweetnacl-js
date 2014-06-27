@@ -913,7 +913,6 @@ exports.lowlevel = {
   crypto_sign : crypto_sign,
   crypto_sign_keypair : crypto_sign_keypair,
   crypto_sign_open : crypto_sign_open,
-  crypto_randombytes : randombytes, // addition
 
   crypto_secretbox_KEYBYTES : crypto_secretbox_KEYBYTES,
   crypto_secretbox_NONCEBYTES : crypto_secretbox_NONCEBYTES,
