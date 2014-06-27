@@ -90,28 +90,28 @@ function crypto_verify_32(x, xi, y, yi) {
 }
 
 function core_salsa20(out, inp, k, c) {
-		var j0 = ld32(c, 0),
-			  j1 = ld32(k, 0),
-			  j2 = ld32(k, 4),
-			  j3 = ld32(k, 8),
-			  j4 = ld32(k, 12),
-			  j5 = ld32(c, 4),
-			  j6 = ld32(inp, 0),
-			  j7 = ld32(inp, 4),
-			  j8 = ld32(inp, 8),
-			  j9 = ld32(inp, 12),
-			  j10 = ld32(c, 8),
-			  j11 = ld32(k, 16),
-			  j12 = ld32(k, 20),
-			  j13 = ld32(k, 24),
-			  j14 = ld32(k, 28),
-			  j15 = ld32(c, 12);
+    var j0 = ld32(c, 0),
+        j1 = ld32(k, 0),
+        j2 = ld32(k, 4),
+        j3 = ld32(k, 8),
+        j4 = ld32(k, 12),
+        j5 = ld32(c, 4),
+        j6 = ld32(inp, 0),
+        j7 = ld32(inp, 4),
+        j8 = ld32(inp, 8),
+        j9 = ld32(inp, 12),
+        j10 = ld32(c, 8),
+        j11 = ld32(k, 16),
+        j12 = ld32(k, 20),
+        j13 = ld32(k, 24),
+        j14 = ld32(k, 28),
+        j15 = ld32(c, 12);
 
     var x0 = j0, x1 = j1, x2 = j2, x3 = j3, x4 = j4, x5 = j5, x6 = j6, x7 = j7,
         x8 = j8, x9 = j9, x10 = j10, x11 = j11, x12 = j12, x13 = j13, x14 = j14,
         x15 = j15;
 
-			for (var i = 0; i < 20; i += 2) {
+      for (var i = 0; i < 20; i += 2) {
          x4 ^= L32( x0 + x12 | 0,  7);
          x8 ^= L32( x4 +  x0 | 0,  9);
         x12 ^= L32( x8 +  x4 | 0, 13);
@@ -144,23 +144,23 @@ function core_salsa20(out, inp, k, c) {
         x13 ^= L32(x12 + x15 | 0, 9);
         x14 ^= L32(x13 + x12 | 0,13);
         x15 ^= L32(x14 + x13 | 0,18);
-			}
-			x0 += j0;
-			x1 += j1;
-			x2 += j2;
-			x3 += j3;
-			x4 += j4;
-			x5 += j5;
-			x6 += j6;
-			x7 += j7;
-			x8 += j8;
-			x9 += j9;
-			x10 += j10;
-			x11 += j11;
-			x12 += j12;
-			x13 += j13;
-			x14 += j14;
-			x15 += j15;
+      }
+      x0 += j0;
+      x1 += j1;
+      x2 += j2;
+      x3 += j3;
+      x4 += j4;
+      x5 += j5;
+      x6 += j6;
+      x7 += j7;
+      x8 += j8;
+      x9 += j9;
+      x10 += j10;
+      x11 += j11;
+      x12 += j12;
+      x13 += j13;
+      x14 += j14;
+      x15 += j15;
 
       st32(out,  0, x0);
       st32(out,  4, x1);
@@ -181,28 +181,28 @@ function core_salsa20(out, inp, k, c) {
 }
 
 function core_hsalsa20(out,inp,k,c) {
-		var j0 = ld32(c, 0),
-			  j1 = ld32(k, 0),
-			  j2 = ld32(k, 4),
-			  j3 = ld32(k, 8),
-			  j4 = ld32(k, 12),
-			  j5 = ld32(c, 4),
-			  j6 = ld32(inp, 0),
-			  j7 = ld32(inp, 4),
-			  j8 = ld32(inp, 8),
-			  j9 = ld32(inp, 12),
-			  j10 = ld32(c, 8),
-			  j11 = ld32(k, 16),
-			  j12 = ld32(k, 20),
-			  j13 = ld32(k, 24),
-			  j14 = ld32(k, 28),
-			  j15 = ld32(c, 12);
+    var j0 = ld32(c, 0),
+        j1 = ld32(k, 0),
+        j2 = ld32(k, 4),
+        j3 = ld32(k, 8),
+        j4 = ld32(k, 12),
+        j5 = ld32(c, 4),
+        j6 = ld32(inp, 0),
+        j7 = ld32(inp, 4),
+        j8 = ld32(inp, 8),
+        j9 = ld32(inp, 12),
+        j10 = ld32(c, 8),
+        j11 = ld32(k, 16),
+        j12 = ld32(k, 20),
+        j13 = ld32(k, 24),
+        j14 = ld32(k, 28),
+        j15 = ld32(c, 12);
 
     var x0 = j0, x1 = j1, x2 = j2, x3 = j3, x4 = j4, x5 = j5, x6 = j6, x7 = j7,
         x8 = j8, x9 = j9, x10 = j10, x11 = j11, x12 = j12, x13 = j13, x14 = j14,
         x15 = j15;
 
-			for (var i = 0; i < 20; i += 2) {
+      for (var i = 0; i < 20; i += 2) {
          x4 ^= L32( x0 + x12 | 0,  7);
          x8 ^= L32( x4 +  x0 | 0,  9);
         x12 ^= L32( x8 +  x4 | 0, 13);
@@ -235,7 +235,7 @@ function core_hsalsa20(out,inp,k,c) {
         x13 ^= L32(x12 + x15 | 0, 9);
         x14 ^= L32(x13 + x12 | 0,13);
         x15 ^= L32(x14 + x13 | 0,18);
-			}
+      }
       st32(out,  0, x0);
       st32(out,  4, x5);
       st32(out,  8, x10);
