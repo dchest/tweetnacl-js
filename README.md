@@ -30,6 +30,7 @@ Documentation
   * [Utilities](#utilities)
 * [Examples](#examples)
 * [System requirements](#system-requirements)
+* [Development and testing](#development-and-testing)
 * [Contributors](#contributors)
 
 
@@ -262,6 +263,12 @@ Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
 
 
+Examples
+--------
+
+*TODO*
+
+
 System requirements
 -------------------
 
@@ -279,10 +286,51 @@ Other systems:
 * Node.js (we test on 0.10 and later)
 
 
-Examples
---------
+Development and testing
+------------------------
 
-*TODO*
+Install NPM modules needed for development:
+
+    $ npm install
+
+To build minified version:
+
+    $ npm run build
+
+Tests use minified version, so make sure to rebuild it every time you change
+`nacl.js`.
+
+### Testing
+
+To run tests in Node.js:
+
+    $ npm test
+
+To run full suite of tests in Node.hs, including comparing outputs of
+JavaScript port to outputs of the original C version:
+
+    $ npm run testall
+
+To prepare tests for browsers:
+
+    $ npm run browser
+
+and then open `tests/browser/test.html` to run them.
+
+To run headless browser tests with `testling`:
+
+    $ npm run testling
+
+(If you get `Error: spawn ENOENT`, install *xvfb*: `sudo apt-get install xvfb`.)
+
+### Benchmarking
+
+To run benchmarks in Node.js:
+
+    $ npm run bench
+
+To run benchmarks in a browser, open `test/benchmark/bench.html`.
+
 
 Contributors
 ------------

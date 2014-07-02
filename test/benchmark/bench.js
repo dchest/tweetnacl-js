@@ -1,4 +1,4 @@
-var nacl = (typeof require !== 'undefined') ? require('../nacl.min.js') : window.nacl;
+var nacl = (typeof window !== 'undefined') ? window.nacl : require('../../nacl.min.js');
 var helpers = (typeof require !== 'undefined') ? require('./helpers') : window.helpers;
 var log = helpers.log;
 

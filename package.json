@@ -1,0 +1,63 @@
+{
+  "name": "tweetnacl",
+  "version": "0.9.0",
+  "description": "Port of TweetNaCl cryptographic library to JavaScript",
+  "main": "nacl.js",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/uglifyjs nacl.js -c -m -o nacl.min.js",
+    "test": "./node_modules/.bin/tape test/*.js | ./node_modules/.bin/faucet",
+    "testall": "make -C test/c && ./node_modules/.bin/tape test/*.js test/c/*.js | ./node_modules/.bin/faucet",
+    "browser": "./node_modules/.bin/browserify test/browser/init.js test/*.js > test/browser/_bundle.js",
+    "testling": "./node_modules/.bin/browserify test/*.js | ./node_modules/.bin/testling",
+    "bench": "node test/benchmark/bench.js"
+  },
+  "testling": {
+    "files": "test/*.js",
+    "browsers": [
+      "ie/11..latest",
+      "chrome/22..latest",
+      "firefox/16..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/6..latest",
+      "ipad/6..latest",
+      "android-browser/latest"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dchest/tweetnacl-js.git"
+  },
+  "keywords": [
+    "crypto",
+    "nacl",
+    "salsa20",
+    "poly1305",
+    "curve25519",
+    "ed25519",
+    "signatures",
+    "public",
+    "key",
+    "cryptography",
+    "encrypt",
+    "hash"
+  ],
+  "author": "TweetNaCl-js contributors",
+  "license": "Public domain",
+  "bugs": {
+    "url": "https://github.com/dchest/tweetnacl-js/issues"
+  },
+  "homepage": "https://dchest.github.io/tweetnacl-js",
+  "devDependencies": {
+    "browserify": "^4.2.0",
+    "faucet": "0.0.1",
+    "tap-browser-color": "^0.1.2",
+    "tape": "^2.13.3",
+    "testling": "^1.7.0",
+    "uglify-js": "^2.4.14"
+  }
+}
