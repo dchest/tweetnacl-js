@@ -2,7 +2,7 @@
 // Generated randomly by this Go program:
 // https://gist.github.com/dchest/226c207b62c6b9c144b6
 
-var nacl = require('../nacl.min.js');
+var nacl = require('./nacl-include');
 var zlib = require('zlib');
 var fs = require('fs');
 
