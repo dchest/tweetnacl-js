@@ -843,11 +843,12 @@ function unpackneg(r, p) {
 }
 
 function crypto_sign_open(m, sm, n, pk) {
-  var i;
+  var i, mlen;
   var t = new Uint8Array(32), h = new Uint8Array(64);
   var p = [new gf(), new gf(), new gf(), new gf()],
       q = [new gf(), new gf(), new gf(), new gf()];
 
+  mlen = -1;
   if (n < 64) return -1;
 
   if (unpackneg(q, pk)) return -1;
@@ -869,8 +870,8 @@ function crypto_sign_open(m, sm, n, pk) {
   }
 
   for (i = 0; i < n; i++) m[i] = sm[i + 64];
-
-  return 0;
+  mlen = n;
+  return mlen;
 }
 
 var crypto_secretbox_KEYBYTES = 32,
@@ -913,7 +914,6 @@ exports.lowlevel = {
   crypto_sign : crypto_sign,
   crypto_sign_keypair : crypto_sign_keypair,
   crypto_sign_open : crypto_sign_open,
-  crypto_randombytes : randombytes, // addition
 
   crypto_secretbox_KEYBYTES : crypto_secretbox_KEYBYTES,
   crypto_secretbox_NONCEBYTES : crypto_secretbox_NONCEBYTES,
@@ -1104,8 +1104,9 @@ exports.sign.open = function(msg, sig, publicKey) {
   var i;
   for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
   for (i = 0; i < msg.length; i++) sm[i+crypto_sign_BYTES] = msg[i];
-  if (crypto_sign_open(m, sm, sm.length, publicKey) !== 0) return false;
-  return m.subarray(crypto_sign_BYTES);
+  var mlen = crypto_sign_open(m, sm, sm.length, publicKey);
+  if (mlen < 0) return false;
+  return m.subarray(0, mlen);
 };
 
 exports.sign.keyPair = function() {
