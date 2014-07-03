@@ -285,6 +285,9 @@ Other systems:
 
 * Node.js (we test on 0.10 and later)
 
+[![Testling results](https://ci.testling.com/dchest/tweetnacl-js.png)
+](https://ci.testling.com/dchest/tweetnacl-js)
+
 
 Development and testing
 ------------------------
