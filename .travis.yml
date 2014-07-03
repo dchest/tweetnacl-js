@@ -1,9 +1,4 @@
 language: node_js
 node_js:
   - "0.10"
-addons:
-  firefox: "30.0"
-before_install:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-script: "npm run testall && npm run firefox"
+script: "npm run testall"
