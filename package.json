@@ -12,6 +12,8 @@
     "testall": "make -C test/c && ./node_modules/.bin/tape test/*.js test/c/*.js | ./node_modules/.bin/faucet",
     "browser": "./node_modules/.bin/browserify test/browser/init.js test/*.js > test/browser/_bundle.js",
     "testling": "./node_modules/.bin/browserify test/browser/testling_init.js test/*.js | ./node_modules/.bin/testling",
+    "firefox": "./node_modules/.bin/browserify test/browser/testling_init.js test/*.js | ./node_modules/.bin/testling -x firefox",
+    "chrome": "./node_modules/.bin/browserify test/browser/testling_init.js test/*.js | ./node_modules/.bin/testling -x google-chrome",
     "bench": "node test/benchmark/bench.js"
   },
   "testling": {
