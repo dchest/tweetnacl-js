@@ -1,13 +1,14 @@
 var nacl = require('../../nacl.min.js');
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
+var path = require('path');
 var test = require('tape');
 
 function cbox(msg, sk, pk, n, callback) {
   var hexsk = (new Buffer(sk)).toString('hex');
   var hexpk = (new Buffer(pk)).toString('hex');
   var hexn = (new Buffer(n)).toString('hex');
-  var p = spawn('./cbox', [hexsk, hexpk, hexn]);
+  var p = spawn(path.resolve(__dirname, 'cbox'), [hexsk, hexpk, hexn]);
   var result = [];
   p.stdout.on('data', function(data) {
     result.push(data);

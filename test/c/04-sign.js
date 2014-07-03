@@ -1,11 +1,12 @@
 var nacl = require('../../nacl.min.js');
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
+var path = require('path');
 var test = require('tape');
 
 function csign(sk, msg, callback) {
   var hexsk = (new Buffer(sk)).toString('hex');
-  var p = spawn('./csign', [hexsk]);
+  var p = spawn(path.resolve(__dirname, 'csign'), [hexsk]);
   var result = [];
   p.stdout.on('data', function(data) {
     result.push(data);

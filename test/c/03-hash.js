@@ -1,10 +1,11 @@
 var nacl = require('../../nacl.min.js');
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
+var path = require('path');
 var test = require('tape');
 
 function chash(msg, callback) {
-  var p = spawn('./chash');
+  var p = spawn(path.resolve(__dirname, 'chash'));
   var result = [];
   p.stdout.on('data', function(data) {
     result.push(data);

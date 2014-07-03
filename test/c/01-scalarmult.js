@@ -2,13 +2,14 @@ var NUMBER_OF_TESTS = 1000;
 
 var nacl = require('../../nacl.min.js');
 var execFile = require('child_process').execFile;
+var path = require('path');
 var test = require('tape');
 
 function cscalarmult(n, p, callback) {
   var hexN = (new Buffer(n)).toString('hex');
   var hexP = (new Buffer(p)).toString('hex');
 
-  execFile('./cscalarmult', [hexN, hexP], function(err, stdout) {
+  execFile(path.resolve(__dirname, 'cscalarmult'), [hexN, hexP], function(err, stdout) {
     if (err) throw err;
     callback(stdout.toString('utf8'));
   });

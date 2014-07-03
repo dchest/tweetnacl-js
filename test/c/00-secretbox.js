@@ -1,12 +1,13 @@
 var nacl = require('../../nacl.min.js');
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
+var path = require('path');
 var test = require('tape');
 
 function csecretbox(msg, n, k, callback) {
   var hexk = (new Buffer(k)).toString('hex');
   var hexn = (new Buffer(n)).toString('hex');
-  var p = spawn('./csecretbox', [hexk, hexn]);
+  var p = spawn(path.resolve(__dirname, 'csecretbox'), [hexk, hexn]);
   var result = [];
   p.stdout.on('data', function(data) {
     result.push(data);
