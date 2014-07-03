@@ -42,9 +42,9 @@ test('nacl.box.open with invalid box', function(t) {
   var clientKeys = nacl.box.keyPair();
   var serverKeys = nacl.box.keyPair();
   var nonce = new Uint8Array(nacl.box.nonceLength);
-  t.equal(nacl.box.open(new Uint8Array(0), nonce, serverKeys.publicKey, clientKeys.secretKey), false)
-  t.equal(nacl.box.open(new Uint8Array(10), nonce, serverKeys.publicKey, clientKeys.secretKey), false)
-  t.equal(nacl.box.open(new Uint8Array(100), nonce, serverKeys.publicKey, clientKeys.secretKey), false)
+  t.equal(nacl.box.open(new Uint8Array(0), nonce, serverKeys.publicKey, clientKeys.secretKey), false);
+  t.equal(nacl.box.open(new Uint8Array(10), nonce, serverKeys.publicKey, clientKeys.secretKey), false);
+  t.equal(nacl.box.open(new Uint8Array(100), nonce, serverKeys.publicKey, clientKeys.secretKey), false);
   t.end();
 });
 
