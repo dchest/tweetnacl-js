@@ -44,15 +44,18 @@ function BrowserLogger() {
   }
 
   this.print = function() {
+    console.log.apply(console, arguments);
     var s = escape(arguments.length ? Array.prototype.slice.call(arguments).join(' ') : '');
     el.innerHTML += s + '\n';
   };
 
   this.ok = function() {
+    // No console output.
     el.innerHTML += '.';
   };
 
   this.error = function() {
+    console.error.apply(console, arguments);
     var s = escape(arguments.length ? Array.prototype.slice.call(arguments) : '');
     el.innerHTML += 'ERROR: ' + s + '\n';
   };
