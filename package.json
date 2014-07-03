@@ -4,8 +4,7 @@
   "description": "Port of TweetNaCl cryptographic library to JavaScript",
   "main": "nacl.js",
   "directories": {
-    "example": "examples",
-    "test": "tests"
+    "test": "test"
   },
   "scripts": {
     "build": "./node_modules/.bin/uglifyjs nacl.js -c -m -o nacl.min.js",
