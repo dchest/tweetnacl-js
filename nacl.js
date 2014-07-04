@@ -10,7 +10,11 @@
 /* jshint newcap: false */
 
 var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
-var gf = function() { return new Float64Array(16); };
+var gf = function(init) {
+  var i, r = new Float64Array(16);
+  if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
+  return r;
+};
 
 //  Pluggable, initialized in high-level API below.
 var randombytes = function(/* x, n */) { throw new Error('no PRNG'); };
@@ -18,14 +22,14 @@ var randombytes = function(/* x, n */) { throw new Error('no PRNG'); };
 var _0 = new Uint8Array(16);
 var _9 = new Uint8Array(32); _9[0] = 9;
 
-var gf0 = new gf();
-var gf1 = new gf(); gf1[0] = 1;
-var _121665 = new gf(); _121665[0] = 0xDB41; _121665[1] = 1;
-var D = [0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203],
-    D2 = [0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406],
-    X = [0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169],
-    Y = [0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666],
-    I = [0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83];
+var gf0 = gf(),
+    gf1 = gf([1]),
+    _121665 = gf([0xdb41, 1]),
+    D = gf([0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203]),
+    D2 = gf([0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406]),
+    X = gf([0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169]),
+    Y = gf([0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666]),
+    I = gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
 
 function L32(x, c) { return (x << c) | (x >>> (32 - c)); }
 
@@ -288,7 +292,7 @@ function sel25519(p, q, b) {
 
 function pack25519(o, n) {
   var i, j, b;
-  var m = new gf(), t = new gf();
+  var m = gf(), t = gf();
   for (i = 0; i < 16; i++) t[i] = n[i];
   car25519(t);
   car25519(t);
@@ -360,7 +364,7 @@ function S(o, a) {
 }
 
 function inv25519(o, i) {
-  var c = new gf();
+  var c = gf();
   var a;
   for (a = 0; a < 16; a++) c[a] = i[a];
   for (a = 253; a >= 0; a--) {
@@ -371,7 +375,7 @@ function inv25519(o, i) {
 }
 
 function pow2523(o, i) {
-  var c = new gf();
+  var c = gf();
   var a;
   for (a = 0; a < 16; a++) c[a] = i[a];
   for (a = 250; a >= 0; a--) {
@@ -384,8 +388,8 @@ function pow2523(o, i) {
 function crypto_scalarmult(q, n, p) {
   var z = new Uint8Array(32);
   var x = new Float64Array(80), r, i;
-  var a = new gf(), b = new gf(), c = new gf(),
-      d = new gf(), e = new gf(), f = new gf();
+  var a = gf(), b = gf(), c = gf(),
+      d = gf(), e = gf(), f = gf();
   for (i = 0; i < 31; i++) z[i] = n[i];
   z[31]=(n[31]&127)|64;
   z[0]&=248;
@@ -634,9 +638,9 @@ function crypto_hash(out, m, n) {
 }
 
 function add(p, q) {
-  var a = new gf(), b = new gf(), c = new gf(),
-      d = new gf(), e = new gf(), f = new gf(),
-      g = new gf(), h = new gf(), t = new gf();
+  var a = gf(), b = gf(), c = gf(),
+      d = gf(), e = gf(), f = gf(),
+      g = gf(), h = gf(), t = gf();
 
   Z(a, p[1], p[0]);
   Z(t, q[1], q[0]);
@@ -667,7 +671,7 @@ function cswap(p, q, b) {
 }
 
 function pack(r, p) {
-  var tx = new gf(), ty = new gf(), zi = new gf();
+  var tx = gf(), ty = gf(), zi = gf();
   inv25519(zi, p[2]);
   M(tx, p[0], zi);
   M(ty, p[1], zi);
@@ -691,7 +695,7 @@ function scalarmult(p, q, s) {
 }
 
 function scalarbase(p, s) {
-  var q = [new gf(), new gf(), new gf(), new gf()];
+  var q = [gf(), gf(), gf(), gf()];
   set25519(q[0], X);
   set25519(q[1], Y);
   set25519(q[2], gf1);
@@ -701,7 +705,7 @@ function scalarbase(p, s) {
 
 function crypto_sign_keypair(pk, sk) {
   var d = new Uint8Array(64);
-  var p = [new gf(), new gf(), new gf(), new gf()];
+  var p = [gf(), gf(), gf(), gf()];
   var i;
 
   randombytes(sk, 32);
@@ -755,7 +759,7 @@ function reduce(r) {
 function crypto_sign(sm, m, n, sk) {
   var d = new Uint8Array(64), h = new Uint8Array(64), r = new Uint8Array(64);
   var i, j, x = new Float64Array(64);
-  var p = [new gf(), new gf(), new gf(), new gf()];
+  var p = [gf(), gf(), gf(), gf()];
 
   crypto_hash(d, sk, 32);
   d[0] &= 248;
@@ -788,9 +792,9 @@ function crypto_sign(sm, m, n, sk) {
 }
 
 function unpackneg(r, p) {
-  var t = new gf(), chk = new gf(), num = new gf(),
-      den = new gf(), den2 = new gf(), den4 = new gf(),
-      den6 = new gf();
+  var t = gf(), chk = gf(), num = gf(),
+      den = gf(), den2 = gf(), den4 = gf(),
+      den6 = gf();
 
   set25519(r[2], gf1);
   unpack25519(r[1], p);
@@ -828,8 +832,8 @@ function unpackneg(r, p) {
 function crypto_sign_open(m, sm, n, pk) {
   var i, mlen;
   var t = new Uint8Array(32), h = new Uint8Array(64);
-  var p = [new gf(), new gf(), new gf(), new gf()],
-      q = [new gf(), new gf(), new gf(), new gf()];
+  var p = [gf(), gf(), gf(), gf()],
+      q = [gf(), gf(), gf(), gf()];
 
   mlen = -1;
   if (n < 64) return -1;
