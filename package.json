@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "uglifyjs nacl.js -c -m -o nacl.min.js",
+    "build": "uglifyjs nacl.js -c -m -o nacl.min.js && uglifyjs nacl-fast.js -c -m -o nacl-fast.min.js",
     "test": "tape test/*.js | faucet",
     "testall": "make -C test/c && tape test/*.js test/c/*.js | faucet",
     "browser": "browserify test/browser/init.js test/*.js > test/browser/_bundle.js",

@@ -1,1 +1,1 @@
-window.nacl = require('../../nacl.min.js');
+window.nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));

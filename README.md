@@ -2,24 +2,20 @@ TweetNaCl.js
 ============
 
 Port of [TweetNaCl](http://tweetnacl.cr.yp.to) / [NaCl](http://nacl.cr.yp.to/)
-to JavaScript. The goal of this project is to produce a translation of
-TweetNaCl to JavaScript which is as close as possible to the original C
-implementation, plus a thin layer of idiomatic high-level API on top of it.
+to JavaScript for modern browsers and Node.js. Public domain.
 
-Public domain. Works in Node.js and browsers.
+[![Build Status](https://travis-ci.org/dchest/tweetnacl-js.svg?branch=master)
+](https://travis-ci.org/dchest/tweetnacl-js)
 
 [Demo](https://dchest.github.io/tweetnacl-js/)
 
 **!!! Do not use yet. In development. Alpha. Will break things. !!!**
 
-[![Build Status](https://travis-ci.org/dchest/tweetnacl-js.svg?branch=master)
-](https://travis-ci.org/dchest/tweetnacl-js)
-
-
 Documentation
 =============
 
-* [API](#api)
+* [Overview](#overview)
+* [Usage](#usage)
   * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
   * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
   * [Scalar multiplication](#scalar-multiplication)
@@ -34,8 +30,23 @@ Documentation
 * [Contributors](#contributors)
 
 
-API
----
+Overview
+--------
+
+The primary goal of this project is to produce a translation of TweetNaCl to
+JavaScript which is as close as possible to the original C implementation, plus
+a thin layer of idiomatic high-level API on top of it.
+
+There are two versions, you can use either of them:
+
+* `nacl.js` is the port of TweetNaCl with minimum differences from the
+  original + high-level API.
+
+* `nacl-fast.js` is like `nacl.js`, but with some functions replaced with
+  faster versions.
+
+Usage
+------
 
 All API functions accept and return bytes as `Uint8Array`s.  If you need to
 encode or decode strings, use functions from `nacl.util` namespace.
@@ -230,7 +241,7 @@ cryptographic quality.
 
 **Implementation note**
 
-TweetNaCl-js uses the following methods to generate random bytes,
+TweetNaCl.js uses the following methods to generate random bytes,
 depending on the platform it runs on:
 
 * `window.crypto.getRandomValues` (WebCrypto standard)
@@ -253,7 +264,7 @@ which require random numbers, will throw exception:
 Other functions are deterministic and will continue working.
 
 If you have a cryptographically-strong source of entropy (not `Math.random`!),
-and you know what you are doing, you can plug it into TweetNaCl-js like this:
+and you know what you are doing, you can plug it into TweetNaCl.js like this:
 
     nacl.setPRNG(function(x, n) {
       // ... copy n random bytes into x ...
@@ -299,7 +310,7 @@ Examples
 System requirements
 -------------------
 
-TweetNaCl-js supports modern browsers that have a cryptographically secure
+TweetNaCl.js supports modern browsers that have a cryptographically secure
 pseudorandom number generator and typed arrays, including the latest versions
 of:
 
@@ -324,18 +335,24 @@ Install NPM modules needed for development:
 
     $ npm install
 
-To build minified version:
+To build minified versions:
 
     $ npm run build
 
 Tests use minified version, so make sure to rebuild it every time you change
-`nacl.js`.
+`nacl.js` or `nacl-fast.js`.
 
 ### Testing
 
 To run tests in Node.js:
 
     $ npm test
+
+By default all tests described here work on `nacl.min.js`. To test other
+versions, set environment variable `NACL_SRC` to the file name you want to test.
+For example, the following command will test fast minified version:
+
+    $ NACL_SRC=nacl-fast.min.js npm test
 
 To run full suite of tests in Node.hs, including comparing outputs of
 JavaScript port to outputs of the original C version:
@@ -346,7 +363,8 @@ To prepare tests for browsers:
 
     $ npm run browser
 
-and then open `tests/browser/test.html` to run them.
+and then open `tests/browser/test.html` (or `tests/browser/test-fast.html`) to
+run them.
 
 To run headless browser tests with `testling`:
 
@@ -359,8 +377,10 @@ To run headless browser tests with `testling`:
 To run benchmarks in Node.js:
 
     $ npm run bench
+    $ NACL_SRC=nacl-fast.min.js npm run bench
 
-To run benchmarks in a browser, open `test/benchmark/bench.html`.
+To run benchmarks in a browser, open `test/benchmark/bench.html` (or
+`test/benchmark/bench-fast.html`).
 
 
 Contributors
