@@ -18,29 +18,6 @@ function arraysEqual(t, a, b) {
   t.pass('arrays should be equal');
 }
 
-var testBytes = new Uint8Array([208,159,209,128,208,184,208,178,208,181,209,130,44,32,78,97,67,108]);
-var utf8String = "Привет, NaCl";
-var b64String = "0J/RgNC40LLQtdGCLCBOYUNs";
-
-test('nacl.util.decodeUTF8', function(t) {
-  t.plan(1);
-  arraysEqual(t, nacl.util.decodeUTF8(utf8String), testBytes);
-});
-
-test('nacl.util.encodeUTF8', function(t) {
-  t.plan(1);
-  t.equal(nacl.util.encodeUTF8(testBytes), utf8String);
-});
-
-test('nacl.util.decodeBase64', function(t) {
-  t.plan(1);
-  arraysEqual(t, nacl.util.decodeBase64(b64String), testBytes);
-});
-
-test('nacl.util.encodeBase64', function(t) {
-  t.plan(1);
-  t.equal(nacl.util.encodeBase64(testBytes), b64String);
-});
 
 test('nacl.util.encodeBase64 random test vectors', function(t) {
   b64Vectors.forEach(function(vec) {
@@ -51,3 +28,4 @@ test('nacl.util.encodeBase64 random test vectors', function(t) {
   });
   t.end();
 });
+
