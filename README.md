@@ -9,7 +9,9 @@ to JavaScript for modern browsers and Node.js. Public domain.
 
 [Demo](https://dchest.github.io/tweetnacl-js/)
 
-**!!! Do not use yet. In development. Alpha. Will break things. !!!**
+**:warning: Beta version. The library is stable and API is frozen, however
+it has not been independently reviewed. If you can help reviewing it, please
+[contact me](mailto:dmitry@codingrobots.com).**
 
 Documentation
 =============
@@ -299,12 +301,6 @@ Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 #### nacl.util.encodeBase64(array)
 
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
-
-
-Examples
---------
-
-*TODO*
 
 
 System requirements
