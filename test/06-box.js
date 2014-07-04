@@ -1,4 +1,4 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../nacl.min.js');
+var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
 var test = require('tape');
 
 var randomVectors = require('./data/box.random');

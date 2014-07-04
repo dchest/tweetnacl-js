@@ -1,4 +1,4 @@
-var nacl = require('../../nacl.min.js');
+var nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
 var crypto = require('crypto');
 var spawn = require('child_process').spawn;
 var path = require('path');

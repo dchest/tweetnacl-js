@@ -1,6 +1,6 @@
 var NUMBER_OF_TESTS = 1000;
 
-var nacl = require('../../nacl.min.js');
+var nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
 var execFile = require('child_process').execFile;
 var path = require('path');
 var test = require('tape');
