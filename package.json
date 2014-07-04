@@ -7,13 +7,13 @@
     "test": "test"
   },
   "scripts": {
-    "build": "./node_modules/.bin/uglifyjs nacl.js -c -m -o nacl.min.js",
-    "test": "./node_modules/.bin/tape test/*.js | ./node_modules/.bin/faucet",
-    "testall": "make -C test/c && ./node_modules/.bin/tape test/*.js test/c/*.js | ./node_modules/.bin/faucet",
-    "browser": "./node_modules/.bin/browserify test/browser/init.js test/*.js > test/browser/_bundle.js",
-    "testling": "./node_modules/.bin/browserify test/browser/testling_init.js test/*.js | ./node_modules/.bin/testling | ./node_modules/.bin/faucet",
-    "firefox": "./node_modules/.bin/browserify test/browser/testling_init.js test/*.js | ./node_modules/.bin/testling -x firefox | ./node_modules/.bin/faucet",
-    "chrome": "./node_modules/.bin/browserify test/browser/testling_init.js test/*.js | ./node_modules/.bin/testling -x google-chrome | ./node_modules/.bin/faucet",
+    "build": "uglifyjs nacl.js -c -m -o nacl.min.js",
+    "test": "tape test/*.js | faucet",
+    "testall": "make -C test/c && tape test/*.js test/c/*.js | faucet",
+    "browser": "browserify test/browser/init.js test/*.js > test/browser/_bundle.js",
+    "testling": "browserify test/browser/testling_init.js test/*.js | testling | faucet",
+    "firefox": "browserify test/browser/testling_init.js test/*.js | testling -x firefox | faucet",
+    "chrome": "browserify test/browser/testling_init.js test/*.js | testling -x google-chrome | faucet",
     "bench": "node test/benchmark/bench.js"
   },
   "testling": {
