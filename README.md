@@ -393,3 +393,5 @@ Original authors of [NaCl](http://nacl.cr.yp.to) and [TweetNaCl](http://tweetnac
   * [Matthew Dempsky](https://github.com/mdempsky)
 
 Contributors have dedicated their work to the public domain.
+
+This software is distributed without any warranty.
