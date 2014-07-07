@@ -385,70 +385,178 @@ function crypto_stream_xor(c,cpos,m,mpos,d,n,k) {
   return crypto_stream_salsa20_xor(c,cpos,m,mpos,d,sn,s);
 }
 
-function add1305(h, c) {
-  var j, u = 0;
-  for (j = 0; j < 17; j++) {
-    u = (u + ((h[j] + c[j]) | 0)) | 0;
-    h[j] = u & 255;
-    u >>>= 8;
+/*
+* Port of Andrew Moon's Poly1305-donna-16. Public domain.
+* https://github.com/floodyberry/poly1305-donna
+*/
+
+function U8TO16(p, i) { return (p[i] & 0xff) | ((p[i+1] & 0xff) << 8); }
+function U16TO8(p, i, v) { p[i] = (v >>> 0) & 0xff; p[i+1] = (v >>> 8) & 0xff; }
+
+var poly1305 = function(key) {
+  this.buffer = new Uint8Array(16);
+  this.r = new Uint16Array(10);
+  this.h = new Uint16Array(10);
+  this.pad = new Uint16Array(8);
+  this.leftover = 0;
+  this.fin = 0;
+
+  var i, t0, t1, t2, t3, t4, t5, t6, t7;
+
+  t0 = U8TO16(key, 0); this.r[0] = ( t0                     ) & 0x1fff;
+  t1 = U8TO16(key, 2); this.r[1] = ((t0 >>> 13) | (t1 <<  3)) & 0x1fff;
+  t2 = U8TO16(key, 4); this.r[2] = ((t1 >>> 10) | (t2 <<  6)) & 0x1f03;
+  t3 = U8TO16(key, 6); this.r[3] = ((t2 >>>  7) | (t3 <<  9)) & 0x1fff;
+  t4 = U8TO16(key, 8); this.r[4] = ((t3 >>>  4) | (t4 << 12)) & 0x00ff;
+  this.r[5] = ((t4 >>>  1)) & 0x1ffe;
+  t5 = U8TO16(key,10); this.r[6] = ((t4 >>> 14) | (t5 <<  2)) & 0x1fff;
+  t6 = U8TO16(key,12); this.r[7] = ((t5 >>> 11) | (t6 <<  5)) & 0x1f81;
+  t7 = U8TO16(key,14); this.r[8] = ((t6 >>>  8) | (t7 <<  8)) & 0x1fff;
+  this.r[9] = ((t7 >>>  5)) & 0x007f;
+
+  for (i = 0; i < 8; i++) this.pad[i] = U8TO16(key, 16 + (2 * i));
+}
+
+poly1305.prototype.blocks = function(m, mpos, bytes) {
+  var hibit = this.fin ? 0 : (1 << 11);
+  var t0, t1, t2, t3, t4, t5, t6, t7;
+  var d = new Uint32Array(10);
+  var c, i, j;
+
+  while (bytes >= 16) {
+    t0 = U8TO16(m, mpos+0);  this.h[0] += ( t0                     ) & 0x1fff;
+    t1 = U8TO16(m, mpos+2);  this.h[1] += ((t0 >>> 13) | (t1 <<  3)) & 0x1fff;
+    t2 = U8TO16(m, mpos+4);  this.h[2] += ((t1 >>> 10) | (t2 <<  6)) & 0x1fff;
+    t3 = U8TO16(m, mpos+6);  this.h[3] += ((t2 >>>  7) | (t3 <<  9)) & 0x1fff;
+    t4 = U8TO16(m, mpos+8);  this.h[4] += ((t3 >>>  4) | (t4 << 12)) & 0x1fff;
+    this.h[5] += ((t4 >>>  1)) & 0x1fff;
+    t5 = U8TO16(m, mpos+10); this.h[6] += ((t4 >>> 14) | (t5 <<  2)) & 0x1fff;
+    t6 = U8TO16(m, mpos+12); this.h[7] += ((t5 >>> 11) | (t6 <<  5)) & 0x1fff;
+    t7 = U8TO16(m, mpos+14); this.h[8] += ((t6 >>>  8) | (t7 <<  8)) & 0x1fff;
+    this.h[9] += ((t7 >>> 5)) | hibit;
+
+    for (i = 0, c = 0; i < 10; i++) {
+      d[i] = c;
+      for (j = 0; j < 10; j++) {
+        d[i] += this.h[j] * ((j <= i) ? this.r[i - j] : (5 * this.r[i + 10 - j]));
+        if (j === 4) {
+          c = (d[i] >>> 13);
+          d[i] &= 0x1fff;
+        }
+      }
+      c += (d[i] >>> 13);
+      d[i] &= 0x1fff;
+    }
+    c = (((c << 2) + c)) | 0;
+    c = (c + d[0]) | 0;
+    d[0] = c & 0x1fff;
+    c = (c >>> 13);
+    d[1] += c;
+
+    for (i = 0; i < 10; i++) this.h[i] = d[i];
+
+    mpos += 16;
+    bytes -= 16;
   }
 }
 
-var minusp = new Uint32Array([
-  5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252
-]);
+poly1305.prototype.finish = function(mac, macpos) {
+  var g = new Uint16Array(10);
+  var c, mask, f, i;
 
-function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
-  var s, i, j, u;
-  var x = new Uint32Array(17), r = new Uint32Array(17),
-      h = new Uint32Array(17), c = new Uint32Array(17),
-      g = new Uint32Array(17);
-  for (j = 0; j < 17; j++) r[j]=h[j]=0;
-  for (j = 0; j < 16; j++) r[j]=k[j];
-  r[3]&=15;
-  r[4]&=252;
-  r[7]&=15;
-  r[8]&=252;
-  r[11]&=15;
-  r[12]&=252;
-  r[15]&=15;
-
-  while (n > 0) {
-    for (j = 0; j < 17; j++) c[j] = 0;
-    for (j = 0;(j < 16) && (j < n);++j) c[j] = m[mpos+j];
-    c[j] = 1;
-    mpos += j; n -= j;
-    add1305(h,c);
-    for (i = 0; i < 17; i++) {
-      x[i] = 0;
-      for (j = 0; j < 17; j++) x[i] = (x[i] + (h[j] * ((j <= i) ? r[i - j] : ((320 * r[i + 17 - j])|0))) | 0) | 0;
-    }
-    for (i = 0; i < 17; i++) h[i] = x[i];
-    u = 0;
-    for (j = 0; j < 16; j++) {
-      u = (u + h[j]) | 0;
-      h[j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + h[16]) | 0; h[16] = u & 3;
-    u = (5 * (u >>> 2)) | 0;
-    for (j = 0; j < 16; j++) {
-      u = (u + h[j]) | 0;
-      h[j] = u & 255;
-      u >>>= 8;
-    }
-    u = (u + h[16]) | 0; h[16] = u;
+  if (this.leftover) {
+    i = this.leftover;
+    this.buffer[i++] = 1;
+    for (; i < 16; i++) this.buffer[i] = 0;
+    this.fin = 1;
+    this.blocks(this.buffer, 0, 16);
   }
 
-  for (j = 0; j < 17; j++) g[j] = h[j];
-  add1305(h,minusp);
-  s = (-(h[16] >>> 7) | 0);
-  for (j = 0; j < 17; j++) h[j] ^= s & (g[j] ^ h[j]);
+  c = this.h[1] >>> 13;
+  this.h[1] &= 0x1fff;
+  for (i = 2; i < 10; i++) {
+    this.h[i] += c;
+    c = this.h[i] >>> 13;
+    this.h[i] &= 0x1fff;
+  }
+  this.h[0] += (c * 5);
+  c = this.h[0] >>> 13;
+  this.h[0] &= 0x1fff;
+  this.h[1] += c;
+  c = this.h[1] >>> 13;
+  this.h[1] &= 0x1fff;
+  this.h[2] += c;
 
-  for (j = 0; j < 16; j++) c[j] = k[j + 16];
-  c[16] = 0;
-  add1305(h,c);
-  for (j = 0; j < 16; j++) out[outpos+j] = h[j];
+  g[0] = this.h[0] + 5;
+  c = g[0] >>> 13;
+  g[0] &= 0x1fff;
+  for (i = 1; i < 10; i++) {
+    g[i] = this.h[i] + c;
+    c = g[i] >>> 13;
+    g[i] &= 0x1fff;
+  }
+  g[9] -= (1 << 13);
+
+  mask = (g[9] >>> ((2 * 8) - 1)) - 1;
+  for (i = 0; i < 10; i++) g[i] &= mask;
+  mask = ~mask;
+  for (i = 0; i < 10; i++) this.h[i] = (this.h[i] & mask) | g[i];
+
+  this.h[0] = ((this.h[0]       ) | (this.h[1] << 13)                    ) & 0xffff;
+  this.h[1] = ((this.h[1] >>>  3) | (this.h[2] << 10)                    ) & 0xffff;
+  this.h[2] = ((this.h[2] >>>  6) | (this.h[3] <<  7)                    ) & 0xffff;
+  this.h[3] = ((this.h[3] >>>  9) | (this.h[4] <<  4)                    ) & 0xffff;
+  this.h[4] = ((this.h[4] >>> 12) | (this.h[5] <<  1) | (this.h[6] << 14)) & 0xffff;
+  this.h[5] = ((this.h[6] >>>  2) | (this.h[7] << 11)                    ) & 0xffff;
+  this.h[6] = ((this.h[7] >>>  5) | (this.h[8] <<  8)                    ) & 0xffff;
+  this.h[7] = ((this.h[8] >>>  8) | (this.h[9] <<  5)                    ) & 0xffff;
+
+  f = this.h[0] + this.pad[0];
+  this.h[0] = f & 0xffff;
+  for (i = 1; i < 8; i++) {
+    f = (((this.h[i] + this.pad[i]) | 0) + (f >>> 16)) | 0;
+    this.h[i] = f & 0xffff;
+  }
+
+  for (i = 0; i < 8; i++) U16TO8(mac, macpos + i*2, this.h[i]);
+}
+
+poly1305.prototype.update = function(m, mpos, bytes) {
+  var i, want;
+
+  if (this.leftover) {
+    want = (16 - this.leftover);
+    if (want > bytes)
+      want = bytes;
+    for (i = 0; i < want; i++)
+      this.buffer[this.leftover + i] = m[mpos+i];
+    bytes -= want;
+    mpos += want;
+    this.leftover += want;
+    if (this.leftover < 16)
+      return;
+    this.blocks(buffer, 0, 16);
+    this.leftover = 0;
+  }
+
+  if (bytes >= 16) {
+    want = (bytes & ~(16 - 1));
+    this.blocks(m, mpos, want);
+    mpos += want;
+    bytes -= want;
+  }
+
+  if (bytes) {
+    for (i = 0; i < bytes; i++)
+      this.buffer[this.leftover + i] = m[mpos+i];
+    this.leftover += bytes;
+  }
+}
+
+function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
+  var s = new poly1305(k);
+  s.update(m, mpos, n);
+  s.finish(out, outpos);
   return 0;
 }
 
