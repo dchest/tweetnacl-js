@@ -383,7 +383,8 @@ JavaScript port:
  * [Dmitry Chestnykh](http://github.com/dchest) (ported xsalsa20, poly1305, curve25519)
  * [Devi Mandiri](https://github.com/devi) (ported curve25519, ed25519, sha512)
 
-Original authors of [NaCl](http://nacl.cr.yp.to) and [TweetNaCl](http://tweetnacl.cr.yp.to)
+Original authors of [NaCl](http://nacl.cr.yp.to), [TweetNaCl](http://tweetnacl.cr.yp.to)
+and [Poly1305-donna](https://github.com/floodyberry/poly1305-donna)
 (who are *not* responsible for any errors in this implementation):
 
   * [Daniel J. Bernstein](http://cr.yp.to/djb.html)
@@ -391,6 +392,7 @@ Original authors of [NaCl](http://nacl.cr.yp.to) and [TweetNaCl](http://tweetnac
   * [Tanja Lange](http://hyperelliptic.org/tanja)
   * [Peter Schwabe](http://www.cryptojedi.org/users/peter/)
   * [Matthew Dempsky](https://github.com/mdempsky)
+  * [Andrew Moon](https://github.com/floodyberry)
 
 Contributors have dedicated their work to the public domain.
 
