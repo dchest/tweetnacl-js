@@ -942,7 +942,7 @@ function crypto_hash(out, m, n) {
   for (i = 0; i < 64; i++) h[i] = iv[i];
 
   crypto_hashblocks(h, m, n);
-  n &= 127;
+  n %= 128;
 
   for (i = 0; i < 256; i++) x[i] = 0;
   for (i = 0; i < n; i++) x[i] = m[b-n+i];
@@ -950,7 +950,7 @@ function crypto_hash(out, m, n) {
 
   n = 256-128*(n<112?1:0);
   x[n-9] = 0;
-  ts64(x, n-8, new u64(0, b << 3));
+  ts64(x, n-8, new u64((b / 0x20000000) | 0, b << 3));
   crypto_hashblocks(h, x, n);
 
   for (i = 0; i < 64; i++) out[i] = h[i];
