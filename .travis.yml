@@ -1,4 +1,7 @@
 language: node_js
 node_js:
   - "0.10"
-script: "npm run testall && NACL_SRC=nacl-fast.min.js npm run testall"
+env:
+  - NACL_SRC=nacl.min.js
+  - NACL_SRC=nacl-fast.min.js
+script: "npm run testall"
