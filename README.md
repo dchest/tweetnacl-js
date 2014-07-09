@@ -47,6 +47,23 @@ There are two versions, you can use either of them:
 * `nacl-fast.js` is like `nacl.js`, but with some functions replaced with
   faster versions.
 
+
+Installation
+------------
+
+You can install TweetNaCl.is via a package manager:
+
+[Bower](http://bower.io):
+
+    $ bower install tweetnacl
+
+[NPM](https://www.npmjs.org/):
+
+    $ npm install tweetnacl
+
+or [download source code](https://github.com/dchest/tweetnacl-js/releases).
+
+
 Usage
 ------
 
