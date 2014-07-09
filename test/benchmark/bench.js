@@ -7,7 +7,7 @@ if (!nacl) throw new Error('nacl not loaded');
 function benchmark(fn, MB) {
   var start = new Date();
   MB = MB || 1;
-  for (i = 0; i < MB*1024; i++) {
+  for (var i = 0; i < MB*1024; i++) {
     fn();
   }
   var elapsed = (new Date()) - start;
@@ -16,11 +16,11 @@ function benchmark(fn, MB) {
 }
 
 function benchmarkOps(fn,  num) {
-  start = new Date();
-  for (i = 0; i < num; i++) {
+  var start = new Date();
+  for (var i = 0; i < num; i++) {
     fn();
   }
-  elapsed = (new Date()) - start;
+  var elapsed = (new Date()) - start;
   log.print(' ' + ((num*1000)/elapsed).toFixed(3), 'ops/s');
 }
 
