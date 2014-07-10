@@ -17,6 +17,7 @@ Documentation
 =============
 
 * [Overview](#overview)
+* [Installation](#installation)
 * [Usage](#usage)
   * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
   * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
