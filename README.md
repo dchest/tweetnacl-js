@@ -283,12 +283,17 @@ which require random numbers, will throw exception:
 
 Other functions are deterministic and will continue working.
 
-If you have a cryptographically-strong source of entropy (not `Math.random`!),
-and you know what you are doing, you can plug it into TweetNaCl.js like this:
+If a platform you are targeting doesn't implement secure random number
+generator, but you somehow have a cryptographically-strong source of entropy
+(not `Math.random`!), and you know what you are doing, you can plug it into
+TweetNaCl.js like this:
 
     nacl.setPRNG(function(x, n) {
       // ... copy n random bytes into x ...
     });
+
+Note that `nacl.setPRNG` *completely replaces* internal random byte generator
+with the one provided.
 
 
 ### Constant-time comparison
