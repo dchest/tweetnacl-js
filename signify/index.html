@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+<title>Signify verify</title>
+<style>
+body {
+  background: #fff;
+  color: #000;
+  margin: 0;
+  padding: 30px;
+  padding-top: 0;
+}
+
+body,
+input[type=submit] {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
+}
+
+input[type=text],
+textarea {
+  font-family: monospace;
+  width: 100%;
+}
+
+textarea {
+  height: 150px;
+}
+
+h1 {
+  color: maroon;
+}
+
+blink {
+  animation:blink 1s;
+  animation-iteration-count: infinite;
+  -webkit-animation:blink 1s;
+  -webkit-animation-iteration-count: infinite;
+}
+
+  @keyframes blink { 
+    0a % { opacity:0.0; } 50%{ opacity:0.0; }
+    50.01% { opacity:1.0; } 100% { opacity:1.0; }
+  }
+
+  @-webkit-keyframes blink {
+    0% { opacity:0.0; } 50%{ opacity:0.0; }
+    50.01% { opacity:1.0; } 100% { opacity:1.0; }
+  }
+</style>
+</head>
+<body>
+<h1>Signify-Verify</h1>
+<form id="verify" onsubmit="return verify()">
+  <label>
+    <b>Public key</b> <span style="color: #999">(without comment)</span>
+    <input type="text" name="publicKey" value="">
+  </label>
+  <label>
+    <b>Signed text</b>
+    <textarea name="text"></textarea>
+  </label>
+  <input type="submit" value="Verify">
+</form>
+    
+<script src="../nacl.min.js"></script>
+<script>
+function stripFirstLine(s) {
+    var p = s.indexOf('\n') + 1;
+    if (p <= 0) p = s.length;
+    return s.substring(p);
+}
+
+function getFirstLine(s) {
+    var p = s.indexOf('\n');
+    if (p < 0) p = s.length;
+    return s.substring(0, p);
+}
+
+function verifyForm(form) {
+  var publicKey = form.publicKey.value;
+  var text = form.text.value;
+  // Strip comment.
+  if (text.match(/^untrusted comment:/))
+    text = stripFirstLine(text);
+  // Get signature...
+  var signature = getFirstLine(text);
+  // ...and strip it from text.
+  text = stripFirstLine(text);
+  // Convert DOS line breaks to Unix.
+  text = text.replace(/\r\n/, '\n');
+
+  var binPublicKey = nacl.util.decodeBase64(publicKey);
+  var binSignature = nacl.util.decodeBase64(signature);
+  var binText;
+
+  // Check that algorithm (2 bytes) and fingerprint (8 bytes) exist and match.
+  if (binPublicKey.length !== 10 + nacl.sign.publicKeyLength) throw new Error('Bad public key length');
+  if (binSignature.length !== 10 + nacl.sign.signatureLength) throw new Error('Bad signature length');
+  if (!nacl.verify(binPublicKey.subarray(0, 9), binSignature.subarray(0, 9)))
+    throw new Error('Verifying against wrong public key');
+
+  // Check algorithm.
+  if (binSignature[0] !== 69 /* 'E' */ || binSignature[1] !== 100)
+    throw new Error('Unknown algorithm');
+
+  while (true) {
+    binText = nacl.util.decodeUTF8(text);
+    if (!nacl.sign.open(binText, binSignature.subarray(10), binPublicKey.subarray(10))) {
+      // Be permissive and try adding new line and verify that.
+      if (text.length > 0 && text.charAt(text.length-1) != '\n') {
+        text = text + '\n';
+        continue;
+      }
+      alert('Signature is INVALID');
+      break;
+    } else {
+      alert('Signature verified');
+      break;
+    }
+  }
+}
+
+function verify() {
+  try {
+    verifyForm(document.forms.verify);
+  } catch(e) {
+    alert(e);
+  } finally {
+    return false;
+  }
+}
+
+</script>
+</body>
+</html>
