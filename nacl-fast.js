@@ -790,19 +790,13 @@ function crypto_box_open(m, c, d, n, y, x) {
 }
 
 function add64() {
-  var a = 0, b = 0, c = 0, d = 0, m16 = 65535, l, h, i;
+  var l = 0, h = 0, i, t;
   for (i = 0; i < arguments.length; i++) {
-    l = arguments[i].lo;
-    h = arguments[i].hi;
-    a += (l & m16); b += (l >>> 16);
-    c += (h & m16); d += (h >>> 16);
+    t = l;
+    l = (t + arguments[i].lo)>>>0;
+    h = (h + arguments[i].hi + ((l<t)?1:0))>>>0;
   }
-
-  b += (a >>> 16);
-  c += (b >>> 16);
-  d += (c >>> 16);
-
-  return new u64((c & m16) | (d << 16), (a & m16) | (b << 16));
+  return new u64(h, l);
 }
 
 function shr64(x, c) {
