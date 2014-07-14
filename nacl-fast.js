@@ -540,7 +540,7 @@ poly1305.prototype.update = function(m, mpos, bytes) {
   }
 
   if (bytes >= 16) {
-    want = (bytes & ~(16 - 1));
+    want = bytes - (bytes % 16);
     this.blocks(m, mpos, want);
     mpos += want;
     bytes -= want;
