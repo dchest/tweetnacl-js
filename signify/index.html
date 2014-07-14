@@ -100,7 +100,7 @@ function verifyForm(form) {
     throw new Error('Verifying against wrong public key');
 
   // Check algorithm.
-  if (binSignature[0] !== 69 /* 'E' */ || binSignature[1] !== 100 /* d */)
+  if (binSignature[0] !== 69 /* 'E' */ || binSignature[1] !== 100 /* 'd' */)
     throw new Error('Unknown algorithm');
 
   while (true) {
