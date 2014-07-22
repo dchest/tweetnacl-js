@@ -1,6 +1,6 @@
 CFLAGS=-O3
 
-all: csecretbox cscalarmult cbox chash csign
+all: csecretbox cscalarmult cbox chash csign csign-keypair
 
 csecretbox: csecretbox.o tweetnacl.o
 
@@ -12,24 +12,27 @@ chash: chash.o tweetnacl.o
 
 csign: csign.o tweetnacl.o
 
-test: test_secretbox
+csign-keypair: csign-keypair.o tweetnacl.o
 
-#test_scalarmult test_box test_hash test_sign clean
+test: test_secretbox test_scalarmult test_box test_hash test_sign test_signkeypair clean
 
 test_secretbox: csecretbox
-	tap --timeout 1800 ./secretbox.js
+	node ./00-secretbox.js
 
 test_scalarmult: cscalarmult
-	node ./scalarmult.js
+	node ./01-scalarmult.js
 
 test_box: cbox
-	node ./box.js
+	node ./02-box.js
 
 test_hash: chash
-	node ./hash.js
+	node ./03-hash.js
 
 test_sign: csign
-	node ./sign.js
+	node ./04-sign.js
+
+test_signkeypair: csign csign-keypair
+	node ./05-sign-keypair.js
 
 clean:
-	rm *.o csecretbox cscalarmult cbox chash csign
+	rm *.o csecretbox cscalarmult cbox chash csign csign-keypair

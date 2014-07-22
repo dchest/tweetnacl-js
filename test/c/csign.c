@@ -1,5 +1,5 @@
 /*
- * This program sings a message using tweenacl.c.
+ * This program signs a message using tweetnacl.c.
  * Written by @dchest. Public domain.
  */
 #include <err.h>
