@@ -214,17 +214,22 @@ Returns a signing key pair with public key corresponding to the given secret key
 
 #### nacl.sign(message, secretKey)
 
-Signs a message using secret key and returns a signature.
-(Note that unlike NaCl C API, it returns only a signature, not a signature
-concatenated with the message).
+Signs the message using the secret key and returns a signed message.
 
-#### nacl.sign.open(message, signature, publicKey)
+#### nacl.sign.open(signedMessage, publicKey)
 
-Verifies signature for the message using public key and returns the message.
-(Note that unlike NaCl C API, it accepts the original message and signature
-separetely instead of a signed message.)
+Verifies the signed message and returns the message without signature.
 
-Returns `false` if verification failed.
+Returns `null` if verification failed.
+
+#### nacl.sign.detached(message, secretKey)
+
+Signs the message using the secret key and returns a signature.
+
+#### nacl.sign.detached.verify(message, signature, publicKey)
+
+Verifies the signature for the message and returns `true` if verification
+succeeded or `false` if it failed.
 
 #### nacl.sign.publicKeyLength = 32
 

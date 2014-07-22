@@ -110,27 +110,18 @@ function box_seal_open_benchmark() {
 }
 
 function sign_open_benchmark() {
-  var pk = new Uint8Array(32), sk = new Uint8Array(64),
-      pk1 = new Uint8Array(32), sig1 = new Uint8Array(64);
-  for (var i = 0; i < 32;i ++) {
-    pk1[i] = 0;
-    sig1[i] = 0;
-    sig1[i+32] = 0;
-  }
-  nacl.lowlevel.crypto_sign_keypair(pk, sk);
-  var sig = null;
+  var k = nacl.sign.keyPair();
+  var sk = k.secretKey;
+  var pk = k.publicKey;
   var msg = nacl.util.decodeUTF8((new Array(128)).join('a'));
-  var msg1 = new Uint8Array(0);
-  for (i = 0; i < 128; i++) {
-    sig1[i+64] = 97;
-  }
+  var sm;
   log.start('Benchmarking sign');
   benchmark(function() {
-    sig = nacl.sign(msg, sk);
+    sm = nacl.sign(msg, sk);
   }, 0.001);
   log.start('Benchmarking sign.open');
   benchmark(function() {
-    nacl.sign.open(msg, sig, pk);
+    nacl.sign.open(sm, pk);
   }, 0.001);
 }
 
