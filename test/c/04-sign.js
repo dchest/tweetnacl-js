@@ -12,8 +12,7 @@ function csign(sk, msg, callback) {
     result.push(data);
   });
   p.on('close', function(code) {
-    var sigFromC = Buffer.concat(result).toString('base64');
-    return callback(sigFromC);
+    callback(Buffer.concat(result).toString('base64'));
   });
   p.on('error', function(err) {
     throw err;
@@ -26,12 +25,11 @@ test('nacl.sign (C)', function(t) {
   function check(num) {
     var keys = nacl.sign.keyPair();
     var msg = nacl.randomBytes(num);
-    var sig = nacl.util.encodeBase64(nacl.sign(msg, keys.secretKey));
-    csign(keys.secretKey, new Buffer(msg), function(sigFromC) {
-      t.equal(sig, sigFromC, 'signatures should be equal');
-      var openedMsg = nacl.sign.open(nacl.util.decodeBase64(msg),
-                        nacl.util.decodeBase64(sigFromC), keys.publicKey);
-      t.notEqual(openedMsg, false, 'open should succeed');
+    var signedMsg = nacl.util.encodeBase64(nacl.sign(msg, keys.secretKey));
+    csign(keys.secretKey, new Buffer(msg), function(signedFromC) {
+      t.equal(signedMsg, signedFromC, 'signed messages should be equal');
+      var openedMsg = nacl.sign.open(nacl.util.decodeBase64(signedFromC), keys.publicKey);
+      t.notEqual(openedMsg, null, 'open should succeed');
       t.equal(nacl.util.encodeBase64(openedMsg), nacl.util.encodeBase64(msg),
             'messages should be equal');
       if (num >= 100) {

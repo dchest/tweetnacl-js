@@ -85,7 +85,7 @@ main(int argc, const char **argv)
 		err(1, NULL);
 
 	crypto_sign(sm, &smlen, m, mlen, sk);
-	if ((n = fwrite(sm, 1, crypto_sign_BYTES, stdout)) != smlen)
+	if (fwrite(sm, 1, smlen, stdout) != smlen)
 		err(1, NULL);
 	return 0;
 }
