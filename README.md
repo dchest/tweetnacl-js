@@ -314,6 +314,11 @@ different lengths, or their contents differ.
 
 ### Utilities
 
+Encoding/decoding functions are provided for convenience. They are correct,
+however their performance and wide compatibility with uncommon runtimes is not
+something that is considered important compared to the simplicity and size of
+implementation. You can use third-party libraries if you need to.
+
 #### nacl.util.decodeUTF8(string)
 
 Decodes string and returns `Uint8Array` of bytes.
