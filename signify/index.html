@@ -92,7 +92,7 @@ function verifyForm(form) {
 
   while (true) {
     binText = nacl.util.decodeUTF8(text);
-    if (!nacl.sign.open(binText, binSignature.subarray(10), binPublicKey.subarray(10))) {
+    if (!nacl.sign.detached.verify(binText, binSignature.subarray(10), binPublicKey.subarray(10))) {
       // Be permissive and try adding new line and verify that.
       if (text.length > 0 && text.charAt(text.length-1) != '\n') {
         text = text + '\n';

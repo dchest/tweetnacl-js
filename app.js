@@ -502,7 +502,7 @@ app.sign.controller = function() {
     e.preventDefault();
     this.error('');
     if (!(sk = this.decodeSecretKey())) return;
-    this.signature(nacl.util.encodeBase64(nacl.sign(nacl.util.decodeUTF8(this.message()), sk)));
+    this.signature(nacl.util.encodeBase64(nacl.sign.detached(nacl.util.decodeUTF8(this.message()), sk)));
   }.bind(this);
 
   this.verify = function(e) {
@@ -511,7 +511,7 @@ app.sign.controller = function() {
     this.error('');
     if (!(s = this.decodeSignature())) return;
     if (!(pk = this.decodePublicKey())) return;
-    if (!nacl.sign.open(nacl.util.decodeUTF8(this.message()), s, pk)) {
+    if (!nacl.sign.detached.verify(nacl.util.decodeUTF8(this.message()), s, pk)) {
       this.error('Failed to verify signature');
       return;
     } else {
