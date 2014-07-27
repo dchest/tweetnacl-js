@@ -1141,12 +1141,12 @@ function scalarbase(p, s) {
   scalarmult(p, q, s);
 }
 
-function crypto_sign_keypair(pk, sk) {
+function crypto_sign_keypair(pk, sk, seeded) {
   var d = new Uint8Array(64);
   var p = [gf(), gf(), gf(), gf()];
   var i;
 
-  randombytes(sk, 32);
+  if (!seeded) randombytes(sk, 32);
   crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
@@ -1567,6 +1567,17 @@ nacl.sign.keyPair.fromSecretKey = function(secretKey) {
   var i;
   for (i = 0; i < 32; i++) pk[i] = secretKey[32+i];
   return {publicKey: pk, secretKey: secretKey};
+};
+
+nacl.sign.keyPair.fromSeed = function(seed) {
+  checkArrayTypes(seed);
+  if (seed.length !== 32)
+    throw new Error('bad seed size');
+  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+  var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+  for (var i = 0; i < 32; i++) sk[i] = seed[i];
+  crypto_sign_keypair(pk, sk, true);
+  return {publicKey: pk, secretKey: sk};
 };
 
 nacl.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;

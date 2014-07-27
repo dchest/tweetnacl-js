@@ -9,6 +9,8 @@ test('nacl.sign.keyPair', function(t) {
   t.ok(keys.secretKey && keys.secretKey.length === nacl.sign.secretKeyLength, 'has secret key');
   t.ok(keys.publicKey && keys.publicKey.length === nacl.sign.publicKeyLength, 'has public key');
   t.notEqual(enc(keys.secretKey), enc(keys.publicKey));
+  var newKeys = nacl.sign.keyPair();
+  t.notEqual(enc(newKeys.secretKey), enc(keys.secretKey), 'two keys differ');
   t.end();
 });
 
@@ -17,6 +19,25 @@ test('nacl.sign.keyPair.fromSecretKey', function(t) {
   var k2 = nacl.sign.keyPair.fromSecretKey(k1.secretKey);
   t.equal(enc(k2.secretKey), enc(k1.secretKey));
   t.equal(enc(k2.publicKey), enc(k1.publicKey));
+  t.end();
+});
+
+test('nacl.sign.keyPair.fromSeed', function(t) {
+  var seed = nacl.randomBytes(32);
+  var k1 = nacl.sign.keyPair.fromSeed(seed);
+  var k2 = nacl.sign.keyPair.fromSeed(seed);
+  t.equal(k1.secretKey.length, nacl.sign.secretKeyLength);
+  t.equal(k1.publicKey.length, nacl.sign.publicKeyLength);
+  t.equal(k2.secretKey.length, nacl.sign.secretKeyLength);
+  t.equal(k2.publicKey.length, nacl.sign.publicKeyLength);
+  t.equal(enc(k2.secretKey), enc(k1.secretKey));
+  t.equal(enc(k2.publicKey), enc(k1.publicKey));
+  var seed2 = nacl.randomBytes(32);
+  var k3 = nacl.sign.keyPair.fromSeed(seed2);
+  t.equal(k3.secretKey.length, nacl.sign.secretKeyLength);
+  t.equal(k3.publicKey.length, nacl.sign.publicKeyLength);
+  t.notEqual(enc(k3.secretKey), enc(k1.secretKey));
+  t.notEqual(enc(k3.publicKey), enc(k1.publicKey));
   t.end();
 });
 

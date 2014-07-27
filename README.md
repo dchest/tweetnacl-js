@@ -212,6 +212,13 @@ Generates new random key pair for signing and returns it as an object with
 
 Returns a signing key pair with public key corresponding to the given secret key.
 
+#### nacl.sign.keyPair.fromSeed(seed)
+
+Returns a new key pair generated deterministically from a 32-byte seed.  Note
+that seed must contain enough entropy. This method is not recommended for
+general use: instead, use `nacl.sign.keyPair()` to generate a new key pair from
+a random seed.
+
 #### nacl.sign(message, secretKey)
 
 Signs the message using the secret key and returns a signed message.
