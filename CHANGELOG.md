@@ -1,6 +1,12 @@
 TweetNaCl.js Changelog
 ======================
 
+v0.10.1
+-------
+
+* Exported undocumented `nacl.lowlevel.crypto_core_hsalsa20`.
+
+
 v0.10.0
 -------
 
@@ -27,6 +33,7 @@ v0.10.0
 
 * NPM package now comes without `test` directory to keep it small.
 
+
 v0.9.2
 ------
 
@@ -38,6 +45,7 @@ v0.9.2
   (Obviously, there are no tests for the correctness of implementation.) Also,
   it's not recommended to use messages that large without splitting them into
   smaller packets anyway.
+
 
 v0.9.1
 ------
