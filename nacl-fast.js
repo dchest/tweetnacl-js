@@ -1200,6 +1200,7 @@ var crypto_secretbox_KEYBYTES = 32,
     crypto_hash_BYTES = 64;
 
 nacl.lowlevel = {
+  crypto_core_hsalsa20: crypto_core_hsalsa20,
   crypto_stream_xor : crypto_stream_xor,
   crypto_stream : crypto_stream,
   crypto_stream_salsa20_xor : crypto_stream_salsa20_xor,
