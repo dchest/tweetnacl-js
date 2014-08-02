@@ -4,15 +4,13 @@ var log = helpers.log;
 
 if (!nacl) throw new Error('nacl not loaded');
 
-function benchmark(fn, MB) {
+function benchmark(fn, bytes, num) {
+  if (!num) num = 100;
   var start = new Date();
-  MB = MB || 1;
-  for (var i = 0; i < MB*1024; i++) {
-    fn();
-  }
+  for (var i = 0; i < num; i++) fn();
   var elapsed = (new Date()) - start;
-  log.print(' ' + ((MB*1000)/elapsed).toFixed(3), 'MB/s');
-  log.print(' ' + (((MB*1024)*1000)/elapsed).toFixed(3), 'ops/s');
+  log.print(' ' + ((bytes*num/1024/1024*1000)/elapsed).toFixed(3), 'MB/s');
+  log.print(' ' + ((num*1000)/elapsed).toFixed(3), 'ops/s');
 }
 
 function benchmarkOps(fn,  num) {
@@ -35,7 +33,7 @@ function crypto_stream_xor_benchmark() {
   for (i = 0; i < 32; i++) k[i] = i;
   benchmark(function(){
     nacl.lowlevel.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
-  });
+  }, m.length);
 }
 
 function crypto_onetimeauth_benchmark() {
@@ -48,7 +46,7 @@ function crypto_onetimeauth_benchmark() {
   }
   benchmark(function(){
     nacl.lowlevel.crypto_onetimeauth(out, 0, m, 0, m.length, k);
-  });
+  }, m.length);
 }
 
 function crypto_secretbox_benchmark() {
@@ -60,7 +58,7 @@ function crypto_secretbox_benchmark() {
   for (i = 0; i < 1024; i++) m[i] = 3;
   benchmark(function() {
     nacl.lowlevel.crypto_secretbox(c, m, m.length, n, k);
-  });
+  }, m.length);
 }
 
 function secretbox_seal_open_benchmark() {
@@ -75,11 +73,11 @@ function secretbox_seal_open_benchmark() {
   log.start('Benchmarking secretbox');
   benchmark(function() {
     box = nacl.secretbox(msg, nonce, key);
-  });
+  }, msg.length);
   log.start('Benchmarking secretbox.open');
   benchmark(function() {
     nacl.secretbox.open(box, nonce, key);
-  });
+  }, msg.length);
 }
 
 function crypto_scalarmult_base_benchmark() {
@@ -102,11 +100,11 @@ function box_seal_open_benchmark() {
   log.start('Benchmarking box');
   benchmark(function() {
     box = nacl.box(msg, nonce, pk1, sk2);
-  }, 0.001);
+  }, msg.length, 20);
   log.start('Benchmarking box.open');
   benchmark(function() {
     nacl.box.open(box, nonce, pk2, sk1);
-  }, 0.001);
+  }, msg.length, 20);
 }
 
 function sign_open_benchmark() {
@@ -118,11 +116,11 @@ function sign_open_benchmark() {
   log.start('Benchmarking sign');
   benchmark(function() {
     sm = nacl.sign(msg, sk);
-  }, 0.001);
+  }, msg.length, 20);
   log.start('Benchmarking sign.open');
   benchmark(function() {
     nacl.sign.open(sm, pk);
-  }, 0.001);
+  }, msg.length, 20);
 }
 
 function crypto_hash_benchmark() {
@@ -132,7 +130,7 @@ function crypto_hash_benchmark() {
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   benchmark(function(){
     nacl.lowlevel.crypto_hash(out, m, m.length);
-  }, 0.5);
+  }, m.length);
 }
 
 crypto_stream_xor_benchmark();
