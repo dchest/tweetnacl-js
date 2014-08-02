@@ -9,7 +9,6 @@
 
 /* jshint newcap: false */
 
-var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function(init) {
   var i, r = new Float64Array(16);
   if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
@@ -38,26 +37,20 @@ function ld32(x, i) {
   return (u<<8)|(x[i+0] & 0xff);
 }
 
-function dl64(x, i) {
-  var h = (x[i] << 24) | (x[i+1] << 16) | (x[i+2] << 8) | x[i+3];
-  var l = (x[i+4] << 24) | (x[i+5] << 16) | (x[i+6] << 8) | x[i+7];
-  return new u64(h, l);
-}
-
 function st32(x, j, u) {
   var i;
   for (i = 0; i < 4; i++) { x[j+i] = u & 255; u >>>= 8; }
 }
 
-function ts64(x, i, u) {
-  x[i]   = (u.hi >> 24) & 0xff;
-  x[i+1] = (u.hi >> 16) & 0xff;
-  x[i+2] = (u.hi >>  8) & 0xff;
-  x[i+3] = u.hi & 0xff;
-  x[i+4] = (u.lo >> 24)  & 0xff;
-  x[i+5] = (u.lo >> 16)  & 0xff;
-  x[i+6] = (u.lo >>  8)  & 0xff;
-  x[i+7] = u.lo & 0xff;
+function ts64(x, i, h, l) {
+  x[i]   = (h >> 24) & 0xff;
+  x[i+1] = (h >> 16) & 0xff;
+  x[i+2] = (h >>  8) & 0xff;
+  x[i+3] = h & 0xff;
+  x[i+4] = (l >> 24)  & 0xff;
+  x[i+5] = (l >> 16)  & 0xff;
+  x[i+6] = (l >>  8)  & 0xff;
+  x[i+7] = l & 0xff;
 }
 
 function vn(x, xi, y, yi, n) {
@@ -415,7 +408,7 @@ var poly1305 = function(key) {
   this.r[9] = ((t7 >>>  5)) & 0x007f;
 
   for (i = 0; i < 8; i++) this.pad[i] = U8TO16(key, 16 + (2 * i));
-}
+};
 
 poly1305.prototype.blocks = function(m, mpos, bytes) {
   var hibit = this.fin ? 0 : (1 << 11);
@@ -458,7 +451,7 @@ poly1305.prototype.blocks = function(m, mpos, bytes) {
     mpos += 16;
     bytes -= 16;
   }
-}
+};
 
 poly1305.prototype.finish = function(mac, macpos) {
   var g = new Uint16Array(10);
@@ -519,7 +512,7 @@ poly1305.prototype.finish = function(mac, macpos) {
   }
 
   for (i = 0; i < 8; i++) U16TO8(mac, macpos + i*2, this.h[i]);
-}
+};
 
 poly1305.prototype.update = function(m, mpos, bytes) {
   var i, want;
@@ -551,7 +544,7 @@ poly1305.prototype.update = function(m, mpos, bytes) {
       this.buffer[this.leftover + i] = m[mpos+i];
     this.leftover += bytes;
   }
-}
+};
 
 function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
   var s = new poly1305(k);
@@ -789,138 +782,262 @@ function crypto_box_open(m, c, d, n, y, x) {
   return crypto_box_open_afternm(m, c, d, n, k);
 }
 
-function add64() {
-  var a = 0, b = 0, c = 0, d = 0, m16 = 65535, l, h, i;
-  for (i = 0; i < arguments.length; i++) {
-    l = arguments[i].lo;
-    h = arguments[i].hi;
-    a += (l & m16); b += (l >>> 16);
-    c += (h & m16); d += (h >>> 16);
-  }
+var Kh = [
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+  0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+  0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+  0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+  0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+  0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+  0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+  0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  0xca273ece, 0xd186b8c7, 0xeada7dd6, 0xf57d4f7f,
+  0x06f067aa, 0x0a637dc5, 0x113f9804, 0x1b710b35,
+  0x28db77f5, 0x32caab7b, 0x3c9ebe0a, 0x431d67c4,
+  0x4cc5d4be, 0x597f299c, 0x5fcb6fab, 0x6c44198c
+];
 
-  b += (a >>> 16);
-  c += (b >>> 16);
-  d += (c >>> 16);
-
-  return new u64((c & m16) | (d << 16), (a & m16) | (b << 16));
-}
-
-function shr64(x, c) {
-  return new u64((x.hi >>> c), (x.lo >>> c) | (x.hi << (32 - c)));
-}
-
-function xor64() {
-  var l = 0, h = 0, i;
-  for (i = 0; i < arguments.length; i++) {
-    l ^= arguments[i].lo;
-    h ^= arguments[i].hi;
-  }
-  return new u64(h, l);
-}
-
-function R(x, c) {
-  var h, l, c1 = 32 - c;
-  if (c < 32) {
-    h = (x.hi >>> c) | (x.lo << c1);
-    l = (x.lo >>> c) | (x.hi << c1);
-  } else if (c < 64) {
-    h = (x.lo >>> c) | (x.hi << c1);
-    l = (x.hi >>> c) | (x.lo << c1);
-  }
-  return new u64(h, l);
-}
-
-function Ch(x, y, z) {
-  var h = (x.hi & y.hi) ^ (~x.hi & z.hi),
-      l = (x.lo & y.lo) ^ (~x.lo & z.lo);
-  return new u64(h, l);
-}
-
-function Maj(x, y, z) {
-  var h = (x.hi & y.hi) ^ (x.hi & z.hi) ^ (y.hi & z.hi),
-      l = (x.lo & y.lo) ^ (x.lo & z.lo) ^ (y.lo & z.lo);
-  return new u64(h, l);
-}
-
-function Sigma0(x) { return xor64(R(x,28), R(x,34), R(x,39)); }
-function Sigma1(x) { return xor64(R(x,14), R(x,18), R(x,41)); }
-function sigma0(x) { return xor64(R(x, 1), R(x, 8), shr64(x,7)); }
-function sigma1(x) { return xor64(R(x,19), R(x,61), shr64(x,6)); }
-
-var K = [
-  new u64(0x428a2f98, 0xd728ae22), new u64(0x71374491, 0x23ef65cd),
-  new u64(0xb5c0fbcf, 0xec4d3b2f), new u64(0xe9b5dba5, 0x8189dbbc),
-  new u64(0x3956c25b, 0xf348b538), new u64(0x59f111f1, 0xb605d019),
-  new u64(0x923f82a4, 0xaf194f9b), new u64(0xab1c5ed5, 0xda6d8118),
-  new u64(0xd807aa98, 0xa3030242), new u64(0x12835b01, 0x45706fbe),
-  new u64(0x243185be, 0x4ee4b28c), new u64(0x550c7dc3, 0xd5ffb4e2),
-  new u64(0x72be5d74, 0xf27b896f), new u64(0x80deb1fe, 0x3b1696b1),
-  new u64(0x9bdc06a7, 0x25c71235), new u64(0xc19bf174, 0xcf692694),
-  new u64(0xe49b69c1, 0x9ef14ad2), new u64(0xefbe4786, 0x384f25e3),
-  new u64(0x0fc19dc6, 0x8b8cd5b5), new u64(0x240ca1cc, 0x77ac9c65),
-  new u64(0x2de92c6f, 0x592b0275), new u64(0x4a7484aa, 0x6ea6e483),
-  new u64(0x5cb0a9dc, 0xbd41fbd4), new u64(0x76f988da, 0x831153b5),
-  new u64(0x983e5152, 0xee66dfab), new u64(0xa831c66d, 0x2db43210),
-  new u64(0xb00327c8, 0x98fb213f), new u64(0xbf597fc7, 0xbeef0ee4),
-  new u64(0xc6e00bf3, 0x3da88fc2), new u64(0xd5a79147, 0x930aa725),
-  new u64(0x06ca6351, 0xe003826f), new u64(0x14292967, 0x0a0e6e70),
-  new u64(0x27b70a85, 0x46d22ffc), new u64(0x2e1b2138, 0x5c26c926),
-  new u64(0x4d2c6dfc, 0x5ac42aed), new u64(0x53380d13, 0x9d95b3df),
-  new u64(0x650a7354, 0x8baf63de), new u64(0x766a0abb, 0x3c77b2a8),
-  new u64(0x81c2c92e, 0x47edaee6), new u64(0x92722c85, 0x1482353b),
-  new u64(0xa2bfe8a1, 0x4cf10364), new u64(0xa81a664b, 0xbc423001),
-  new u64(0xc24b8b70, 0xd0f89791), new u64(0xc76c51a3, 0x0654be30),
-  new u64(0xd192e819, 0xd6ef5218), new u64(0xd6990624, 0x5565a910),
-  new u64(0xf40e3585, 0x5771202a), new u64(0x106aa070, 0x32bbd1b8),
-  new u64(0x19a4c116, 0xb8d2d0c8), new u64(0x1e376c08, 0x5141ab53),
-  new u64(0x2748774c, 0xdf8eeb99), new u64(0x34b0bcb5, 0xe19b48a8),
-  new u64(0x391c0cb3, 0xc5c95a63), new u64(0x4ed8aa4a, 0xe3418acb),
-  new u64(0x5b9cca4f, 0x7763e373), new u64(0x682e6ff3, 0xd6b2b8a3),
-  new u64(0x748f82ee, 0x5defb2fc), new u64(0x78a5636f, 0x43172f60),
-  new u64(0x84c87814, 0xa1f0ab72), new u64(0x8cc70208, 0x1a6439ec),
-  new u64(0x90befffa, 0x23631e28), new u64(0xa4506ceb, 0xde82bde9),
-  new u64(0xbef9a3f7, 0xb2c67915), new u64(0xc67178f2, 0xe372532b),
-  new u64(0xca273ece, 0xea26619c), new u64(0xd186b8c7, 0x21c0c207),
-  new u64(0xeada7dd6, 0xcde0eb1e), new u64(0xf57d4f7f, 0xee6ed178),
-  new u64(0x06f067aa, 0x72176fba), new u64(0x0a637dc5, 0xa2c898a6),
-  new u64(0x113f9804, 0xbef90dae), new u64(0x1b710b35, 0x131c471b),
-  new u64(0x28db77f5, 0x23047d84), new u64(0x32caab7b, 0x40c72493),
-  new u64(0x3c9ebe0a, 0x15c9bebc), new u64(0x431d67c4, 0x9c100d4c),
-  new u64(0x4cc5d4be, 0xcb3e42b6), new u64(0x597f299c, 0xfc657e2a),
-  new u64(0x5fcb6fab, 0x3ad6faec), new u64(0x6c44198c, 0x4a475817)
+var Kl = [
+  0xd728ae22, 0x23ef65cd, 0xec4d3b2f, 0x8189dbbc,
+  0xf348b538, 0xb605d019, 0xaf194f9b, 0xda6d8118,
+  0xa3030242, 0x45706fbe, 0x4ee4b28c, 0xd5ffb4e2,
+  0xf27b896f, 0x3b1696b1, 0x25c71235, 0xcf692694,
+  0x9ef14ad2, 0x384f25e3, 0x8b8cd5b5, 0x77ac9c65,
+  0x592b0275, 0x6ea6e483, 0xbd41fbd4, 0x831153b5,
+  0xee66dfab, 0x2db43210, 0x98fb213f, 0xbeef0ee4,
+  0x3da88fc2, 0x930aa725, 0xe003826f, 0x0a0e6e70,
+  0x46d22ffc, 0x5c26c926, 0x5ac42aed, 0x9d95b3df,
+  0x8baf63de, 0x3c77b2a8, 0x47edaee6, 0x1482353b,
+  0x4cf10364, 0xbc423001, 0xd0f89791, 0x0654be30,
+  0xd6ef5218, 0x5565a910, 0x5771202a, 0x32bbd1b8,
+  0xb8d2d0c8, 0x5141ab53, 0xdf8eeb99, 0xe19b48a8,
+  0xc5c95a63, 0xe3418acb, 0x7763e373, 0xd6b2b8a3,
+  0x5defb2fc, 0x43172f60, 0xa1f0ab72, 0x1a6439ec,
+  0x23631e28, 0xde82bde9, 0xb2c67915, 0xe372532b,
+  0xea26619c, 0x21c0c207, 0xcde0eb1e, 0xee6ed178,
+  0x72176fba, 0xa2c898a6, 0xbef90dae, 0x131c471b,
+  0x23047d84, 0x40c72493, 0x15c9bebc, 0x9c100d4c,
+  0xcb3e42b6, 0xfc657e2a, 0x3ad6faec, 0x4a475817
 ];
 
 function crypto_hashblocks(x, m, n) {
-  var z = [], b = [], a = [], w = [], t, i, j;
+  var zh = new Int32Array(8),  zl = new Int32Array(8),
+      bh = new Int32Array(8),  bl = new Int32Array(8),
+      ah = new Int32Array(8),  al = new Int32Array(8),
+      wh = new Int32Array(16), wl = new Int32Array(16),
+      th, tl, i, j, h, l, xh, xl, a, b, c, d, m16 = 0xffff;
 
-  for (i = 0; i < 8; i++) z[i] = a[i] = dl64(x, 8*i);
+  for (i = 0; i < 8; i++) {
+    j = 8 * i;
+    zh[i] = ah[i] = (x[j+0] << 24) | (x[j+1] << 16) | (x[j+2] << 8) | x[j+3];
+    zl[i] = al[i] = (x[j+4] << 24) | (x[j+5] << 16) | (x[j+6] << 8) | x[j+7];
+  }
 
   var pos = 0;
   while (n >= 128) {
-    for (i = 0; i < 16; i++) w[i] = dl64(m, 8*i+pos);
+    for (i = 0; i < 16; i++) {
+      j = 8 * i + pos;
+      wh[i] = (m[j+0] << 24) | (m[j+1] << 16) | (m[j+2] << 8) | m[j+3];
+      wl[i] = (m[j+4] << 24) | (m[j+5] << 16) | (m[j+6] << 8) | m[j+7];
+    }
     for (i = 0; i < 80; i++) {
-      for (j = 0; j < 8; j++) b[j] = a[j];
-      t = add64(a[7], Sigma1(a[4]), Ch(a[4], a[5], a[6]), K[i], w[i%16]);
-      b[7] = add64(t, Sigma0(a[0]), Maj(a[0], a[1], a[2]));
-      b[3] = add64(b[3], t);
-      for (j = 0; j < 8; j++) a[(j+1)%8] = b[j];
+      for (j = 0; j < 8; j++) {
+        bh[j] = ah[j];
+        bl[j] = al[j];
+      }
+
+      // add
+      h = ah[7];
+      l = al[7];
+
+      a = l & m16; b = l >>> 16;
+      c = h & m16; d = h >>> 16;
+
+      // Sigma1
+      xh = ah[4];
+      xl = al[4];
+      h = (xh >>> 14) | (xl << (32-14));
+      l = (xl >>> 14) | (xh << (32-14));
+      h ^= (xh >>> 18) | (xl << (32-18));
+      l ^= (xl >>> 18) | (xh << (32-18));
+      h ^= (xl >>> (41-32)) | (xh << (32-(41-32)));
+      l ^= (xh >>> (41-32)) | (xl << (32-(41-32)));
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      // Ch
+      h = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
+      l = (al[4] & al[5]) ^ (~al[4] & al[6]);
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      // K
+      h = Kh[i];
+      l = Kl[i];
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      // w
+      h = wh[i%16];
+      l = wl[i%16];
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      b += a >>> 16;
+      c += b >>> 16;
+      d += c >>> 16;
+
+      th = c & m16 | d << 16;
+      tl = a & m16 | b << 16;
+
+      // add
+      h = th;
+      l = tl;
+
+      a = l & m16; b = l >>> 16;
+      c = h & m16; d = h >>> 16;
+
+      // Sigma0
+      xh = ah[0];
+      xl = al[0];
+      h = (xh >>> 28) | (xl << (32-28));
+      l = (xl >>> 28) | (xh << (32-28));
+      h ^= (xl >>> (34-32)) | (xh << (32-(34-32)));
+      l ^= (xh >>> (34-32)) | (xl << (32-(34-32)));
+      h ^= (xl >>> (39-32)) | (xh << (32-(39-32)));
+      l ^= (xh >>> (39-32)) | (xl << (32-(39-32)));
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      // Maj
+      h = (ah[0] & ah[1]) ^ (ah[0] & ah[2]) ^ (ah[1] & ah[2]);
+      l = (al[0] & al[1]) ^ (al[0] & al[2]) ^ (al[1] & al[2]);
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      b += a >>> 16;
+      c += b >>> 16;
+      d += c >>> 16;
+
+      bh[7] = (c & m16) | (d << 16);
+      bl[7] = (a & m16) | (b << 16);
+
+      // add
+      h = bh[3];
+      l = bl[3];
+
+      a = l & m16; b = l >>> 16;
+      c = h & m16; d = h >>> 16;
+
+      h = th;
+      l = tl;
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      b += a >>> 16;
+      c += b >>> 16;
+      d += c >>> 16;
+
+      bh[3] = (c & m16) | (d << 16);
+      bl[3] = (a & m16) | (b << 16);
+
+      for (j = 0; j < 8; j++) {
+        ah[(j+1)%8] = bh[j];
+        al[(j+1)%8] = bl[j];
+      }
       if (i%16 === 15) {
         for (j = 0; j < 16; j++) {
-          w[j] = add64(w[j], w[(j+9)%16], sigma0(w[(j+1)%16]), sigma1(w[(j+14)%16]));
+          // add
+          h = wh[j];
+          l = wl[j];
+
+          a = l & m16; b = l >>> 16;
+          c = h & m16; d = h >>> 16;
+
+          h = wh[(j+9)%16];
+          l = wl[(j+9)%16];
+
+          a += l & m16; b += l >>> 16;
+          c += h & m16; d += h >>> 16;
+
+          // sigma0
+          xh = wh[(j+1)%16];
+          xl = wl[(j+1)%16];
+          h = (xh >>> 1) | (xl << (32-1));
+          l = (xl >>> 1) | (xh << (32-1));
+          h ^= (xh >>> 8) | (xl << (32-8));
+          l ^= (xl >>> 8) | (xh << (32-8));
+          h ^= xh >>> 7;
+          l ^= (xl >>> 7) | (xh << (32-7));
+
+          a += l & m16; b += l >>> 16;
+          c += h & m16; d += h >>> 16;
+
+          // sigma1
+          xh = wh[(j+14)%16];
+          xl = wl[(j+14)%16];
+          h = (xh >>> 19) | (xl << (32-19));
+          l = (xl >>> 19) | (xh << (32-19));
+          h ^= (xl >>> (61-32)) | (xh << (32-(61-32)));
+          l ^= (xh >>> (61-32)) | (xl << (32-(61-32)));
+          h ^= xh >>> 6;
+          l ^= (xl >>> 6) | (xh << (32-6));
+
+          a += l & m16; b += l >>> 16;
+          c += h & m16; d += h >>> 16;
+
+          b += a >>> 16;
+          c += b >>> 16;
+          d += c >>> 16;
+
+          wh[j] = (c & m16) | (d << 16);
+          wl[j] = (a & m16) | (b << 16);
         }
       }
     }
 
     for (i = 0; i < 8; i++) {
-      a[i] = add64(a[i], z[i]);
-      z[i] = a[i];
+      // add
+      h = ah[i];
+      l = al[i];
+
+      a = l & m16; b = l >>> 16;
+      c = h & m16; d = h >>> 16;
+
+      h = zh[i];
+      l = zl[i];
+
+      a += l & m16; b += l >>> 16;
+      c += h & m16; d += h >>> 16;
+
+      b += a >>> 16;
+      c += b >>> 16;
+      d += c >>> 16;
+
+      zh[i] = ah[i] = (c & m16) | (d << 16);
+      zl[i] = al[i] = (a & m16) | (b << 16);
     }
 
     pos += 128;
     n -= 128;
   }
 
-  for (i = 0; i < 8; i++) ts64(x, 8*i, z[i]);
+  for (i = 0; i < 8; i++) ts64(x, 8*i, zh[i], zl[i]);
   return n;
 }
 
@@ -950,7 +1067,7 @@ function crypto_hash(out, m, n) {
 
   n = 256-128*(n<112?1:0);
   x[n-9] = 0;
-  ts64(x, n-8, new u64((b / 0x20000000) | 0, b << 3));
+  ts64(x, n-8,  (b / 0x20000000) | 0, b << 3);
   crypto_hashblocks(h, x, n);
 
   for (i = 0; i < 64; i++) out[i] = h[i];
