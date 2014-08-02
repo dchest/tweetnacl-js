@@ -124,10 +124,17 @@ function sign_open_benchmark() {
 }
 
 function crypto_hash_benchmark() {
-  log.start('Benchmarking crypto_hash');
+  log.start('Benchmarking crypto_hash (1024 bytes)');
   var m = new Uint8Array(1024), out = new Uint8Array(64),
       start, elapsed, num = 255;
-  for (i = 0; i < 1024; i++) m[i] = i & 255;
+  for (i = 0; i < m.length; i++) m[i] = i & 255;
+  benchmark(function(){
+    nacl.lowlevel.crypto_hash(out, m, m.length);
+  }, m.length);
+
+  log.start('Benchmarking crypto_hash (16 KiB)');
+  m = new Uint8Array(16*1024);
+  for (i = 0; i < m.length; i++) m[i] = i & 255;
   benchmark(function(){
     nacl.lowlevel.crypto_hash(out, m, m.length);
   }, m.length);
