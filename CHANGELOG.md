@@ -1,6 +1,19 @@
 TweetNaCl.js Changelog
 ======================
 
+v0.11.0
+-------
+
+* Implement `nacl.sign.keyPair.fromSeed` to enable creation of sign key pairs
+  deterministically from a 32-byte seed. (It behaves like
+  [libsodium's](http://doc.libsodium.org/public-key_cryptography/public-key_signatures.html)
+  `crypto_sign_seed_keypair`: the seed becomes a secret part of the secret key.)
+
+* Fast version now has an improved hash implementation that is 2x-5x faster.
+
+* Fixed benchmarks, which may have produced incorrect measurements.
+
+
 v0.10.1
 -------
 
