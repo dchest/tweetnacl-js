@@ -1336,7 +1336,6 @@ nacl.lowlevel = {
   crypto_box_open : crypto_box_open,
   crypto_box_keypair : crypto_box_keypair,
   crypto_hash : crypto_hash,
-  crypto_hashblocks : crypto_hashblocks, // for testing
   crypto_sign : crypto_sign,
   crypto_sign_keypair : crypto_sign_keypair,
   crypto_sign_open : crypto_sign_open,
