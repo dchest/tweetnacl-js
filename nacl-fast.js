@@ -825,9 +825,8 @@ var K = [
   0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
 ];
 
-function crypto_hashblocks_hl(hh, hl, m, n) {
-  var wh = new Int32Array(16), wl = new Int32Array(16),
-      bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7,
+function crypto_hashblocks_hl(hh, hl, wh, wl, m, n) {
+  var bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7,
       bl0, bl1, bl2, bl3, bl4, bl5, bl6, bl7,
       th, tl, i, j, h, l, a, b, c, d;
 
@@ -1189,6 +1188,8 @@ function crypto_hashblocks_hl(hh, hl, m, n) {
 function crypto_hash(out, m, n) {
   var hh = new Int32Array(8),
       hl = new Int32Array(8),
+      tmph = new Int32Array(16),
+      tmpl = new Int32Array(16),
       x = new Uint8Array(256),
       i, b = n;
 
@@ -1210,7 +1211,7 @@ function crypto_hash(out, m, n) {
   hl[6] = 0xfb41bd6b;
   hl[7] = 0x137e2179;
 
-  crypto_hashblocks_hl(hh, hl, m, n);
+  crypto_hashblocks_hl(hh, hl, tmph, tmpl, m, n);
   n %= 128;
 
   for (i = 0; i < n; i++) x[i] = m[b-n+i];
@@ -1219,7 +1220,7 @@ function crypto_hash(out, m, n) {
   n = 256-128*(n<112?1:0);
   x[n-9] = 0;
   ts64(x, n-8,  (b / 0x20000000) | 0, b << 3);
-  crypto_hashblocks_hl(hh, hl, x, n);
+  crypto_hashblocks_hl(hh, hl, tmph, tmpl, x, n);
 
   for (i = 0; i < 8; i++) ts64(out, 8*i, hh[i], hl[i]);
 
