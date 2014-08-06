@@ -1,6 +1,12 @@
 TweetNaCl.js Changelog
 ======================
 
+v0.11.1
+-------
+
+* Even faster hash for both short and long inputs (in `nacl-fast`).
+
+
 v0.11.0
 -------
 
