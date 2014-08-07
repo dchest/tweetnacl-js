@@ -1465,6 +1465,7 @@ var crypto_secretbox_KEYBYTES = 32,
     crypto_sign_BYTES = 64,
     crypto_sign_PUBLICKEYBYTES = 32,
     crypto_sign_SECRETKEYBYTES = 64,
+    crypto_sign_SEEDBYTES = 32,
     crypto_hash_BYTES = 64;
 
 nacl.lowlevel = {
@@ -1506,6 +1507,7 @@ nacl.lowlevel = {
   crypto_sign_BYTES : crypto_sign_BYTES,
   crypto_sign_PUBLICKEYBYTES : crypto_sign_PUBLICKEYBYTES,
   crypto_sign_SECRETKEYBYTES : crypto_sign_SECRETKEYBYTES,
+  crypto_sign_SEEDBYTES: crypto_sign_SEEDBYTES,
   crypto_hash_BYTES : crypto_hash_BYTES
 };
 
@@ -1721,7 +1723,7 @@ nacl.sign.keyPair.fromSecretKey = function(secretKey) {
 
 nacl.sign.keyPair.fromSeed = function(seed) {
   checkArrayTypes(seed);
-  if (seed.length !== 32)
+  if (seed.length !== crypto_sign_SEEDBYTES)
     throw new Error('bad seed size');
   var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
   var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
@@ -1732,6 +1734,7 @@ nacl.sign.keyPair.fromSeed = function(seed) {
 
 nacl.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;
 nacl.sign.secretKeyLength = crypto_sign_SECRETKEYBYTES;
+nacl.sign.seedLength = crypto_sign_SEEDBYTES;
 nacl.sign.signatureLength = crypto_sign_BYTES;
 
 nacl.hash = function(msg) {

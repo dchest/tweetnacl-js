@@ -248,6 +248,10 @@ Length of signing public key in bytes.
 
 Length of signing secret key in bytes.
 
+#### nacl.sign.seedLength = 32
+
+Length of seed for `nacl.sign.keyPair.fromSeed` in bytes.
+
 #### nacl.sign.signatureLength = 64
 
 Length of signature in bytes.
