@@ -1,15 +1,6 @@
 // Test helpers.
 (function(exports) {
 
-// Compares bytes of an indexable something (Array, typed array).
-exports.bytesEqual = function(x, y) {
-  if (x.length !== y.length) return false;
-  for (var i = 0; i < x.length; i++) {
-    if (x[i] !== y[i]) return false;
-  }
-  return true;
-};
-
 function NodeLogger() {
   this.print = function() {
     console.log.apply(console, arguments);
