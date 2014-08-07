@@ -31,6 +31,7 @@ Documentation
 * [System requirements](#system-requirements)
 * [Development and testing](#development-and-testing)
 * [Contributors](#contributors)
+* [Who uses it](#who-uses-it)
 
 
 Overview
@@ -443,3 +444,12 @@ and [Poly1305-donna](https://github.com/floodyberry/poly1305-donna)
 Contributors have dedicated their work to the public domain.
 
 This software is distributed without any warranty.
+
+
+Who uses it
+-----------
+
+Some notable users of TweetNaCl.js:
+
+* [miniLock](http://minilock.io/)
+* [Stellar](https://www.stellar.org/)
