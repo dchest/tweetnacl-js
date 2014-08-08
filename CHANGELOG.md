@@ -1,6 +1,12 @@
 TweetNaCl.js Changelog
 ======================
 
+v0.11.2
+-------
+
+* Added new constant: `nacl.sign.seedLength`.
+
+
 v0.11.1
 -------
 

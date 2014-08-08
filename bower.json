@@ -1,6 +1,6 @@
 {
   "name": "tweetnacl",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "homepage": "https://dchest.github.io/tweetnacl-js",
   "authors": [
     "TweetNaCl.js Contributors"
