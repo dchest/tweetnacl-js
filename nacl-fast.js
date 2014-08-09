@@ -1210,8 +1210,10 @@ function crypto_hash(out, m, n) {
   hl[6] = 0xfb41bd6b;
   hl[7] = 0x137e2179;
 
-  crypto_hashblocks_hl(hh, hl, m, n);
-  n %= 128;
+  if (n >= 128) {
+    crypto_hashblocks_hl(hh, hl, m, n);
+    n %= 128;
+  }
 
   for (i = 0; i < n; i++) x[i] = m[b-n+i];
   x[n] = 128;
