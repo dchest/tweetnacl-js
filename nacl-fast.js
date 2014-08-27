@@ -1651,7 +1651,7 @@ nacl.box.keyPair.fromSecretKey = function(secretKey) {
     throw new Error('bad secret key size');
   var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
   crypto_scalarmult_base(pk, secretKey);
-  return {publicKey: pk, secretKey: secretKey};
+  return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
 };
 
 nacl.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
@@ -1716,9 +1716,8 @@ nacl.sign.keyPair.fromSecretKey = function(secretKey) {
   if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
     throw new Error('bad secret key size');
   var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
-  var i;
-  for (i = 0; i < 32; i++) pk[i] = secretKey[32+i];
-  return {publicKey: pk, secretKey: secretKey};
+  for (var i = 0; i < pk.length; i++) pk[i] = secretKey[32+i];
+  return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
 };
 
 nacl.sign.keyPair.fromSeed = function(seed) {
