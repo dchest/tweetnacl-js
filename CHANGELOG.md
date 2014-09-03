@@ -1,6 +1,14 @@
 TweetNaCl.js Changelog
 ======================
 
+v0.12.0
+-------
+
+* Instead of using the given secret key directly, TweetNaCl.js now copies it to
+  a new array in `nacl.box.keyPair.fromSecretKey` and
+  `nacl.sign.keyPair.fromSecretKey`.
+
+
 v0.11.2
 -------
 
