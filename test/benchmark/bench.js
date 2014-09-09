@@ -5,20 +5,35 @@ var log = helpers.log;
 if (!nacl) throw new Error('nacl not loaded');
 
 function benchmark(fn, bytes, num) {
-  if (!num) num = 100;
-  var start = new Date();
-  for (var i = 0; i < num; i++) fn();
-  var elapsed = (new Date()) - start;
+  if (!num) num = 1000;
+  var i, elapsed, start = new Date();
+  while (1) {
+    for (i = 0; i < num; i++) fn();
+    elapsed = (new Date()) - start;
+    if (elapsed < 500) {
+      num += num*1000/elapsed/2;
+    } else {
+      break;
+    }
+  }
+
   log.print(' ' + ((bytes*num/1024/1024*1000)/elapsed).toFixed(3), 'MB/s');
   log.print(' ' + ((num*1000)/elapsed).toFixed(3), 'ops/s');
 }
 
 function benchmarkOps(fn,  num) {
-  var start = new Date();
-  for (var i = 0; i < num; i++) {
-    fn();
+  var i, elapsed, start = new Date();
+  while (1) {
+    for (i = 0; i < num; i++) {
+      fn();
+    }
+    elapsed = (new Date()) - start;
+    if (elapsed < 500) {
+      num += num*1000/elapsed/2;
+    } else {
+      break;
+    }
   }
-  var elapsed = (new Date()) - start;
   log.print(' ' + ((num*1000)/elapsed).toFixed(3), 'ops/s');
 }
 
