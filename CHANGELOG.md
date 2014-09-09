@@ -1,6 +1,14 @@
 TweetNaCl.js Changelog
 ======================
 
+
+v0.12.1
+-------
+
+* Significantly improved performance of Salsa20 (~1.5x faster) and
+  Poly1305 (~3.5x faster) in `nacl-fast` version.
+
+
 v0.12.0
 -------
 
