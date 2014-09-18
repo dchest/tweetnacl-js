@@ -2,6 +2,13 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.12.2
+-------
+
+* Improved performance of curve operations, making `nacl.scalarMult`, `nacl.box`,
+  `nacl.sign` and related functions up to 3x faster in `nacl-fast` version.
+
+
 v0.12.1
 -------
 
