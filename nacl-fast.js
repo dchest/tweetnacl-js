@@ -927,7 +927,7 @@ function Z(o, a, b) {
 }
 
 function M(o, a, b) {
-  var v,
+  var v, c,
      t0 = 0,  t1 = 0,  t2 = 0,  t3 = 0,  t4 = 0,  t5 = 0,  t6 = 0,  t7 = 0,
      t8 = 0,  t9 = 0, t10 = 0, t11 = 0, t12 = 0, t13 = 0, t14 = 0, t15 = 0,
     t16 = 0, t17 = 0, t18 = 0, t19 = 0, t20 = 0, t21 = 0, t22 = 0, t23 = 0,
@@ -1240,7 +1240,7 @@ function M(o, a, b) {
   // t15 left as is
 
   // first car
-  var c = 1;
+  c = 1;
   v =  t0 + c + 65535; c = Math.floor(v / 65536);  t0 = v - c * 65536;
   v =  t1 + c + 65535; c = Math.floor(v / 65536);  t1 = v - c * 65536;
   v =  t2 + c + 65535; c = Math.floor(v / 65536);  t2 = v - c * 65536;
