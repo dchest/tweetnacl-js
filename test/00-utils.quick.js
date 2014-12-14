@@ -24,3 +24,14 @@ test('nacl.util.encodeBase64', function(t) {
   t.plan(1);
   t.equal(nacl.util.encodeBase64(testBytes), b64String);
 });
+
+test('nacl.util.cleanup', function(t) {
+  t.plan(4);
+  var array = new Uint8Array([1,2]);
+  var buffer = new Buffer([1,2]);
+  nacl.util.cleanup(array, buffer)
+  t.equal(array[0], 0);
+  t.equal(array[1], 0);
+  t.equal(buffer[0], 0);
+  t.equal(buffer[1], 0);
+})

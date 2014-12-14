@@ -976,6 +976,23 @@ nacl.util.decodeBase64 = function(s) {
   }
 };
 
+nacl.util.cleanup = function() {
+  for (var argidx = 0; argidx < arguments.length; argidx++) {
+    var arg = arguments[argidx]
+    if (arg && arg.length !== undefined) {
+      if (arg.fill !== undefined) {
+        arg.fill(0, 0, arg.length);
+      } else {
+        for (var idx = 0; idx < arg.length; idx++) {
+          arg[idx] = 0;
+        }
+      }
+    } else {
+      throw new TypeError('unexpected type ' + t + ', use Uint8Array or Buffer');
+    }
+  }
+};
+
 nacl.randomBytes = function(n) {
   var b = new Uint8Array(n);
   randombytes(b, n);
@@ -1184,6 +1201,7 @@ nacl.setPRNG = function(fn) {
         var i, v = new Uint8Array(n);
         crypto.getRandomValues(v);
         for (i = 0; i < n; i++) x[i] = v[i];
+        nacl.util.cleanup(v);
       });
     }
   } else if (typeof require !== 'undefined') {
@@ -1193,6 +1211,7 @@ nacl.setPRNG = function(fn) {
       nacl.setPRNG(function(x, n) {
         var i, v = crypto.randomBytes(n);
         for (i = 0; i < n; i++) x[i] = v[i];
+        nacl.util.cleanup(v);
       });
     }
   }
