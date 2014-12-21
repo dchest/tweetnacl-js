@@ -349,11 +349,6 @@ Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
 
 Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
 
-#### nacl.util.cleanup(array...)
-
-Replace the contents of passed in Arrays, Typed Arrays, and Node-style Buffers
-with null bytes. Accepts multiple arguments.
-
 
 System requirements
 -------------------
