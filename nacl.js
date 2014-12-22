@@ -942,6 +942,10 @@ function checkArrayTypes() {
   }
 }
 
+function cleanup(arr) {
+  for (var i = 0; i < arr.length; i++) arr[i] = 0;
+}
+
 nacl.util = {};
 
 nacl.util.decodeUTF8 = function(s) {
@@ -1184,6 +1188,7 @@ nacl.setPRNG = function(fn) {
         var i, v = new Uint8Array(n);
         crypto.getRandomValues(v);
         for (i = 0; i < n; i++) x[i] = v[i];
+        cleanup(v);
       });
     }
   } else if (typeof require !== 'undefined') {
@@ -1193,6 +1198,7 @@ nacl.setPRNG = function(fn) {
       nacl.setPRNG(function(x, n) {
         var i, v = crypto.randomBytes(n);
         for (i = 0; i < n; i++) x[i] = v[i];
+        cleanup(v);
       });
     }
   }
