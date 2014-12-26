@@ -2,6 +2,16 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.13.0
+-------
+
+* Made `nacl-fast` the default version in NPM package. Now
+  `require("tweetnacl")` will use fast version; to get the original version,
+  use `require("tweetnacl/nacl.js")`.
+
+* Cleanup temporary array after generating random bytes.
+
+
 v0.12.2
 -------
 
