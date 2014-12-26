@@ -12,7 +12,7 @@ function focusIf(prop) {
       el.focus();
       prop(false);
     }
-  }
+  };
 }
 
 var app = {};
@@ -21,18 +21,18 @@ var app = {};
 
 app.errorView = function(error) {
   if (error()) {
-    return m('.row', [ 
+    return m('.row', [
       m('.col-sm-12', [
         m('.alert.alert-danger', error())
       ])
     ]);
-  } 
+  }
   return '';
-}
+};
 
 app.messageView = function(ctrl, action, buttonTitle) {
   return m('form', {onsubmit: action}, [
-    m('.form-group', [ 
+    m('.form-group', [
       m('label[for=message]', 'Message'),
       m('textarea.form-control[id=message]', {
         value: ctrl.message(),
@@ -48,7 +48,7 @@ app.messageView = function(ctrl, action, buttonTitle) {
 
 app.boxView = function(ctrl, action, buttonTitle) {
   return m('form', {onsubmit: action}, [
-    m('.form-group', [ 
+    m('.form-group', [
       m('label[for=box]', 'Box'),
       m('textarea.form-control[id=box]', {
         value: ctrl.box(),
@@ -87,7 +87,7 @@ app.secretbox.controller = function() {
 
   this.decodeKey = function() {
     try {
-      var k = nacl.util.decodeBase64(this.key())
+      var k = nacl.util.decodeBase64(this.key());
       if (k.length != nacl.secretbox.keyLength) {
         this.error('Bad key length: must be ' + nacl.secretbox.keyLength + ' bytes');
         return null;
@@ -101,7 +101,7 @@ app.secretbox.controller = function() {
 
   this.decodeNonce = function() {
     try {
-      var n = nacl.util.decodeBase64(this.nonce())
+      var n = nacl.util.decodeBase64(this.nonce());
       if (n.length != nacl.secretbox.nonceLength) {
         this.error('Bad nonce length: must be ' + nacl.secretbox.nonceLength + ' bytes');
         return null;
@@ -132,7 +132,7 @@ app.secretbox.controller = function() {
     if (!(k = this.decodeKey())) return;
     try {
       b = nacl.util.decodeBase64(this.box());
-    } catch(e) {
+    } catch(ex) {
       this.error('Cannot decode box');
       return;
     }
@@ -144,7 +144,7 @@ app.secretbox.controller = function() {
     }
     try {
       this.message(nacl.util.encodeUTF8(m));
-    } catch(e) {
+    } catch(ex) {
       this.error('Cannot decode decrypted message to string');
       return;
     }
@@ -157,7 +157,7 @@ app.secretbox.keyNonceView = function(ctrl) {
   return m('form', [
     m('.row', [
       m('.col-md-6', [
-        m('.form-group', [ 
+        m('.form-group', [
           m('label[for=key]', 'Key'),
           m('.input-group', [
             m('input.form-control[name=key]', {value: ctrl.key(), onchange: m.withAttr('value', ctrl.key)}),
@@ -168,7 +168,7 @@ app.secretbox.keyNonceView = function(ctrl) {
         ]),
       ]),
       m('.col-md-6', [
-        m('.form-group', [ 
+        m('.form-group', [
           m('label[for=nonce]', 'Nonce'),
           m('.input-group', [
             m('input.form-control[name=nonce]', {value: ctrl.nonce(), onchange: m.withAttr('value', ctrl.nonce)}),
@@ -235,7 +235,7 @@ app.box.controller = function() {
 
   this.decodeTheirPublicKey = function() {
     try {
-      var k = nacl.util.decodeBase64(this.theirPublicKey())
+      var k = nacl.util.decodeBase64(this.theirPublicKey());
       if (k.length != nacl.box.publicKeyLength) {
         this.error('Bad public key length: must be ' + nacl.box.publicKeyLength + ' bytes');
         return null;
@@ -249,7 +249,7 @@ app.box.controller = function() {
 
   this.decodeMySecretKey = function() {
     try {
-      var k = nacl.util.decodeBase64(this.mySecretKey())
+      var k = nacl.util.decodeBase64(this.mySecretKey());
       if (k.length != nacl.box.secretKeyLength) {
         this.error('Bad secret key length: must be ' + nacl.box.secretKeyLength + ' bytes');
         return null;
@@ -263,7 +263,7 @@ app.box.controller = function() {
 
   this.decodeNonce = function() {
     try {
-      var n = nacl.util.decodeBase64(this.nonce())
+      var n = nacl.util.decodeBase64(this.nonce());
       if (n.length != nacl.secretbox.nonceLength) {
         this.error('Bad nonce length: must be ' + nacl.secretbox.nonceLength + ' bytes');
         return null;
@@ -296,7 +296,7 @@ app.box.controller = function() {
     if (!(sk = this.decodeMySecretKey())) return;
     try {
       b = nacl.util.decodeBase64(this.box());
-    } catch(e) {
+    } catch(ex) {
       this.error('Cannot decode box');
       return;
     }
@@ -308,7 +308,7 @@ app.box.controller = function() {
     }
     try {
       this.message(nacl.util.encodeUTF8(m));
-    } catch(e) {
+    } catch(ex) {
       this.error('Cannot decode decrypted message to string');
       return;
     }
@@ -327,11 +327,11 @@ app.box.keyNonceView = function(ctrl) {
   return m('form', [
     m('.row', [
       m('.col-md-6', [
-        m('.form-group', [ 
+        m('.form-group', [
           m('label[for=theirPublicKey]', 'Their Public Key'),
           m('input.form-control[name=theirPublicKey]', {value: ctrl.theirPublicKey(), onchange: m.withAttr('value', ctrl.theirPublicKey)})
         ]),
-        m('.form-group', [ 
+        m('.form-group', [
           m('label[for=mySecretKey]', 'My Secret Key'),
           m('.input-group', [
             m('input.form-control[name=mySecretKey]', {value: ctrl.mySecretKey(), onchange: m.withAttr('value', ctrl.mySecretKey)}),
@@ -342,7 +342,7 @@ app.box.keyNonceView = function(ctrl) {
         ]),
       ]),
       m('.col-md-6', [
-        m('.form-group', [ 
+        m('.form-group', [
           m('label[for=nonce]', 'Nonce'),
           m('.input-group', [
             m('input.form-control[name=nonce]', {value: ctrl.nonce(), onchange: m.withAttr('value', ctrl.nonce)}),
@@ -401,9 +401,6 @@ app.hash.controller = function() {
 };
 
 app.hash.view = function(ctrl) {
-  function hashView() {
-    return   }
-
   return [
       m('.bar', [
         m('.container', [
@@ -420,7 +417,7 @@ app.hash.view = function(ctrl) {
       m('.container.normal', [
         m('.row', [
           m('.col-sm-12', [
-            m('.form-group', [ 
+            m('.form-group', [
               m('label[for=message]', 'Message'),
               m('textarea.form-control[id=message]', {
                 value: ctrl.message(),
@@ -457,7 +454,7 @@ app.sign.controller = function() {
 
   this.decodePublicKey = function() {
     try {
-      var k = nacl.util.decodeBase64(this.publicKey())
+      var k = nacl.util.decodeBase64(this.publicKey());
       if (k.length != nacl.sign.publicKeyLength) {
         this.error('Bad public key length: must be ' + nacl.sign.publicKeyLength + ' bytes');
         return null;
@@ -527,7 +524,7 @@ app.sign.keyView = function(ctrl) {
   return m('form', [
     m('.row', [
       m('.col-md-12', [
-        m('.form-group', {className: ctrl.status() === 'sign' ? '' : 'hidden'}, [ 
+        m('.form-group', {className: ctrl.status() === 'sign' ? '' : 'hidden'}, [
           m('label[for=secretKey]', 'Secret Key'),
           m('.input-group', [
             m('input.form-control[name=secretKey]', {value: ctrl.secretKey(), onchange: m.withAttr('value', ctrl.secretKey)}),
@@ -536,7 +533,7 @@ app.sign.keyView = function(ctrl) {
             ]),
           ]),
         ]),
-        m('.form-group', {className: ctrl.status() === 'sign' && !ctrl.publicKey() ? 'hidden': ''}, [ 
+        m('.form-group', {className: ctrl.status() === 'sign' && !ctrl.publicKey() ? 'hidden': ''}, [
           m('label[for=publicKey]', 'Public Key'),
           m('input.form-control[name=publicKey]', {
             disabled: ctrl.status() !== 'verify',
@@ -544,7 +541,7 @@ app.sign.keyView = function(ctrl) {
             onchange: m.withAttr('value', ctrl.publicKey)
           })
         ]),
-        m('.form-group', {className: ctrl.status() == 'sign' ? (ctrl.signature() ? 'has-success': 'hidden') : '' }, [ 
+        m('.form-group', {className: ctrl.status() == 'sign' ? (ctrl.signature() ? 'has-success': 'hidden') : '' }, [
           m('label.control-label[for=signature]', 'Signature'),
           m('input.form-control[name=signature]', {
             disabled: ctrl.status() !== 'verify',
@@ -562,7 +559,7 @@ app.sign.view = function(ctrl) {
     case 'sign':
       return app.messageView(ctrl, ctrl.sign, 'Sign');
     case 'verify':
-      return app.messageView(ctrl, ctrl.verify, 'Verify')
+      return app.messageView(ctrl, ctrl.verify, 'Verify');
     default:
       return [
         m('.alert.alert-success', 'Verified'),
@@ -579,7 +576,7 @@ app.sign.view = function(ctrl) {
               m('a[href=javascript:;]', {onclick: function() { ctrl.status('sign'); ctrl.error(''); }}, 'Sign')
             ]),
             m('li', {className: ctrl.status() == 'verify' ?'active' : ''}, [
-              m('a[href=javascript:;]', {onclick: function() { ctrl.status('verify'); ctrl.error('') }}, 'Verify')
+              m('a[href=javascript:;]', {onclick: function() { ctrl.status('verify'); ctrl.error(''); }}, 'Verify')
             ])
           ]),
         ]),
@@ -648,7 +645,7 @@ app.navbar.view = function() {
       ])
     ])
   ]);
-}
+};
 
 
 // Main.
@@ -658,7 +655,7 @@ app.page = function(pageModule) {
     controller: pageModule.controller,
     view: function(ctrl) {
       return [
-        app.navbar.view(new app.navbar.controller),
+        app.navbar.view(new app.navbar.controller()),
         pageModule.view(ctrl)
       ];
     }
