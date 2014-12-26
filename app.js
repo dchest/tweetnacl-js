@@ -607,12 +607,15 @@ app.about = {};
 app.about.controller = function() {
 };
 
-app.about.readFromElement = function(el, isInit) {
-    el.innerHTML = document.getElementById('about').innerHTML;
+app.about.content = document.getElementById('about').innerHTML;
+
+app.about.configure = function(el, isInit) {
+    el.innerHTML = app.about.content;
 };
 
 app.about.view = function(ctrl) {
-  return m('div', {config: app.about.readFromElement});
+  console.log('configuring', app.about.content);
+  return m('div', {config: app.about.configure});
 };
 
 
@@ -670,4 +673,4 @@ m.route(document.body, '/', {
   '/sign': app.page(app.sign)
 });
 
-})(Mithril);
+})(m);
