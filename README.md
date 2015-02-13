@@ -402,7 +402,7 @@ To prepare tests for browsers:
 
     $ npm run browser
 
-and then open `tests/browser/test.html` (or `tests/browser/test-fast.html`) to
+and then open `test/browser/test.html` (or `test/browser/test-fast.html`) to
 run them.
 
 To run headless browser tests with `testling`:
