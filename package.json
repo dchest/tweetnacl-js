@@ -60,5 +60,9 @@
     "tape": "2.x.x",
     "testling": "1.x.x",
     "uglify-js": "2.x.x"
+  },
+  "browser": {
+    "buffer": false,
+    "crypto": false
   }
 }
