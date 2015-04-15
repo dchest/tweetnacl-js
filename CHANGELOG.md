@@ -2,6 +2,12 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.13.1
+-------
+
+* Exclude `crypto` and `buffer` modules from browserify builds.
+
+
 v0.13.0
 -------
 
