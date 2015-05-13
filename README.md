@@ -393,7 +393,7 @@ For example, the following command will test fast minified version:
 
     $ NACL_SRC=nacl-fast.min.js npm test
 
-To run full suite of tests in Node.hs, including comparing outputs of
+To run full suite of tests in Node.js, including comparing outputs of
 JavaScript port to outputs of the original C version:
 
     $ npm run testall
