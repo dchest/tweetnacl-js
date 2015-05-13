@@ -54,12 +54,12 @@
   },
   "homepage": "https://dchest.github.io/tweetnacl-js",
   "devDependencies": {
-    "browserify": "4.x.x",
-    "faucet": "0.x.x",
-    "tap-browser-color": "0.x.x",
-    "tape": "2.x.x",
-    "testling": "1.x.x",
-    "uglify-js": "2.x.x"
+    "browserify": "^10.1.3",
+    "faucet": "0.0.1",
+    "tap-browser-color": "^0.1.2",
+    "tape": "^4.0.0",
+    "testling": "^1.7.1",
+    "uglify-js": "^2.4.21"
   },
   "browser": {
     "buffer": false,
