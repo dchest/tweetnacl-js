@@ -393,7 +393,7 @@ For example, the following command will test fast minified version:
 
     $ NACL_SRC=nacl-fast.min.js npm test
 
-To run full suite of tests in Node.hs, including comparing outputs of
+To run full suite of tests in Node.js, including comparing outputs of
 JavaScript port to outputs of the original C version:
 
     $ npm run testall
@@ -402,7 +402,7 @@ To prepare tests for browsers:
 
     $ npm run browser
 
-and then open `tests/browser/test.html` (or `tests/browser/test-fast.html`) to
+and then open `test/browser/test.html` (or `test/browser/test-fast.html`) to
 run them.
 
 To run headless browser tests with `testling`:
