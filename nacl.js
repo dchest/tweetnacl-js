@@ -935,10 +935,13 @@ function checkBoxLengths(pk, sk) {
 }
 
 function checkArrayTypes() {
-  var t, i;
+  var i, c, x;
   for (i = 0; i < arguments.length; i++) {
-     if ((t = Object.prototype.toString.call(arguments[i])) !== '[object Uint8Array]')
-       throw new TypeError('unexpected type ' + t + ', use Uint8Array');
+    c = arguments[i].constructor;
+    x = new c(1);
+    x[0] = 257;
+    if (x[0] !== 1 || x.length !== 1)
+      throw new TypeError('unexpected type ' + c.name + ' use Uint8Array, Buffer, or equivalent')
   }
 }
 

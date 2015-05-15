@@ -2147,11 +2147,17 @@ function checkBoxLengths(pk, sk) {
   if (sk.length !== crypto_box_SECRETKEYBYTES) throw new Error('bad secret key size');
 }
 
+var validatedBuffers = {};
 function checkArrayTypes() {
-  var t, i;
+  var i, c, x;
   for (i = 0; i < arguments.length; i++) {
-     if ((t = Object.prototype.toString.call(arguments[i])) !== '[object Uint8Array]')
-       throw new TypeError('unexpected type ' + t + ', use Uint8Array');
+    c = arguments[i].constructor;
+    if (validatedBuffers[c.name] === true) continue;
+    var x = new c(1);
+    x[0] = 257;
+    if (x[0] !== 1 || x.length !== 1)
+      throw new TypeError('unexpected type ' + c.name + ' use Uint8Array, Buffer, or equivalent')
+    validatedBuffers[c.name] = true;
   }
 }
 
