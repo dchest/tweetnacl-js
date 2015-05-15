@@ -2155,7 +2155,7 @@ function checkArrayTypes() {
     if (validatedBuffers[c.name] === true) continue;
     var x = new c(1);
     x[0] = 257;
-    if (x[0] !== 1 || x.length !== 1)
+    if (x[0] !== 1 || x.length !== 1 || typeof (x.subarray || x.slice) !== 'function')
       throw new TypeError('unexpected type ' + c.name + ' use Uint8Array, Buffer, or equivalent')
     validatedBuffers[c.name] = true;
   }
@@ -2165,10 +2165,23 @@ function cleanup(arr) {
   for (var i = 0; i < arr.length; i++) arr[i] = 0;
 }
 
+var returnType = Uint8Array;
+nacl.setReturnType = function(c) {
+  checkArrayTypes(new c(1))
+  if ((new c(new Uint8Array([1,2])))[1] !== 2)
+    throw new TypeError('constructor must accept Uint8Array data as argument');
+  returnType = c;
+}
+
+// slice by reference a buffer
+function subarray(buffer, start, end) {
+  return (buffer.subarray || buffer.slice).call(buffer, start, end);
+}
+
 nacl.util = {};
 
 nacl.util.decodeUTF8 = function(s) {
-  var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+  var i, d = unescape(encodeURIComponent(s)), b = new returnType(d.length);
   for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
   return b;
 };
@@ -2191,16 +2204,16 @@ nacl.util.encodeBase64 = function(arr) {
 
 nacl.util.decodeBase64 = function(s) {
   if (typeof atob === 'undefined') {
-    return new Uint8Array(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
+    return new returnType(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
   } else {
-    var i, d = atob(s), b = new Uint8Array(d.length);
+    var i, d = atob(s), b = new returnType(d.length);
     for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
     return b;
   }
 };
 
 nacl.randomBytes = function(n) {
-  var b = new Uint8Array(n);
+  var b = new returnType(n);
   randombytes(b, n);
   return b;
 };
@@ -2209,21 +2222,21 @@ nacl.secretbox = function(msg, nonce, key) {
   checkArrayTypes(msg, nonce, key);
   checkLengths(key, nonce);
   var m = new Uint8Array(crypto_secretbox_ZEROBYTES + msg.length);
-  var c = new Uint8Array(m.length);
+  var c = new returnType(m.length);
   for (var i = 0; i < msg.length; i++) m[i+crypto_secretbox_ZEROBYTES] = msg[i];
   crypto_secretbox(c, m, m.length, nonce, key);
-  return c.subarray(crypto_secretbox_BOXZEROBYTES);
+  return subarray(c, crypto_secretbox_BOXZEROBYTES);
 };
 
 nacl.secretbox.open = function(box, nonce, key) {
   checkArrayTypes(box, nonce, key);
   checkLengths(key, nonce);
   var c = new Uint8Array(crypto_secretbox_BOXZEROBYTES + box.length);
-  var m = new Uint8Array(c.length);
+  var m = new returnType(c.length);
   for (var i = 0; i < box.length; i++) c[i+crypto_secretbox_BOXZEROBYTES] = box[i];
   if (c.length < 32) return false;
   if (crypto_secretbox_open(m, c, c.length, nonce, key) !== 0) return false;
-  return m.subarray(crypto_secretbox_ZEROBYTES);
+  return subarray(m, crypto_secretbox_ZEROBYTES);
 };
 
 nacl.secretbox.keyLength = crypto_secretbox_KEYBYTES;
@@ -2234,7 +2247,7 @@ nacl.scalarMult = function(n, p) {
   checkArrayTypes(n, p);
   if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
   if (p.length !== crypto_scalarmult_BYTES) throw new Error('bad p size');
-  var q = new Uint8Array(crypto_scalarmult_BYTES);
+  var q = new returnType(crypto_scalarmult_BYTES);
   crypto_scalarmult(q, n, p);
   return q;
 };
@@ -2242,7 +2255,7 @@ nacl.scalarMult = function(n, p) {
 nacl.scalarMult.base = function(n) {
   checkArrayTypes(n);
   if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
-  var q = new Uint8Array(crypto_scalarmult_BYTES);
+  var q = new returnType(crypto_scalarmult_BYTES);
   crypto_scalarmult_base(q, n);
   return q;
 };
@@ -2258,7 +2271,7 @@ nacl.box = function(msg, nonce, publicKey, secretKey) {
 nacl.box.before = function(publicKey, secretKey) {
   checkArrayTypes(publicKey, secretKey);
   checkBoxLengths(publicKey, secretKey);
-  var k = new Uint8Array(crypto_box_BEFORENMBYTES);
+  var k = new returnType(crypto_box_BEFORENMBYTES);
   crypto_box_beforenm(k, publicKey, secretKey);
   return k;
 };
@@ -2273,8 +2286,8 @@ nacl.box.open = function(msg, nonce, publicKey, secretKey) {
 nacl.box.open.after = nacl.secretbox.open;
 
 nacl.box.keyPair = function() {
-  var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
-  var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
+  var pk = new returnType(crypto_box_PUBLICKEYBYTES);
+  var sk = new returnType(crypto_box_SECRETKEYBYTES);
   crypto_box_keypair(pk, sk);
   return {publicKey: pk, secretKey: sk};
 };
@@ -2283,9 +2296,9 @@ nacl.box.keyPair.fromSecretKey = function(secretKey) {
   checkArrayTypes(secretKey);
   if (secretKey.length !== crypto_box_SECRETKEYBYTES)
     throw new Error('bad secret key size');
-  var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+  var pk = new returnType(crypto_box_PUBLICKEYBYTES);
   crypto_scalarmult_base(pk, secretKey);
-  return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
+  return {publicKey: pk, secretKey: new returnType(secretKey)};
 };
 
 nacl.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
@@ -2298,7 +2311,7 @@ nacl.sign = function(msg, secretKey) {
   checkArrayTypes(msg, secretKey);
   if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
     throw new Error('bad secret key size');
-  var signedMsg = new Uint8Array(crypto_sign_BYTES+msg.length);
+  var signedMsg = new returnType(crypto_sign_BYTES+msg.length);
   crypto_sign(signedMsg, msg, msg.length, secretKey);
   return signedMsg;
 };
@@ -2312,14 +2325,14 @@ nacl.sign.open = function(signedMsg, publicKey) {
   var tmp = new Uint8Array(signedMsg.length);
   var mlen = crypto_sign_open(tmp, signedMsg, signedMsg.length, publicKey);
   if (mlen < 0) return null;
-  var m = new Uint8Array(mlen);
+  var m = new returnType(mlen);
   for (var i = 0; i < m.length; i++) m[i] = tmp[i];
   return m;
 };
 
 nacl.sign.detached = function(msg, secretKey) {
   var signedMsg = nacl.sign(msg, secretKey);
-  var sig = new Uint8Array(crypto_sign_BYTES);
+  var sig = new returnType(crypto_sign_BYTES);
   for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
   return sig;
 };
@@ -2339,8 +2352,8 @@ nacl.sign.detached.verify = function(msg, sig, publicKey) {
 };
 
 nacl.sign.keyPair = function() {
-  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
-  var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+  var pk = new returnType(crypto_sign_PUBLICKEYBYTES);
+  var sk = new returnType(crypto_sign_SECRETKEYBYTES);
   crypto_sign_keypair(pk, sk);
   return {publicKey: pk, secretKey: sk};
 };
@@ -2349,17 +2362,17 @@ nacl.sign.keyPair.fromSecretKey = function(secretKey) {
   checkArrayTypes(secretKey);
   if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
     throw new Error('bad secret key size');
-  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+  var pk = new returnType(crypto_sign_PUBLICKEYBYTES);
   for (var i = 0; i < pk.length; i++) pk[i] = secretKey[32+i];
-  return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
+  return {publicKey: pk, secretKey: new returnType(secretKey)};
 };
 
 nacl.sign.keyPair.fromSeed = function(seed) {
   checkArrayTypes(seed);
   if (seed.length !== crypto_sign_SEEDBYTES)
     throw new Error('bad seed size');
-  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
-  var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+  var pk = new returnType(crypto_sign_PUBLICKEYBYTES);
+  var sk = new returnType(crypto_sign_SECRETKEYBYTES);
   for (var i = 0; i < 32; i++) sk[i] = seed[i];
   crypto_sign_keypair(pk, sk, true);
   return {publicKey: pk, secretKey: sk};
@@ -2372,7 +2385,7 @@ nacl.sign.signatureLength = crypto_sign_BYTES;
 
 nacl.hash = function(msg) {
   checkArrayTypes(msg);
-  var h = new Uint8Array(crypto_hash_BYTES);
+  var h = new returnType(crypto_hash_BYTES);
   crypto_hash(h, msg, msg.length);
   return h;
 };
@@ -2421,6 +2434,10 @@ nacl.setPRNG = function(fn) {
       });
     }
   }
+
+  // Node.js and Browserify default to Buffer
+  if (typeof Buffer !== 'undefined')
+    nacl.setReturnType(Buffer);
 })();
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
