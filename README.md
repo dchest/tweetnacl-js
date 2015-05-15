@@ -337,9 +337,15 @@ constructor must accept an integer length or another valid byte array whose data
 is copied or referenced in. It must have a valid length property, and implement
 subarray, slice, or both methods as in Uint8Array. When an element is set to a
 value outside of 0-255 inclusive, the object must truncate it in the same way
-Uint8Array and Node.js Buffers do: `(new constructor([567]))[0] == 1`
+Uint8Array and Node.js Buffers do: `(new constructor([257]))[0] == 1`
 
-Default is Uint8Array
+Default is Uint8Array.
+
+```
+nacl.hash(new Buffer("nyan")) //-> returns Uint8Array
+nacl.setReturnType(Buffer)
+nacl.hash(new Buffer("nyan")) //-> returns Buffer
+```
 
 
 ### Utilities
