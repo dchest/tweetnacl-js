@@ -1368,8 +1368,8 @@ function crypto_scalarmult(q, n, p) {
     x[i+48]=b[i];
     x[i+64]=d[i];
   }
-  var x32 = x.subarray(32);
-  var x16 = x.subarray(16);
+  var x32 = subarray(x, 32);
+  var x16 = subarray(x, 16);
   inv25519(x32,x32);
   M(x16,x16,x32);
   pack25519(q,x16);
@@ -1983,7 +1983,7 @@ function crypto_sign(sm, m, n, sk) {
   for (i = 0; i < n; i++) sm[64 + i] = m[i];
   for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
 
-  crypto_hash(r, sm.subarray(32), n+32);
+  crypto_hash(r, subarray(sm, 32), n+32);
   reduce(r);
   scalarbase(p, r);
   pack(sm, p);
@@ -2000,7 +2000,7 @@ function crypto_sign(sm, m, n, sk) {
     }
   }
 
-  modL(sm.subarray(32), x);
+  modL(subarray(sm, 32), x);
   return smlen;
 }
 
@@ -2059,7 +2059,7 @@ function crypto_sign_open(m, sm, n, pk) {
   reduce(h);
   scalarmult(p, q, h);
 
-  scalarbase(q, sm.subarray(32));
+  scalarbase(q, subarray(sm, 32));
   add(p, q);
   pack(t, p);
 
@@ -2434,10 +2434,6 @@ nacl.setPRNG = function(fn) {
       });
     }
   }
-
-  // Node.js and Browserify default to Buffer
-  if (typeof Buffer !== 'undefined')
-    nacl.setReturnType(Buffer);
 })();
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
