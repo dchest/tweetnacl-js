@@ -430,8 +430,8 @@ function crypto_scalarmult(q, n, p) {
     x[i+48]=b[i];
     x[i+64]=d[i];
   }
-  var x32 = subarray(x,32);
-  var x16 = subarray(x,16);
+  var x32 = x.subarray(32);
+  var x16 = x.subarray(16);
   inv25519(x32,x32);
   M(x16,x16,x32);
   pack25519(q,x16);
@@ -958,8 +958,8 @@ nacl.setReturnType = function(c) {
 }
 
 // slice by reference a buffer
-function subarray(buffer, start, end) {
-  return (buffer.subarray || buffer.slice).call(buffer, start, end);
+function subarray(buffer) {
+  return (buffer.subarray || buffer.slice).apply(buffer, Array.prototype.slice.call(arguments, 1));
 }
 
 nacl.util = {};
