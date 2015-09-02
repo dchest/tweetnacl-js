@@ -25,7 +25,7 @@
     "salsa20",
     "signatures"
   ],
-  "license": "Public domain",
+  "license": "CC0-1.0",
   "ignore": [
     "**/.*",
     "node_modules",

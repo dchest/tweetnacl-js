@@ -48,7 +48,7 @@
     "signatures"
   ],
   "author": "TweetNaCl-js contributors",
-  "license": "Public domain",
+  "license": "CC0-1.0",
   "bugs": {
     "url": "https://github.com/dchest/tweetnacl-js/issues"
   },
