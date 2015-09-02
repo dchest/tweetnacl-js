@@ -446,6 +446,14 @@ Contributors have dedicated their work to the public domain.
 This software is distributed without any warranty.
 
 
+Third-party libraries based on TweetNaCl.js
+-------------------------------------------
+
+* [forward-secrecy](https://github.com/alax/forward-secrecy) — Axolotl ratchet implementation
+* [nacl-stream](https://github.com/dchest/nacl-stream-js) - streaming encryption
+* [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](http://nacl.cr.yp.to/auth.html)
+
+
 Who uses it
 -----------
 
