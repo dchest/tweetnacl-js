@@ -69,8 +69,10 @@ or [download source code](https://github.com/dchest/tweetnacl-js/releases).
 Usage
 ------
 
-All API functions accept and return bytes as `Uint8Array`s.  If you need to
-encode or decode strings, use functions from `nacl.util` namespace.
+All API functions accept `Uint8Array`s, Node/Browserify Buffers, or any
+api-compatible byte array objects.  Return type defaults to Uint8Array, but can
+be changed to node.js or browserify Buffer using util.setReturnType.  If you
+need to encode or decode strings, use functions from `nacl.util` namespace.
 
 ### Public-key authenticated encryption (box)
 
@@ -324,6 +326,26 @@ non-zero and equal, and their contents are equal.
 
 Returns `false` if either of the arguments has zero length, or arguments have
 different lengths, or their contents differ.
+
+
+### Return Types
+
+#### nacl.setReturnType(constructor)
+
+Sets the type of byte array used to return data from high level functions. The
+constructor must accept an integer length or another valid byte array whose data
+is copied or referenced in. It must have a valid length property, and implement
+subarray, slice, or both methods as in Uint8Array. When an element is set to a
+value outside of 0-255 inclusive, the object must truncate it in the same way
+Uint8Array and Node.js Buffers do: `(new constructor([257]))[0] == 1`
+
+Default is Uint8Array.
+
+```
+nacl.hash(new Buffer("nyan")) //-> returns Uint8Array
+nacl.setReturnType(Buffer)
+nacl.hash(new Buffer("nyan")) //-> returns Buffer
+```
 
 
 ### Utilities
