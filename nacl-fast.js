@@ -800,7 +800,7 @@ poly1305.prototype.update = function(m, mpos, bytes) {
     this.leftover += want;
     if (this.leftover < 16)
       return;
-    this.blocks(buffer, 0, 16);
+    this.blocks(this.buffer, 0, 16);
     this.leftover = 0;
   }
 
