@@ -7,7 +7,7 @@
     /**
      * Strict mode
      */
-    'strict': 1,          // http://eslint.org/docs/rules/strict
+    'strict': 0,          // http://eslint.org/docs/rules/strict
 
     /**
      * Variables

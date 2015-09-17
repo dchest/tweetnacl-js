@@ -3,8 +3,7 @@ var test = require('tape');
 
 var specVectors = require('./data/onetimeauth.spec');
 
-var enc = nacl.util.encodeBase64,
-    dec = nacl.util.decodeBase64;
+var enc = nacl.util.encodeBase64;
 
 test('nacl.lowlevel.crypto_onetimeauth specified vectors', function(t) {
   var out = new Uint8Array(16);

@@ -1,13 +1,13 @@
 var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
 var test = require('tape');
 
-var enc = nacl.util.encodeBase64,
-    dec = nacl.util.decodeBase64;
+var enc = nacl.util.encodeBase64;
 
 test('nacl.secretbox and nacl.secretbox.open', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
-  for (var i = 0; i < key.length; i++) key[i] = i & 0xff;
+  var i;
+  for (i = 0; i < key.length; i++) key[i] = i & 0xff;
   for (i = 0; i < nonce.length; i++) nonce[i] = (32+i) & 0xff;
   var msg = nacl.util.decodeUTF8('message to encrypt');
   var box = nacl.secretbox(msg, nonce, key);
@@ -28,7 +28,7 @@ test('nacl.secretbox.open with invalid box', function(t) {
 test('nacl.secretbox.open with invalid nonce', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
-  for (i = 0; i < nonce.length; i++) nonce[i] = i & 0xff;
+  for (var i = 0; i < nonce.length; i++) nonce[i] = i & 0xff;
   var msg = nacl.util.decodeUTF8('message to encrypt');
   var box = nacl.secretbox(msg, nonce, key);
   t.equal(nacl.util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
@@ -53,11 +53,12 @@ test('nacl.secretbox.open with invalid key', function(t) {
 
 test('nacl.secretbox with message lengths of 0 to 1024', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
-  for (var i = 0; i < key.length; i++) key[i] = i & 0xff;
+  var i;
+  for (i = 0; i < key.length; i++) key[i] = i & 0xff;
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
   var fullMsg = new Uint8Array(1024);
-  for (var i = 0; i < fullMsg; i++) fullMsg[i] = i & 0xff;
-  for (var i = 0; i < fullMsg.length; i++) {
+  for (i = 0; i < fullMsg; i++) fullMsg[i] = i & 0xff;
+  for (i = 0; i < fullMsg.length; i++) {
     var msg = fullMsg.subarray(0, i);
     var box = nacl.secretbox(msg, nonce, key);
     var unbox = nacl.secretbox.open(box, nonce, key);

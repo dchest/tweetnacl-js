@@ -2,8 +2,8 @@ var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (proc
 var test = require('tape');
 
 var testBytes = new Uint8Array([208,159,209,128,208,184,208,178,208,181,209,130,44,32,78,97,67,108]);
-var utf8String = "Привет, NaCl";
-var b64String = "0J/RgNC40LLQtdGCLCBOYUNs";
+var utf8String = 'Привет, NaCl';
+var b64String = '0J/RgNC40LLQtdGCLCBOYUNs';
 
 test('nacl.util.decodeUTF8', function(t) {
   t.plan(1);

@@ -3,8 +3,7 @@ var test = require('tape');
 
 var specVectors = require('./data/hash.spec');
 
-var enc = nacl.util.encodeBase64,
-    dec = nacl.util.decodeBase64;
+var enc = nacl.util.encodeBase64;
 
 test('nacl.hash length', function(t) {
   t.equal(nacl.hash(new Uint8Array(0)).length, 64);

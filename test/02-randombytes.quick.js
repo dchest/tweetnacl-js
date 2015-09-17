@@ -7,7 +7,7 @@ test('nacl.randomBytes', function(t) {
   for (i = 0; i < 10000; i++) {
     s = nacl.util.encodeBase64(nacl.randomBytes(32));
     if (set[s]) {
-      t.fail("duplicate random sequence! ", s);
+      t.fail('duplicate random sequence! ', s);
       return;
     }
     set[s] = true;

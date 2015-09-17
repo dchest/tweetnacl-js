@@ -1,8 +1,7 @@
 var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
 var test = require('tape');
 
-var enc = nacl.util.encodeBase64,
-    dec = nacl.util.decodeBase64;
+var enc = nacl.util.encodeBase64;
 
 test('nacl.box.keyPair', function(t) {
   var keys = nacl.box.keyPair();
@@ -24,7 +23,7 @@ test('nacl.box and nacl.box.open', function(t) {
   var clientKeys = nacl.box.keyPair();
   var serverKeys = nacl.box.keyPair();
   var nonce = new Uint8Array(nacl.box.nonceLength);
-  for (i = 0; i < nonce.length; i++) nonce[i] = (32+i) & 0xff;
+  for (var i = 0; i < nonce.length; i++) nonce[i] = (32+i) & 0xff;
   var msg = nacl.util.decodeUTF8('message to encrypt');
   var clientBox = nacl.box(msg, nonce, serverKeys.publicKey, clientKeys.secretKey);
   var clientMsg = nacl.box.open(clientBox, nonce, clientKeys.publicKey, serverKeys.secretKey);
@@ -50,7 +49,7 @@ test('nacl.box.open with invalid nonce', function(t) {
   var clientKeys = nacl.box.keyPair();
   var serverKeys = nacl.box.keyPair();
   var nonce = new Uint8Array(nacl.box.nonceLength);
-  for (i = 0; i < nonce.length; i++) nonce[i] = i & 0xff;
+  for (var i = 0; i < nonce.length; i++) nonce[i] = i & 0xff;
   var msg = nacl.util.decodeUTF8('message to encrypt');
   var box = nacl.box(msg, nonce, clientKeys.publicKey, serverKeys.secretKey);
   t.equal(nacl.util.encodeUTF8(nacl.box.open(box, nonce, serverKeys.publicKey, clientKeys.secretKey)),
@@ -70,9 +69,9 @@ test('nacl.box.open with invalid keys', function(t) {
           nacl.util.encodeUTF8(msg));
   t.equal(nacl.util.encodeUTF8(nacl.box.open(box, nonce, clientKeys.publicKey, serverKeys.secretKey)),
           nacl.util.encodeUTF8(msg));
-  badPublicKey = new Uint8Array(nacl.box.publicKeyLength);
+  var badPublicKey = new Uint8Array(nacl.box.publicKeyLength);
   t.equal(nacl.box.open(box, nonce, badPublicKey, clientKeys.secretKey), false);
-  badSecretKey = new Uint8Array(nacl.box.secretKeyLength);
+  var badSecretKey = new Uint8Array(nacl.box.secretKeyLength);
   t.equal(nacl.box.open(box, nonce, serverKeys.publicKey, badSecretKey), false);
   t.end();
 });
