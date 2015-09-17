@@ -50,3 +50,18 @@ test('nacl.secretbox.open with invalid key', function(t) {
   t.equal(nacl.secretbox.open(box, nonce, key), false);
   t.end();
 });
+
+test('nacl.secretbox with message lengths of 0 to 1024', function(t) {
+  var key = new Uint8Array(nacl.secretbox.keyLength);
+  for (var i = 0; i < key.length; i++) key[i] = i & 0xff;
+  var nonce = new Uint8Array(nacl.secretbox.nonceLength);
+  var fullMsg = new Uint8Array(1024);
+  for (var i = 0; i < fullMsg; i++) fullMsg[i] = i & 0xff;
+  for (var i = 0; i < fullMsg.length; i++) {
+    var msg = fullMsg.subarray(0, i);
+    var box = nacl.secretbox(msg, nonce, key);
+    var unbox = nacl.secretbox.open(box, nonce, key);
+    t.equal(enc(msg), enc(unbox));
+  }
+  t.end();
+});
