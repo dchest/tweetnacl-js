@@ -614,7 +614,6 @@ app.about.configure = function(el, isInit) {
 };
 
 app.about.view = function(ctrl) {
-  console.log('configuring', app.about.content);
   return m('div', {config: app.about.configure});
 };
 
