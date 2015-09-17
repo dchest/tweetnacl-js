@@ -7,8 +7,6 @@
 // Implementation derived from TweetNaCl version 20140427.
 // See for details: http://tweetnacl.cr.yp.to/
 
-/* jshint newcap: false */
-
 var gf = function(init) {
   var i, r = new Float64Array(16);
   if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
