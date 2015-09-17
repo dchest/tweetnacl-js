@@ -9,7 +9,7 @@
 
 /* jshint newcap: false */
 
-var u64 = function (h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
+var u64 = function(h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function(init) {
   var i, r = new Float64Array(16);
   if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
@@ -202,7 +202,7 @@ function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
 
   while (n > 0) {
     for (j = 0; j < 17; j++) c[j] = 0;
-    for (j = 0;(j < 16) && (j < n);++j) c[j] = m[mpos+j];
+    for (j = 0; (j < 16) && (j < n); ++j) c[j] = m[mpos+j];
     c[j] = 1;
     mpos += j; n -= j;
     add1305(h,c);
@@ -399,7 +399,7 @@ function crypto_scalarmult(q, n, p) {
     d[i]=a[i]=c[i]=0;
   }
   a[0]=d[0]=1;
-  for (i=254;i>=0;--i) {
+  for (i=254; i>=0; --i) {
     r=(z[i>>>3]>>>(i&7))&1;
     sel25519(a,b,r);
     sel25519(c,d,r);
@@ -881,45 +881,45 @@ var crypto_secretbox_KEYBYTES = 32,
 
 nacl.lowlevel = {
   crypto_core_hsalsa20: crypto_core_hsalsa20,
-  crypto_stream_xor : crypto_stream_xor,
-  crypto_stream : crypto_stream,
-  crypto_stream_salsa20_xor : crypto_stream_salsa20_xor,
-  crypto_stream_salsa20 : crypto_stream_salsa20,
-  crypto_onetimeauth : crypto_onetimeauth,
-  crypto_onetimeauth_verify : crypto_onetimeauth_verify,
-  crypto_verify_16 : crypto_verify_16,
-  crypto_verify_32 : crypto_verify_32,
-  crypto_secretbox : crypto_secretbox,
-  crypto_secretbox_open : crypto_secretbox_open,
-  crypto_scalarmult : crypto_scalarmult,
-  crypto_scalarmult_base : crypto_scalarmult_base,
-  crypto_box_beforenm : crypto_box_beforenm,
-  crypto_box_afternm : crypto_box_afternm,
-  crypto_box : crypto_box,
-  crypto_box_open : crypto_box_open,
-  crypto_box_keypair : crypto_box_keypair,
-  crypto_hash : crypto_hash,
-  crypto_sign : crypto_sign,
-  crypto_sign_keypair : crypto_sign_keypair,
-  crypto_sign_open : crypto_sign_open,
+  crypto_stream_xor: crypto_stream_xor,
+  crypto_stream: crypto_stream,
+  crypto_stream_salsa20_xor: crypto_stream_salsa20_xor,
+  crypto_stream_salsa20: crypto_stream_salsa20,
+  crypto_onetimeauth: crypto_onetimeauth,
+  crypto_onetimeauth_verify: crypto_onetimeauth_verify,
+  crypto_verify_16: crypto_verify_16,
+  crypto_verify_32: crypto_verify_32,
+  crypto_secretbox: crypto_secretbox,
+  crypto_secretbox_open: crypto_secretbox_open,
+  crypto_scalarmult: crypto_scalarmult,
+  crypto_scalarmult_base: crypto_scalarmult_base,
+  crypto_box_beforenm: crypto_box_beforenm,
+  crypto_box_afternm: crypto_box_afternm,
+  crypto_box: crypto_box,
+  crypto_box_open: crypto_box_open,
+  crypto_box_keypair: crypto_box_keypair,
+  crypto_hash: crypto_hash,
+  crypto_sign: crypto_sign,
+  crypto_sign_keypair: crypto_sign_keypair,
+  crypto_sign_open: crypto_sign_open,
 
-  crypto_secretbox_KEYBYTES : crypto_secretbox_KEYBYTES,
-  crypto_secretbox_NONCEBYTES : crypto_secretbox_NONCEBYTES,
-  crypto_secretbox_ZEROBYTES : crypto_secretbox_ZEROBYTES,
-  crypto_secretbox_BOXZEROBYTES : crypto_secretbox_BOXZEROBYTES,
-  crypto_scalarmult_BYTES : crypto_scalarmult_BYTES,
-  crypto_scalarmult_SCALARBYTES : crypto_scalarmult_SCALARBYTES,
-  crypto_box_PUBLICKEYBYTES : crypto_box_PUBLICKEYBYTES,
-  crypto_box_SECRETKEYBYTES : crypto_box_SECRETKEYBYTES,
-  crypto_box_BEFORENMBYTES : crypto_box_BEFORENMBYTES,
-  crypto_box_NONCEBYTES : crypto_box_NONCEBYTES,
-  crypto_box_ZEROBYTES : crypto_box_ZEROBYTES,
-  crypto_box_BOXZEROBYTES : crypto_box_BOXZEROBYTES,
-  crypto_sign_BYTES : crypto_sign_BYTES,
-  crypto_sign_PUBLICKEYBYTES : crypto_sign_PUBLICKEYBYTES,
-  crypto_sign_SECRETKEYBYTES : crypto_sign_SECRETKEYBYTES,
+  crypto_secretbox_KEYBYTES: crypto_secretbox_KEYBYTES,
+  crypto_secretbox_NONCEBYTES: crypto_secretbox_NONCEBYTES,
+  crypto_secretbox_ZEROBYTES: crypto_secretbox_ZEROBYTES,
+  crypto_secretbox_BOXZEROBYTES: crypto_secretbox_BOXZEROBYTES,
+  crypto_scalarmult_BYTES: crypto_scalarmult_BYTES,
+  crypto_scalarmult_SCALARBYTES: crypto_scalarmult_SCALARBYTES,
+  crypto_box_PUBLICKEYBYTES: crypto_box_PUBLICKEYBYTES,
+  crypto_box_SECRETKEYBYTES: crypto_box_SECRETKEYBYTES,
+  crypto_box_BEFORENMBYTES: crypto_box_BEFORENMBYTES,
+  crypto_box_NONCEBYTES: crypto_box_NONCEBYTES,
+  crypto_box_ZEROBYTES: crypto_box_ZEROBYTES,
+  crypto_box_BOXZEROBYTES: crypto_box_BOXZEROBYTES,
+  crypto_sign_BYTES: crypto_sign_BYTES,
+  crypto_sign_PUBLICKEYBYTES: crypto_sign_PUBLICKEYBYTES,
+  crypto_sign_SECRETKEYBYTES: crypto_sign_SECRETKEYBYTES,
   crypto_sign_SEEDBYTES: crypto_sign_SEEDBYTES,
-  crypto_hash_BYTES : crypto_hash_BYTES
+  crypto_hash_BYTES: crypto_hash_BYTES
 };
 
 /* High-level API */
