@@ -2,6 +2,17 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.13.2
+-------
+
+* Fixed undefined variable bug in fast version of Poly1305. No worries, this
+  bug was *never* triggered.
+
+* Specified CC0 public domain dedication.
+
+* Updated development dependencies.
+
+
 v0.13.1
 -------
 
