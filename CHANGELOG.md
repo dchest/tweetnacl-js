@@ -2,6 +2,16 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.13.3
+-------
+
+No code changes.
+
+* Reverted license field in package.json to "Public domain".
+
+* Fixed typo in README.
+
+
 v0.13.2
 -------
 
