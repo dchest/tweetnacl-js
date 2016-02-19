@@ -1148,17 +1148,16 @@ nacl.setPRNG = function(fn) {
   // Initialize PRNG if environment provides CSPRNG.
   // If not, methods calling randombytes will throw.
   var crypto;
-  if (typeof window !== 'undefined') {
-    // Browser.
-    if (window.crypto && window.crypto.getRandomValues) {
-      crypto = window.crypto; // Standard
-    } else if (window.msCrypto && window.msCrypto.getRandomValues) {
-      crypto = window.msCrypto; // Internet Explorer 11+
-    }
-    if (crypto) {
+  if (typeof process === 'undefined' || process.browser) {
+    // Browsers.
+    crypto = self.crypto || self.msCrypto;
+    if (crypto && crypto.getRandomValues) {
+      var QUOTA = 65536;
       nacl.setPRNG(function(x, n) {
         var i, v = new Uint8Array(n);
-        crypto.getRandomValues(v);
+        for (i = 0; i < n; i += QUOTA) {
+          crypto.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
+        }
         for (i = 0; i < n; i++) x[i] = v[i];
         cleanup(v);
       });
@@ -1166,7 +1165,7 @@ nacl.setPRNG = function(fn) {
   } else if (typeof require !== 'undefined') {
     // Node.js.
     crypto = require('crypto');
-    if (crypto) {
+    if (crypto && crypto.randomBytes) {
       nacl.setPRNG(function(x, n) {
         var i, v = crypto.randomBytes(n);
         for (i = 0; i < n; i++) x[i] = v[i];
@@ -1176,4 +1175,4 @@ nacl.setPRNG = function(fn) {
   }
 })();
 
-})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
+})(typeof module !== 'undefined' && module.exports ? module.exports : (self.nacl = self.nacl || {}));
