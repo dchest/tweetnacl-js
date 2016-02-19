@@ -26,7 +26,6 @@ Documentation
   * [Hashing](#hashing)
   * [Random bytes generation](#random-bytes-generation)
   * [Constant-time comparison](#constant-time-comparison)
-  * [Utilities](#utilities)
 * [Examples](#examples)
 * [System requirements](#system-requirements)
 * [Development and testing](#development-and-testing)
@@ -70,7 +69,8 @@ Usage
 ------
 
 All API functions accept and return bytes as `Uint8Array`s.  If you need to
-encode or decode strings, use functions from `nacl.util` namespace.
+encode or decode strings, use functions from <https://github.com/dchest/tweetnacl-util-js>
+or one of the more robust codec packages.
 
 ### Public-key authenticated encryption (box)
 
@@ -324,30 +324,6 @@ non-zero and equal, and their contents are equal.
 
 Returns `false` if either of the arguments has zero length, or arguments have
 different lengths, or their contents differ.
-
-
-### Utilities
-
-Encoding/decoding functions are provided for convenience. They are correct,
-however their performance and wide compatibility with uncommon runtimes is not
-something that is considered important compared to the simplicity and size of
-implementation. You can use third-party libraries if you need to.
-
-#### nacl.util.decodeUTF8(string)
-
-Decodes string and returns `Uint8Array` of bytes.
-
-#### nacl.util.encodeUTF8(array)
-
-Encodes `Uint8Array` or `Array` of bytes into string.
-
-#### nacl.util.decodeBase64(string)
-
-Decodes Base-64 encoded string and returns `Uint8Array` of bytes.
-
-#### nacl.util.encodeBase64(array)
-
-Encodes `Uint8Array` or `Array` of bytes into string using Base-64 encoding.
 
 
 System requirements

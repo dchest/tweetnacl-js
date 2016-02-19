@@ -1,4 +1,5 @@
 var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
+nacl.util = require('tweetnacl-util');
 var test = require('tape');
 
 var specVectors = require('./data/onetimeauth.spec');
@@ -13,4 +14,3 @@ test('nacl.lowlevel.crypto_onetimeauth specified vectors', function(t) {
   });
   t.end();
 });
-
