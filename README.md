@@ -287,12 +287,6 @@ depending on the platform it runs on:
 * `window.msCrypto.getRandomValues` (Internet Explorer 11)
 * `crypto.randomBytes` (Node.js)
 
-Note that browsers are required to throw `QuotaExceededError` exception if
-requested `length` is more than 65536, so do not ask for more than 65536 bytes
-in *one call* (multiple calls to get as many bytes as you like are okay:
-browsers can generate infinite amount of random bytes without any bad
-consequences).
-
 If the platform doesn't provide a suitable PRNG, the following functions,
 which require random numbers, will throw exception:
 
