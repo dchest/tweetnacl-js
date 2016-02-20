@@ -334,7 +334,7 @@ of:
 
 Other systems:
 
-* Node.js (we test on 0.10 and later)
+* Node.js
 
 
 Development and testing
