@@ -31,7 +31,7 @@ function BrowserLogger() {
       "'": '&#39;',
       '/': '&#x2F;'
     };
-    return String(s).replace(/[&<>"'\/]/g, function (x) { return reps[x]; });
+    return String(s).replace(/[&<>"'\/]/g, function(x) { return reps[x]; });
   }
 
   this.print = function() {

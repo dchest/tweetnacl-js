@@ -4,10 +4,18 @@ var log = helpers.log;
 
 if (!nacl) throw new Error('nacl not loaded');
 
+function decodeUTF8(s) {
+  var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+  for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+  return b;
+}
+
 function benchmark(fn, bytes, num) {
   if (!num) num = 1000;
   var i, elapsed, start = new Date();
+  /*eslint-disable*/
   while (1) {
+  /*eslint-enable*/
     for (i = 0; i < num; i++) fn();
     elapsed = (new Date()) - start;
     if (elapsed < 500) {
@@ -23,7 +31,9 @@ function benchmark(fn, bytes, num) {
 
 function benchmarkOps(fn,  num) {
   var i, elapsed, start = new Date();
+  /*eslint-disable*/
   while (1) {
+  /*eslint-enable*/
     for (i = 0; i < num; i++) {
       fn();
     }
@@ -42,11 +52,12 @@ function crypto_stream_xor_benchmark() {
   var m = new Uint8Array(1024),
       n = new Uint8Array(24),
       k = new Uint8Array(32),
-      out = new Uint8Array(1024);
+      out = new Uint8Array(1024),
+      i;
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   for (i = 0; i < 24; i++) n[i] = i;
   for (i = 0; i < 32; i++) k[i] = i;
-  benchmark(function(){
+  benchmark(function() {
     nacl.lowlevel.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
   }, m.length);
 }
@@ -56,10 +67,10 @@ function crypto_onetimeauth_benchmark() {
   var m = new Uint8Array(1024),
       out = new Uint8Array(1024),
       k = new Uint8Array([0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1]);
-  for (i = 0; i < 1024; i++) {
+  for (var i = 0; i < 1024; i++) {
     m[i] = i & 255;
   }
-  benchmark(function(){
+  benchmark(function() {
     nacl.lowlevel.crypto_onetimeauth(out, 0, m, 0, m.length, k);
   }, m.length);
 }
@@ -109,8 +120,8 @@ function box_seal_open_benchmark() {
       pk2 = new Uint8Array(32), sk2 = new Uint8Array(32);
   nacl.lowlevel.crypto_box_keypair(pk1, sk1);
   nacl.lowlevel.crypto_box_keypair(pk2, sk2);
-  var nonce = nacl.util.decodeUTF8('123456789012345678901234');
-  var msg = nacl.util.decodeUTF8((new Array(1024)).join('a'));
+  var nonce = decodeUTF8('123456789012345678901234');
+  var msg = decodeUTF8((new Array(1024)).join('a'));
   var box = null;
   log.start('Benchmarking box');
   benchmark(function() {
@@ -126,7 +137,7 @@ function sign_open_benchmark() {
   var k = nacl.sign.keyPair();
   var sk = k.secretKey;
   var pk = k.publicKey;
-  var msg = nacl.util.decodeUTF8((new Array(128)).join('a'));
+  var msg = decodeUTF8((new Array(128)).join('a'));
   var sm;
   log.start('Benchmarking sign');
   benchmark(function() {
@@ -141,15 +152,16 @@ function sign_open_benchmark() {
 function crypto_hash_benchmark() {
   log.start('Benchmarking crypto_hash (1024 bytes)');
   var m = new Uint8Array(1024), out = new Uint8Array(64);
+  var i;
   for (i = 0; i < m.length; i++) m[i] = i & 255;
-  benchmark(function(){
+  benchmark(function() {
     nacl.lowlevel.crypto_hash(out, m, m.length);
   }, m.length);
 
   log.start('Benchmarking crypto_hash (16 KiB)');
   m = new Uint8Array(16*1024);
   for (i = 0; i < m.length; i++) m[i] = i & 255;
-  benchmark(function(){
+  benchmark(function() {
     nacl.lowlevel.crypto_hash(out, m, m.length);
   }, m.length);
 }
