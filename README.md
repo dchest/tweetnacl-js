@@ -7,7 +7,7 @@ to JavaScript for modern browsers and Node.js. Public domain.
 [![Build Status](https://travis-ci.org/dchest/tweetnacl-js.svg?branch=master)
 ](https://travis-ci.org/dchest/tweetnacl-js)
 
-[Demo](https://dchest.github.io/tweetnacl-js/)
+Demo: <https://tweetnacl.js.org>
 
 **:warning: Beta version. The library is stable and API is frozen, however
 it has not been independently reviewed. If you can help reviewing it, please
