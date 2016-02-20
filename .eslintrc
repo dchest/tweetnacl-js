@@ -1,7 +1,14 @@
 {
   'env': {                           // http://eslint.org/docs/user-guide/configuring.html#specifying-environments
-    'browser': true,                 // browser global variables
-    'node': true                     // Node.js global variables and Node.js-specific rules
+    'node': true,
+    'browser': true,
+    'shared-node-browser': true
+  },
+  'globals': {
+    'Uint8Array': true,
+    'Uint16Array': true,
+    'Uint32Array': true,
+    'Int32Array': true
   },
   'rules': {
     /**
@@ -134,7 +141,6 @@
     'space-before-blocks': 2,        // http://eslint.org/docs/rules/space-before-blocks
     'space-before-function-paren': [2, 'never'], // http://eslint.org/docs/rules/space-before-function-paren
     'space-infix-ops': 0,            // http://eslint.org/docs/rules/space-infix-ops
-    'space-return-throw-case': 2,    // http://eslint.org/docs/rules/space-return-throw-case
     'spaced-comment': [2, 'always',  {// http://eslint.org/docs/rules/spaced-comment
       'exceptions': ['-', '+'],
       'markers': ['=', '!', 'global', 'TODO', 'XXX', 'BUG']           // space here to support sprockets directives
