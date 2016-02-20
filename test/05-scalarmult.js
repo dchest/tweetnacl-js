@@ -1,4 +1,5 @@
 var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
+nacl.util = require('tweetnacl-util');
 var test = require('tape');
 
 var randomVectors = require('./data/scalarmult.random');
@@ -40,4 +41,3 @@ test('nacl.scalarMult and nacl.scalarMult.base random test vectors', function(t)
   });
   t.end();
 });
-

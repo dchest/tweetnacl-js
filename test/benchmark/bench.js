@@ -4,6 +4,12 @@ var log = helpers.log;
 
 if (!nacl) throw new Error('nacl not loaded');
 
+function decodeUTF8(s) {
+  var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+  for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+  return b;
+}
+
 function benchmark(fn, bytes, num) {
   if (!num) num = 1000;
   var i, elapsed, start = new Date();
@@ -114,8 +120,8 @@ function box_seal_open_benchmark() {
       pk2 = new Uint8Array(32), sk2 = new Uint8Array(32);
   nacl.lowlevel.crypto_box_keypair(pk1, sk1);
   nacl.lowlevel.crypto_box_keypair(pk2, sk2);
-  var nonce = nacl.util.decodeUTF8('123456789012345678901234');
-  var msg = nacl.util.decodeUTF8((new Array(1024)).join('a'));
+  var nonce = decodeUTF8('123456789012345678901234');
+  var msg = decodeUTF8((new Array(1024)).join('a'));
   var box = null;
   log.start('Benchmarking box');
   benchmark(function() {
@@ -131,7 +137,7 @@ function sign_open_benchmark() {
   var k = nacl.sign.keyPair();
   var sk = k.secretKey;
   var pk = k.publicKey;
-  var msg = nacl.util.decodeUTF8((new Array(128)).join('a'));
+  var msg = decodeUTF8((new Array(128)).join('a'));
   var sm;
   log.start('Benchmarking sign');
   benchmark(function() {

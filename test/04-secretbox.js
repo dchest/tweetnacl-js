@@ -1,4 +1,5 @@
 var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
+nacl.util = require('tweetnacl-util');
 var test = require('tape');
 
 var randomVectors = require('./data/secretbox.random');
@@ -21,4 +22,3 @@ test('nacl.secretbox random test vectors', function(t) {
   });
   t.end();
 });
-

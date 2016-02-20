@@ -1,5 +1,5 @@
 var nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var crypto = require('crypto');
+nacl.util = require('tweetnacl-util');
 var spawn = require('child_process').spawn;
 var execFile = require('child_process').execFile;
 var path = require('path');
