@@ -361,7 +361,7 @@ By default all tests described here work on `nacl.min.js`. To test other
 versions, set environment variable `NACL_SRC` to the file name you want to test.
 For example, the following command will test fast minified version:
 
-    $ NACL_SRC=nacl-fast.min.js npm test
+    $ NACL_SRC=nacl-fast.min.js npm run test-node
 
 To run full suite of tests in Node.js, including comparing outputs of
 JavaScript port to outputs of the original C version:
@@ -375,7 +375,7 @@ To prepare tests for browsers:
 and then open `test/browser/test.html` (or `test/browser/test-fast.html`) to
 run them.
 
-To run headless browser tests with 'tape-run' (powered by Electron):
+To run headless browser tests with `tape-run` (powered by Electron):
 
     $ npm run test-browser
 
@@ -383,7 +383,7 @@ To run headless browser tests with 'tape-run' (powered by Electron):
 
 To run tests in both Node and Electron:
 
-    $ npm run test
+    $ npm test
 
 ### Benchmarking
 
