@@ -355,7 +355,7 @@ Tests use minified version, so make sure to rebuild it every time you change
 
 To run tests in Node.js:
 
-    $ npm test
+    $ npm run test-node
 
 By default all tests described here work on `nacl.min.js`. To test other
 versions, set environment variable `NACL_SRC` to the file name you want to test.
@@ -366,20 +366,24 @@ For example, the following command will test fast minified version:
 To run full suite of tests in Node.js, including comparing outputs of
 JavaScript port to outputs of the original C version:
 
-    $ npm run testall
+    $ npm run test-node-all
 
 To prepare tests for browsers:
 
-    $ npm run browser
+    $ npm run build-test-browser
 
 and then open `test/browser/test.html` (or `test/browser/test-fast.html`) to
 run them.
 
-To run headless browser tests with `testling`:
+To run headless browser tests with 'tape-run' (powered by Electron):
 
-    $ npm run testling
+    $ npm run test-browser
 
 (If you get `Error: spawn ENOENT`, install *xvfb*: `sudo apt-get install xvfb`.)
+
+To run tests in both Node and Electron:
+
+    $ npm run test
 
 ### Benchmarking
 
