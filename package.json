@@ -39,7 +39,7 @@
   "bugs": {
     "url": "https://github.com/dchest/tweetnacl-js/issues"
   },
-  "homepage": "https://dchest.github.io/tweetnacl-js",
+  "homepage": "https://tweetnacl.js.org",
   "devDependencies": {
     "browserify": "^13.0.0",
     "eslint": "^2.2.0",
