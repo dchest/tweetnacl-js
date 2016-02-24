@@ -35,7 +35,8 @@
     "signatures"
   ],
   "author": "TweetNaCl-js contributors",
-  "license": "Public domain",
+  "license": "ISC",
+  "license2": "PUBLIC DOMAIN, ISC is permissive for downstream / coporate use - SEE COPYING.txt",
   "bugs": {
     "url": "https://github.com/dchest/tweetnacl-js/issues"
   },
