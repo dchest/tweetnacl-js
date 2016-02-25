@@ -2,6 +2,12 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.14.1
+-------
+
+No code changes, just tweaked packaging and added COPYING.txt.
+
+
 v0.14.0
 -------
 
