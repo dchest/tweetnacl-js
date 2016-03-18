@@ -65,11 +65,20 @@ or [download source code](https://github.com/dchest/tweetnacl-js/releases).
 
 
 Usage
-------
+-----
 
 All API functions accept and return bytes as `Uint8Array`s.  If you need to
-encode or decode strings, use functions from <https://github.com/dchest/tweetnacl-util-js>
-or one of the more robust codec packages.
+encode or decode strings, use functions from
+<https://github.com/dchest/tweetnacl-util-js> or one of the more robust codec
+packages.
+
+In Node.js v4 and later `Buffer` objects are backed by `Uint8Array`s, so you
+can freely pass them to TweetNaCl.js functions as arguments. The returned
+objects are still `Uint8Array`s, so if you need `Buffer`s, you'll have to
+convert them manually; make sure to convert using copying - `new Buffer(array)`
+- instead of sharing - `new Buffer(array.buffer)` - because some functions
+return subarrays of their buffers.
+
 
 ### Public-key authenticated encryption (box)
 
