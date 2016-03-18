@@ -26,7 +26,6 @@ Documentation
   * [Hashing](#hashing)
   * [Random bytes generation](#random-bytes-generation)
   * [Constant-time comparison](#constant-time-comparison)
-* [Examples](#examples)
 * [System requirements](#system-requirements)
 * [Development and testing](#development-and-testing)
 * [Contributors](#contributors)
