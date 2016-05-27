@@ -9,9 +9,9 @@ to JavaScript for modern browsers and Node.js. Public domain.
 
 Demo: <https://tweetnacl.js.org>
 
-**:warning: Beta version. The library is stable and API is frozen, however
-it has not been independently reviewed. If you can help reviewing it, please
-[contact me](mailto:dmitry@codingrobots.com).**
+**:warning: The library is stable and API is frozen, however it has not been
+independently reviewed. If you can help reviewing it, please [contact
+me](mailto:dmitry@codingrobots.com).**
 
 Documentation
 =============
