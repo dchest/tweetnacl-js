@@ -434,6 +434,7 @@ Third-party libraries based on TweetNaCl.js
 * [forward-secrecy](https://github.com/alax/forward-secrecy) — Axolotl ratchet implementation
 * [nacl-stream](https://github.com/dchest/nacl-stream-js) - streaming encryption
 * [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](http://nacl.cr.yp.to/auth.html)
+* [chloride](https://github.com/dominictarr/chloride) - unified API for various NaCl modules
 
 
 Who uses it
