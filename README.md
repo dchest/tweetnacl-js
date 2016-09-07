@@ -408,20 +408,31 @@ To run benchmarks in a browser, open `test/benchmark/bench.html` (or
 Benchmarks
 ----------
 
-For reference, here are benchmarks from MacBook Pro (Retina, 13-inch, Mid 2014) laptop
-with 2.6 GHz Intel Core i5 CPU (Intel) in Chrome 53 and Xiaomi Redmi Note 3 smartphone
-with Qualcomm Snapdragon 650 64-bit CPU (ARM) in Chrome 52:
+For reference, here are benchmarks from MacBook Pro (Retina, 13-inch, Mid 2014)
+laptop with 2.6 GHz Intel Core i5 CPU (Intel) in Chrome 53/OS X and Xiaomi Redmi
+Note 3 smartphone with 1.8 GHz Qualcomm Snapdragon 650 64-bit CPU (ARM) in
+Chrome 52/Android:
 
 |               | nacl.js Intel | nacl-fast.js Intel  |   nacl.js ARM | nacl-fast.js ARM  |
 | ------------- |:-------------:|:-------------------:|:-------------:|:-----------------:|
-| secretbox     | 1.1 MB/s      | 37 MB/s             |  0.3 MB/s     |  12 MB/s          |
+| salsa20       | 1.3 MB/s      | 103 MB/s            |  0.4 MB/s     |  35 MB/s          |
+| poly1305      | 11 MB/s       | 128 MB/s            |  3 MB/s       |  40 MB/s          |
 | hash          | 4 MB/s        | 22 MB/s             |  0.9 MB/s     |  12 MB/s          |
-| scalarMult    | 148 op/s      | 514 op/s            |  37 op/s      |  261 op/s         |
+| secretbox 1K  | 1113 op/s     | 38306 op/s          |  334 op/s     |  12276 op/s       |
+| box 1K        | 122 op/s      | 685 op/s            |  37 op/s      |  335 op/s         |
+| scalarMult    | 148 op/s      | 514 op/s            |  45 op/s      |  261 op/s         |
 | sign          | 56  op/s      | 166 op/s            |  18 op/s      |  43 op/s          |
 | sign.open     | 39  op/s      | 76  op/s            |  10 op/s      |  31 op/s          |
 
 (You can run benchmarks on your devices by clicking on the links at the bottom
 of the [home page](https://tweetnacl.js.org)).
+
+In short, with *nacl-fast.js* and 1024-byte messages you can expect to encrypt and
+authenticate more than 38000 messages per second on a typical laptop or more than
+12000 messages per second on a $190 smartphone, sign about 150 and verify 76
+messages per second on a laptop or 40 and 30 messages per second on a smartphone,
+per CPU core (with Web Workers you can do these operations in parallel),
+which is good enough more most applications.
 
 
 Contributors
