@@ -28,6 +28,7 @@ Documentation
   * [Constant-time comparison](#constant-time-comparison)
 * [System requirements](#system-requirements)
 * [Development and testing](#development-and-testing)
+* [Benchmarks](#benchmarks)
 * [Contributors](#contributors)
 * [Who uses it](#who-uses-it)
 
@@ -402,6 +403,25 @@ To run benchmarks in Node.js:
 
 To run benchmarks in a browser, open `test/benchmark/bench.html` (or
 `test/benchmark/bench-fast.html`).
+
+
+Benchmarks
+----------
+
+For reference, here are benchmarks from MacBook Pro (Retina, 13-inch, Mid 2014) laptop
+with 2.6 GHz Intel Core i5 CPU (Intel) in Chrome 53 and Xiaomi Redmi Note 3 smartphone
+with Qualcomm Snapdragon 650 64-bit CPU (ARM) in Chrome 52:
+
+|               | nacl.js Intel | nacl-fast.js Intel  |   nacl.js ARM | nacl-fast.js ARM  |
+| ------------- |:-------------:|:-------------------:|:-------------:|:-----------------:|
+| secretbox     | 1.1 MB/s      | 37 MB/s             |  0.3 MB/s     |  12 MB/s          |
+| hash          | 4 MB/s        | 22 MB/s             |  0.9 MB/s     |  12 MB/s          |
+| scalarMult    | 148 op/s      | 514 op/s            |  37 op/s      |  261 op/s         |
+| sign          | 56  op/s      | 166 op/s            |  18 op/s      |  43 op/s          |
+| sign.open     | 39  op/s      | 76  op/s            |  10 op/s      |  31 op/s          |
+
+(You can run benchmarks on your devices by clicking on the links at the bottom
+of the [home page](https://tweetnacl.js.org)).
 
 
 Contributors
