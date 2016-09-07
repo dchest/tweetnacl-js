@@ -10,45 +10,57 @@ function decodeUTF8(s) {
   return b;
 }
 
-function benchmark(fn, bytes, num) {
-  if (!num) num = 1000;
-  var i, elapsed, start = new Date();
-  /*eslint-disable*/
-  while (1) {
-  /*eslint-enable*/
-    for (i = 0; i < num; i++) fn();
-    elapsed = (new Date()) - start;
-    if (elapsed < 500) {
-      num += num*1000/elapsed/2;
-    } else {
-      break;
+function benchmark(fn, bytes) {
+  var elapsed = 0;
+  var iterations = 1;
+  while (true) {
+    var startTime = Date.now();
+    fn();
+    elapsed += Date.now() - startTime;
+    if (elapsed > 500 && iterations > 2) {
+        break;
     }
+    iterations++;
   }
-
-  log.print(' ' + ((bytes*num/1024/1024*1000)/elapsed).toFixed(3), 'MB/s');
-  log.print(' ' + ((num*1000)/elapsed).toFixed(3), 'ops/s');
+  return {
+    iterations: iterations,
+    msPerOp: elapsed / iterations,
+    opsPerSecond: 1000 * iterations / elapsed,
+    bytesPerSecond: bytes ? 1000 * (bytes * iterations) / elapsed : undefined
+  };
 }
 
-function benchmarkOps(fn,  num) {
-  var i, elapsed, start = new Date();
-  /*eslint-disable*/
-  while (1) {
-  /*eslint-enable*/
-    for (i = 0; i < num; i++) {
-      fn();
-    }
-    elapsed = (new Date()) - start;
-    if (elapsed < 500) {
-      num += num*1000/elapsed/2;
-    } else {
-      break;
-    }
+function pad(s, upto, end) {
+  if (end === void 0) { end = false; }
+  var padlen = upto - s.length;
+  if (padlen <= 0) {
+    return s;
   }
-  log.print(' ' + ((num*1000)/elapsed).toFixed(3), 'ops/s');
+  // XXX: in ES2015 we can use ' '.repeat(padlen)
+  var padding = new Array(padlen + 1).join(' ');
+  if (end) {
+    return s + padding;
+  }
+  return padding + s;
+}
+
+function report(name, results) {
+  var ops = results.iterations + ' ops';
+  var msPerOp = results.msPerOp.toFixed(2) + ' ms/op';
+  var opsPerSecond = results.opsPerSecond.toFixed(2) + ' ops/sec';
+  var mibPerSecond = results.bytesPerSecond
+      ? (results.bytesPerSecond / 1024 / 1024).toFixed(2) + ' MiB/s'
+      : '';
+  log.print(
+    pad(name, 25, true) + ' ' +
+    pad(ops, 20) + ' ' +
+    pad(msPerOp, 20) + ' ' +
+    pad(opsPerSecond, 20) + ' ' +
+    pad(mibPerSecond, 15)
+  );
 }
 
 function crypto_stream_xor_benchmark() {
-  log.start('Benchmarking crypto_stream_xor');
   var m = new Uint8Array(1024),
       n = new Uint8Array(24),
       k = new Uint8Array(32),
@@ -57,34 +69,32 @@ function crypto_stream_xor_benchmark() {
   for (i = 0; i < 1024; i++) m[i] = i & 255;
   for (i = 0; i < 24; i++) n[i] = i;
   for (i = 0; i < 32; i++) k[i] = i;
-  benchmark(function() {
+  report('crypto_stream_xor 1K', benchmark(function() {
     nacl.lowlevel.crypto_stream_xor(out, 0, m, 0, m.length, n, k);
-  }, m.length);
+  }, m.length));
 }
 
 function crypto_onetimeauth_benchmark() {
-  log.start('Benchmarking crypto_onetimeauth');
   var m = new Uint8Array(1024),
       out = new Uint8Array(1024),
       k = new Uint8Array([0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1]);
   for (var i = 0; i < 1024; i++) {
     m[i] = i & 255;
   }
-  benchmark(function() {
+  report('crypto_onetimeauth 1K', benchmark(function() {
     nacl.lowlevel.crypto_onetimeauth(out, 0, m, 0, m.length, k);
-  }, m.length);
+  }, m.length));
 }
 
 function crypto_secretbox_benchmark() {
-  log.start('Benchmarking crypto_secretbox');
   var i, k = new Uint8Array(32), n = new Uint8Array(24),
       m = new Uint8Array(1024), c = new Uint8Array(1024);
   for (i = 0; i < 32; i++) k[i] = 1;
   for (i = 0; i < 24; i++) n[i] = 2;
   for (i = 0; i < 1024; i++) m[i] = 3;
-  benchmark(function() {
+  report('crypto_secretbox 1K', benchmark(function() {
     nacl.lowlevel.crypto_secretbox(c, m, m.length, n, k);
-  }, m.length);
+  }, m.length));
 }
 
 function secretbox_seal_open_benchmark() {
@@ -96,23 +106,21 @@ function secretbox_seal_open_benchmark() {
   for (i = 0; i < 24; i++) nonce[i] = 2;
   for (i = 0; i < 1024; i++) msg[i] = 3;
 
-  log.start('Benchmarking secretbox');
-  benchmark(function() {
+  report('secretbox 1K', benchmark(function() {
     box = nacl.secretbox(msg, nonce, key);
-  }, msg.length);
-  log.start('Benchmarking secretbox.open');
-  benchmark(function() {
+  }, msg.length));
+
+  report('secretbox.open 1K', benchmark(function() {
     nacl.secretbox.open(box, nonce, key);
-  }, msg.length);
+  }, msg.length));
 }
 
 function crypto_scalarmult_base_benchmark() {
-  log.start('Benchmarking crypto_scalarmult_base');
   var n = new Uint8Array(32), q = new Uint8Array(32);
   for (var i = 0; i < 32; i++) n[i] = i;
-  benchmarkOps(function() {
+  report('crypto_scalarmult_base', benchmark(function() {
     nacl.lowlevel.crypto_scalarmult_base(q, n);
-  }, 10);
+  }));
 }
 
 function box_seal_open_benchmark() {
@@ -123,14 +131,14 @@ function box_seal_open_benchmark() {
   var nonce = decodeUTF8('123456789012345678901234');
   var msg = decodeUTF8((new Array(1024)).join('a'));
   var box = null;
-  log.start('Benchmarking box');
-  benchmark(function() {
+
+  report('box 1K', benchmark(function() {
     box = nacl.box(msg, nonce, pk1, sk2);
-  }, msg.length, 20);
-  log.start('Benchmarking box.open');
-  benchmark(function() {
+  }, msg.length));
+
+  report('box.open 1K', benchmark(function() {
     nacl.box.open(box, nonce, pk2, sk1);
-  }, msg.length, 20);
+  }, msg.length));
 }
 
 function sign_open_benchmark() {
@@ -139,31 +147,29 @@ function sign_open_benchmark() {
   var pk = k.publicKey;
   var msg = decodeUTF8((new Array(128)).join('a'));
   var sm;
-  log.start('Benchmarking sign');
-  benchmark(function() {
+
+  report('sign', benchmark(function() {
     sm = nacl.sign(msg, sk);
-  }, msg.length, 20);
-  log.start('Benchmarking sign.open');
-  benchmark(function() {
+  }));
+
+  report('sign.open', benchmark(function() {
     nacl.sign.open(sm, pk);
-  }, msg.length, 20);
+  }));
 }
 
 function crypto_hash_benchmark() {
-  log.start('Benchmarking crypto_hash (1024 bytes)');
   var m = new Uint8Array(1024), out = new Uint8Array(64);
   var i;
   for (i = 0; i < m.length; i++) m[i] = i & 255;
-  benchmark(function() {
+  report('crypto_hash 1K', benchmark(function() {
     nacl.lowlevel.crypto_hash(out, m, m.length);
-  }, m.length);
+  }, m.length));
 
-  log.start('Benchmarking crypto_hash (16 KiB)');
   m = new Uint8Array(16*1024);
   for (i = 0; i < m.length; i++) m[i] = i & 255;
-  benchmark(function() {
+  report('crypto_hash 16K', benchmark(function() {
     nacl.lowlevel.crypto_hash(out, m, m.length);
-  }, m.length);
+  }, m.length));
 }
 
 crypto_stream_xor_benchmark();
