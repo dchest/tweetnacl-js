@@ -432,7 +432,7 @@ authenticate more than 38000 messages per second on a typical laptop or more tha
 12000 messages per second on a $190 smartphone, sign about 150 and verify 76
 messages per second on a laptop or 40 and 30 messages per second on a smartphone,
 per CPU core (with Web Workers you can do these operations in parallel),
-which is good enough more most applications.
+which is good enough for most applications.
 
 
 Contributors
