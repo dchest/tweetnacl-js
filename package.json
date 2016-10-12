@@ -35,7 +35,7 @@
     "signatures"
   ],
   "author": "TweetNaCl-js contributors",
-  "license": "SEE LICENSE IN COPYING.txt",
+  "license": "CC0",
   "bugs": {
     "url": "https://github.com/dchest/tweetnacl-js/issues"
   },
