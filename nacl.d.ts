@@ -9,20 +9,19 @@ declare namespace nacl {
     export interface secretbox {
         (msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
         open(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
-        keyLength: number;
-        nonceLength: number;
-        overheadLength: number;
+        readonly keyLength: number;
+        readonly nonceLength: number;
+        readonly overheadLength: number;
     }
 
     export interface scalarMult {
         (n: Uint8Array, p: Uint8Array): Uint8Array;
         base(n: Uint8Array): Uint8Array;
-        scalarLength: number;
-        groupElementLength: number;
+        readonly scalarLength: number;
+        readonly groupElementLength: number;
     }
 
     namespace box {
-
         export interface open {
             (msg: Uint8Array, nonce: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array;
             after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
@@ -45,11 +44,11 @@ declare namespace nacl {
         after(msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
         open: box.open;
         keyPair: box.keyPair;
-        publicKeyLength: number;
-        secretKeyLength: number;
-        sharedKeyLength: number;
-        nonceLength: number;
-        overheadLength: number;
+        readonly publicKeyLength: number;
+        readonly secretKeyLength: number;
+        readonly sharedKeyLength: number;
+        readonly nonceLength: number;
+        readonly overheadLength: number;
     }
 
     namespace sign {
@@ -75,15 +74,15 @@ declare namespace nacl {
         open(signedMsg: Uint8Array, publicKey: Uint8Array): Uint8Array;
         detached: sign.detached;
         keyPair: sign.keyPair;
-        publicKeyLength: number;
-        secretKeyLength: number;
-        seedLength: number;
-        signatureLength: number;
+        readonly publicKeyLength: number;
+        readonly secretKeyLength: number;
+        readonly seedLength: number;
+        readonly signatureLength: number;
     }
 
     export interface Hash {
         (msg: Uint8Array): Uint8Array;
-        hashLength: number;
+        readonly hashLength: number;
     }
 
 
