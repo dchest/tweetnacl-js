@@ -6,49 +6,6 @@ declare var nacl: nacl;
 export = nacl;
 
 declare namespace nacl {
-    export interface lowlevel {
-        crypto_core_hsalsa20: number;
-        crypto_stream_xor: number;
-        crypto_stream: number;
-        crypto_stream_salsa20_xor: number;
-        crypto_stream_salsa20: number;
-        crypto_onetimeauth: number;
-        crypto_onetimeauth_verify: number;
-        crypto_verify_16: number;
-        crypto_verify_32: number;
-        crypto_secretbox: number;
-        crypto_secretbox_open: number;
-        crypto_scalarmult: number;
-        crypto_scalarmult_base: number;
-        crypto_box_beforenm: number;
-        crypto_box_afternm: number;
-        crypto_box: number;
-        crypto_box_open: number;
-        crypto_box_keypair: number;
-        crypto_hash: number;
-        crypto_sign: number;
-        crypto_sign_keypair: number;
-        crypto_sign_open: number;
-
-        crypto_secretbox_KEYBYTES: number;
-        crypto_secretbox_NONCEBYTES: number;
-        crypto_secretbox_ZEROBYTES: number;
-        crypto_secretbox_BOXZEROBYTES: number;
-        crypto_scalarmult_BYTES: number;
-        crypto_scalarmult_SCALARBYTES: number;
-        crypto_box_PUBLICKEYBYTES: number;
-        crypto_box_SECRETKEYBYTES: number;
-        crypto_box_BEFORENMBYTES: number;
-        crypto_box_NONCEBYTES: number;
-        crypto_box_ZEROBYTES: number;
-        crypto_box_BOXZEROBYTES: number;
-        crypto_sign_BYTES: number;
-        crypto_sign_PUBLICKEYBYTES: number;
-        crypto_sign_SECRETKEYBYTES: number;
-        crypto_sign_SEEDBYTES: number;
-        crypto_hash_BYTES: number;
-    }
-
     export interface secretbox {
         (msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
         open(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
@@ -133,7 +90,6 @@ declare namespace nacl {
 }
 
 declare interface nacl {
-    lowlevel: nacl.lowlevel;
     randomBytes(n: number): Uint8Array;
     secretbox: nacl.secretbox;
     scalarMult: nacl.scalarMult;
