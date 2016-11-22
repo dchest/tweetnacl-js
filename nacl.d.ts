@@ -6,6 +6,16 @@ declare var nacl: nacl;
 export = nacl;
 
 declare namespace nacl {
+    export interface BoxKeyPair {
+        publicKey: Uint8Array;
+        secretKey: Uint8Array;
+    }
+
+    export interface SignKeyPair {
+        publicKey: Uint8Array;
+        secretKey: Uint8Array;
+    }
+
     export interface secretbox {
         (msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
         open(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
@@ -27,14 +37,9 @@ declare namespace nacl {
             after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
         }
 
-        interface key {
-            publicKey: Uint8Array;
-            secretKey: Uint8Array;
-        }
-
         export interface keyPair {
-            (): key;
-            fromSecretKey(secretKey: Uint8Array): key;
+            (): BoxKeyPair;
+            fromSecretKey(secretKey: Uint8Array): BoxKeyPair;
         }
     }
 
@@ -57,15 +62,10 @@ declare namespace nacl {
             verify(msg: Uint8Array, sig: Uint8Array, publicKey: Uint8Array): boolean;
         }
 
-        interface key {
-            publicKey: Uint8Array;
-            secretKey: Uint8Array;
-        }
-
         export interface keyPair {
-            (): key;
-            fromSecretKey(secretKey: Uint8Array): key;
-            fromSeed(secretKey: Uint8Array): key;
+            (): SignKeyPair;
+            fromSecretKey(secretKey: Uint8Array): SignKeyPair;
+            fromSeed(secretKey: Uint8Array): SignKeyPair;
         }
     }
 
@@ -84,8 +84,6 @@ declare namespace nacl {
         (msg: Uint8Array): Uint8Array;
         readonly hashLength: number;
     }
-
-
 }
 
 declare interface nacl {
