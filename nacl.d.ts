@@ -80,7 +80,7 @@ declare namespace nacl {
         readonly signatureLength: number;
     }
 
-    export interface Hash {
+    export interface hash {
         (msg: Uint8Array): Uint8Array;
         readonly hashLength: number;
     }
@@ -92,7 +92,7 @@ declare interface nacl {
     scalarMult: nacl.scalarMult;
     box: nacl.box;
     sign: nacl.sign;
-    hash: nacl.Hash;
+    hash: nacl.hash;
     verify(x: Uint8Array, y: Uint8Array): boolean;
     setPRNG(fn: (x: Uint8Array, n: number) => Uint8Array): void;
 }
