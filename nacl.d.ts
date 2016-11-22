@@ -49,13 +49,6 @@ declare namespace nacl {
         crypto_hash_BYTES: number;
     }
 
-    export interface util {
-        decodeUTF8(s: string): Uint8Array;
-        encodeUTF8(arr: Uint8Array): string;
-        encodeBase64(arr: Uint8Array): string;
-        decodeBase64(s: string): Uint8Array;
-    }
-
     export interface secretbox {
         (msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
         open(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
@@ -141,7 +134,6 @@ declare namespace nacl {
 
 declare interface nacl {
     lowlevel: nacl.lowlevel;
-    util: nacl.util;
     randomBytes(n: number): Uint8Array;
     secretbox: nacl.secretbox;
     scalarMult: nacl.scalarMult;
