@@ -94,5 +94,5 @@ declare interface nacl {
     sign: nacl.sign;
     hash: nacl.hash;
     verify(x: Uint8Array, y: Uint8Array): boolean;
-    setPRNG(fn: (x: Uint8Array, n: number) => Uint8Array): void;
+    setPRNG(fn: (x: Uint8Array, n: number) => void): void;
 }
