@@ -2,6 +2,34 @@ TweetNaCl.js Changelog
 ======================
 
 
+v0.14.4
+-------
+
+* Added TypeScript type definitions (contributed by @AndSDev).
+* Improved benchmarking code.
+
+
+v0.14.3
+-------
+
+Fixed a bug in the fast version of Poly1305 and brought it back.
+
+Thanks to @floodyberry for promptly responding and fixing the original C code:
+
+> "The issue was not properly detecting if st->h was >= 2^130 - 5, coupled with
+> [testing mistake] not catching the failure. The chance of the bug affecting
+> anything in the real world is essentially zero luckily, but it's good to have
+> it fixed."
+
+https://github.com/floodyberry/poly1305-donna/issues/2#issuecomment-202698577
+
+
+v0.14.2
+-------
+
+Switched Poly1305 fast version back to original (slow) version due to a bug.
+
+
 v0.14.1
 -------
 
