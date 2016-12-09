@@ -1,6 +1,6 @@
 {
   "name": "tweetnacl",
-  "version": "0.14.4",
+  "version": "0.14.5",
   "homepage": "https://tweetnacl.js.org",
   "authors": [
     "TweetNaCl.js Contributors"
@@ -25,7 +25,7 @@
     "salsa20",
     "signatures"
   ],
-  "license": "SEE LICENSE IN COPYING.txt",
+  "license": "Unlicense",
   "ignore": [
     "**/.*",
     "node_modules",
