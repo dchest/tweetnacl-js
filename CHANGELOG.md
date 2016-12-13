@@ -5,12 +5,13 @@ TweetNaCl.js Changelog
 v0.14.5
 -------
 
-Replaced COPYING.txt with LICENSE file, which now has public domain dedication
-text from The Unlicense. License fields in package.json and bower.json have
-been set to "Unlicense". The project was and will be in the public domain --
-this change just makes it easier for automated tools to know about this fact by
-using the widely recognized and SPDX-compatible template for public domain
-dedication.
+* Fixed incomplete return types in TypeScript typings.
+* Replaced COPYING.txt with LICENSE file, which now has public domain dedication
+  text from The Unlicense. License fields in package.json and bower.json have
+  been set to "Unlicense". The project was and will be in the public domain --
+  this change just makes it easier for automated tools to know about this fact by
+  using the widely recognized and SPDX-compatible template for public domain
+  dedication.
 
 
 v0.14.4
