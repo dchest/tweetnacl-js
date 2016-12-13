@@ -34,7 +34,7 @@ declare namespace nacl {
     namespace box {
         export interface open {
             (msg: Uint8Array, nonce: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array | false;
-            after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
+            after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array | false;
         }
 
         export interface keyPair {
@@ -71,7 +71,7 @@ declare namespace nacl {
 
     export interface sign {
         (msg: Uint8Array, secretKey: Uint8Array): Uint8Array;
-        open(signedMsg: Uint8Array, publicKey: Uint8Array): Uint8Array;
+        open(signedMsg: Uint8Array, publicKey: Uint8Array): Uint8Array | null;
         detached: sign.detached;
         keyPair: sign.keyPair;
         readonly publicKeyLength: number;
