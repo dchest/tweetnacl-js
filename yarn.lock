@@ -751,7 +751,7 @@ electron-stream@^4.0.0:
     electron "^1.4.4"
     stream-read "^1.1.2"
 
-electron@^1.4.4:
+electron@^1.4.12, electron@^1.4.4:
   version "1.4.12"
   resolved "https://registry.yarnpkg.com/electron/-/electron-1.4.12.tgz#ae6641aa1db01dd04e41c56639ca7b84b888767a"
   dependencies:
