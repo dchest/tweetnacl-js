@@ -429,7 +429,7 @@ of the [home page](https://tweetnacl.js.org)).
 
 In short, with *nacl-fast.js* and 1024-byte messages you can expect to encrypt and
 authenticate more than 57000 messages per second on a typical laptop or more than
-14000 messages per second on a $190 smartphone, sign about 200 and verify 100
+14000 messages per second on a $170 smartphone, sign about 200 and verify 100
 messages per second on a laptop or 60 and 30 messages per second on a smartphone,
 per CPU core (with Web Workers you can do these operations in parallel),
 which is good enough for most applications.
