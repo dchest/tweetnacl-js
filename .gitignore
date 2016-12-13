@@ -1,1 +1,14 @@
 node_modules
+test/c/cbox
+test/c/cbox.o
+test/c/chash
+test/c/chash.o
+test/c/cscalarmult
+test/c/cscalarmult.o
+test/c/csecretbox
+test/c/csecretbox.o
+test/c/csign
+test/c/csign-keypair.o
+test/c/csign.o
+test/c/tweetnacl.o
+
