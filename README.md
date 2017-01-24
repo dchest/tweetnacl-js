@@ -46,7 +46,7 @@ There are two versions, you can use either of them:
   original + high-level API.
 
 * `nacl-fast.js` is like `nacl.js`, but with some functions replaced with
-  faster versions.
+  faster versions. (Used by default when importing NPM package.)
 
 
 Installation
