@@ -103,7 +103,7 @@ key.
 
 #### nacl.box(message, nonce, theirPublicKey, mySecretKey)
 
-Encrypt and authenticates message using peer's public key, our secret key, and
+Encrypts and authenticates message using peer's public key, our secret key, and
 the given nonce, which must be unique for each distinct message for a key pair.
 
 Returns an encrypted and authenticated message, which is
@@ -156,7 +156,7 @@ Implements *xsalsa20-poly1305*.
 
 #### nacl.secretbox(message, nonce, key)
 
-Encrypt and authenticates message using the key and the nonce. The nonce must
+Encrypts and authenticates message using the key and the nonce. The nonce must
 be unique for each distinct message for this key.
 
 Returns an encrypted and authenticated message, which is
