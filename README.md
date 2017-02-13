@@ -7,16 +7,13 @@ to JavaScript for modern browsers and Node.js. Public domain.
 [![Build Status](https://travis-ci.org/dchest/tweetnacl-js.svg?branch=master)
 ](https://travis-ci.org/dchest/tweetnacl-js)
 
-Demo: <https://tweetnacl.js.org>
-
-**:warning: The library is stable and API is frozen, however it has not been
-independently reviewed. If you can help reviewing it, please [contact
-me](mailto:dmitry@codingrobots.com).**
+Demo: <https://dchest.github.io/tweetnacl-js/>
 
 Documentation
 =============
 
 * [Overview](#overview)
+* [Audits](#audits)
 * [Installation](#installation)
 * [Usage](#usage)
   * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
@@ -47,6 +44,30 @@ There are two versions, you can use either of them:
 
 * `nacl-fast.js` is like `nacl.js`, but with some functions replaced with
   faster versions. (Used by default when importing NPM package.)
+
+
+Audits
+------
+
+TweetNaCl.js has been audited by [Cure53](https://cure53.de/) in January-February
+2017 (audit was sponsored by [Deletype](https://deletype.com)):
+
+> The overall outcome of this audit signals a particularly positive assessment
+> for TweetNaCl-js, as the testing team was unable to find any security
+> problems in the library. It has to be noted that this is an exceptionally
+> rare result of a source code audit for any project and must be seen as a true
+> testament to a development proceeding with security at its core.
+>
+> To reiterate, the TweetNaCl-js project, the source code was found to be
+> bug-free at this point.
+>
+> [...]
+>
+> In sum, the testing team is happy to recommend the TweetNaCl-js project as
+> likely one of the safer and more secure cryptographic tools among its
+> competition.
+
+[Read full audit report](https://dchest.github.io/tweetnacl-js/audits/cure53.pdf)
 
 
 Installation
