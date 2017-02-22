@@ -10,23 +10,41 @@ function decodeUTF8(s) {
   return b;
 }
 
+var getTime = (function () {
+  if (typeof performance !== "undefined") {
+    return performance.now.bind(performance);
+  }
+  if (typeof process !== "undefined" && process.hrtime) {
+    return function () {
+      var _a = process.hrtime(), sec = _a[0], nanosec = _a[1];
+      return (sec * 1e9 + nanosec) / 1e6;
+    };
+  }
+  return Date.now.bind(Date);
+})();
+
 function benchmark(fn, bytes) {
+  var best = Number.MAX_VALUE;
   var elapsed = 0;
   var iterations = 1;
   while (true) {
-    var startTime = Date.now();
+    var startTime = getTime();
     fn();
-    elapsed += Date.now() - startTime;
+    var diff = getTime() - startTime;
+    if (diff > 0 && diff < best) {
+      best = diff;
+    }
+    elapsed += diff;
     if (elapsed > 500 && iterations > 2) {
-        break;
+      break;
     }
     iterations++;
   }
   return {
     iterations: iterations,
-    msPerOp: elapsed / iterations,
-    opsPerSecond: 1000 * iterations / elapsed,
-    bytesPerSecond: bytes ? 1000 * (bytes * iterations) / elapsed : undefined
+    msPerOp: best,
+    opsPerSecond: 1 / (best / 1000),
+    bytesPerSecond: bytes ? 1000 * (bytes * iterations) / (best * iterations) : undefined
   };
 }
 
