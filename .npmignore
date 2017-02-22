@@ -2,3 +2,4 @@
 .travis.yml
 bower.json
 test
+yarn.lock
