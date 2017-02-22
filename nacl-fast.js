@@ -2178,8 +2178,8 @@ nacl.secretbox.open = function(box, nonce, key) {
   var c = new Uint8Array(crypto_secretbox_BOXZEROBYTES + box.length);
   var m = new Uint8Array(c.length);
   for (var i = 0; i < box.length; i++) c[i+crypto_secretbox_BOXZEROBYTES] = box[i];
-  if (c.length < 32) return false;
-  if (crypto_secretbox_open(m, c, c.length, nonce, key) !== 0) return false;
+  if (c.length < 32) return null;
+  if (crypto_secretbox_open(m, c, c.length, nonce, key) !== 0) return null;
   return m.subarray(crypto_secretbox_ZEROBYTES);
 };
 

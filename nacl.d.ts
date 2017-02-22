@@ -18,7 +18,7 @@ declare namespace nacl {
 
     export interface secretbox {
         (msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
-        open(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array | false;
+        open(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array | null;
         readonly keyLength: number;
         readonly nonceLength: number;
         readonly overheadLength: number;
@@ -33,8 +33,8 @@ declare namespace nacl {
 
     namespace box {
         export interface open {
-            (msg: Uint8Array, nonce: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array | false;
-            after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array | false;
+            (msg: Uint8Array, nonce: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array | null;
+            after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array | null;
         }
 
         export interface keyPair {

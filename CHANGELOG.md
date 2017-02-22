@@ -4,8 +4,8 @@ TweetNaCl.js Changelog
 v1.0.0-rc.1
 -----------
 
-* **IMPORTANT!** In previous versions, `nacl.secretbox.open` and
-  `nacl.box.open` returned `false` when opening failed (for example, due to
+* **IMPORTANT!** In previous versions, `nacl.secretbox.open`, `nacl.box.open`,
+  and `nacl.box.after` returned `false` when opening failed (for example, when
   using incorrect key, nonce, or when input was maliciously or accidentally
   modified after encryption). This version instead returns `null`.
 
@@ -13,20 +13,19 @@ v1.0.0-rc.1
 
   `if (!result) { ... }`
 
-  is correct and will continue working.
+  is correct and will continue to work.
 
-  However, the direct comparison with `false`:
+  However, direct comparison with `false`:
 
   `if (result == false) { ... }`
 
-  it will no longer work and **will not detect opening failure**. Please check
+  it will no longer work and **will not detect failure**. Please check
   your code for this condition.
 
   (`nacl.sign.open` always returned `null`, so it is not affected.)
 
 
-* Use `instanceof Uint8Array` instead of `Object.prototype.toString` to check
-  argument types.
+* Arguments type check now uses `instanceof Uint8Array` instead of `Object.prototype.toString`.
 * Removed deprecation checks for `nacl.util` (moved to a
   [separate package](https://github.com/dchest/tweetnacl-util-js) in v0.14.0).
 * Removed deprecation checks for the old signature API (changed in v0.10.0).

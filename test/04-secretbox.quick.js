@@ -20,9 +20,9 @@ test('nacl.secretbox and nacl.secretbox.open', function(t) {
 test('nacl.secretbox.open with invalid box', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
-  t.equal(nacl.secretbox.open(new Uint8Array(0), nonce, key), false);
-  t.equal(nacl.secretbox.open(new Uint8Array(10), nonce, key), false);
-  t.equal(nacl.secretbox.open(new Uint8Array(100), nonce, key), false);
+  t.equal(nacl.secretbox.open(new Uint8Array(0), nonce, key), null);
+  t.equal(nacl.secretbox.open(new Uint8Array(10), nonce, key), null);
+  t.equal(nacl.secretbox.open(new Uint8Array(100), nonce, key), null);
   t.end();
 });
 
@@ -35,7 +35,7 @@ test('nacl.secretbox.open with invalid nonce', function(t) {
   t.equal(nacl.util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
           nacl.util.encodeUTF8(msg));
   nonce[0] = 255;
-  t.equal(nacl.secretbox.open(box, nonce, key), false);
+  t.equal(nacl.secretbox.open(box, nonce, key), null);
   t.end();
 });
 
@@ -48,7 +48,7 @@ test('nacl.secretbox.open with invalid key', function(t) {
   t.equal(nacl.util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
           nacl.util.encodeUTF8(msg));
   key[0] = 255;
-  t.equal(nacl.secretbox.open(box, nonce, key), false);
+  t.equal(nacl.secretbox.open(box, nonce, key), null);
   t.end();
 });
 

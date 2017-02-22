@@ -40,9 +40,9 @@ test('nacl.box.open with invalid box', function(t) {
   var clientKeys = nacl.box.keyPair();
   var serverKeys = nacl.box.keyPair();
   var nonce = new Uint8Array(nacl.box.nonceLength);
-  t.equal(nacl.box.open(new Uint8Array(0), nonce, serverKeys.publicKey, clientKeys.secretKey), false);
-  t.equal(nacl.box.open(new Uint8Array(10), nonce, serverKeys.publicKey, clientKeys.secretKey), false);
-  t.equal(nacl.box.open(new Uint8Array(100), nonce, serverKeys.publicKey, clientKeys.secretKey), false);
+  t.equal(nacl.box.open(new Uint8Array(0), nonce, serverKeys.publicKey, clientKeys.secretKey), null);
+  t.equal(nacl.box.open(new Uint8Array(10), nonce, serverKeys.publicKey, clientKeys.secretKey), null);
+  t.equal(nacl.box.open(new Uint8Array(100), nonce, serverKeys.publicKey, clientKeys.secretKey), null);
   t.end();
 });
 
@@ -56,7 +56,7 @@ test('nacl.box.open with invalid nonce', function(t) {
   t.equal(nacl.util.encodeUTF8(nacl.box.open(box, nonce, serverKeys.publicKey, clientKeys.secretKey)),
           nacl.util.encodeUTF8(msg));
   nonce[0] = 255;
-  t.equal(nacl.box.open(box, nonce, serverKeys.publicKey, clientKeys.secretKey), false);
+  t.equal(nacl.box.open(box, nonce, serverKeys.publicKey, clientKeys.secretKey), null);
   t.end();
 });
 
@@ -71,8 +71,8 @@ test('nacl.box.open with invalid keys', function(t) {
   t.equal(nacl.util.encodeUTF8(nacl.box.open(box, nonce, clientKeys.publicKey, serverKeys.secretKey)),
           nacl.util.encodeUTF8(msg));
   var badPublicKey = new Uint8Array(nacl.box.publicKeyLength);
-  t.equal(nacl.box.open(box, nonce, badPublicKey, clientKeys.secretKey), false);
+  t.equal(nacl.box.open(box, nonce, badPublicKey, clientKeys.secretKey), null);
   var badSecretKey = new Uint8Array(nacl.box.secretKeyLength);
-  t.equal(nacl.box.open(box, nonce, serverKeys.publicKey, badSecretKey), false);
+  t.equal(nacl.box.open(box, nonce, serverKeys.publicKey, badSecretKey), null);
   t.end();
 });
