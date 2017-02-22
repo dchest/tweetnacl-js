@@ -75,13 +75,17 @@ Installation
 
 You can install TweetNaCl.js via a package manager:
 
-[Bower](http://bower.io):
+[Yarn](https://yarnpkg.com/):
 
-    $ bower install tweetnacl
+    $ yarn add tweetnacl
 
 [NPM](https://www.npmjs.org/):
 
     $ npm install tweetnacl
+
+[Bower](http://bower.io):
+
+    $ bower install tweetnacl
 
 or [download source code](https://github.com/dchest/tweetnacl-js/releases).
 
