@@ -108,7 +108,7 @@ subarrays of their buffers.
 
 ### Public-key authenticated encryption (box)
 
-Implements *curve25519-xsalsa20-poly1305*.
+Implements *x25519-xsalsa20-poly1305*.
 
 #### nacl.box.keyPair()
 
@@ -208,7 +208,7 @@ Length of overhead added to secret box compared to original message.
 
 ### Scalar multiplication
 
-Implements *curve25519*.
+Implements *x25519*.
 
 #### nacl.scalarMult(n, p)
 
