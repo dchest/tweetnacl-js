@@ -1,11 +1,36 @@
 TweetNaCl.js Changelog
 ======================
 
-v0.15.0
--------
+v1.0.0-rc.1
+-----------
 
-* Use `instanceof Uint8Array` instead of `toString` to check for correct type.
-*
+* **IMPORTANT!** In previous versions, `nacl.secretbox.open` and
+  `nacl.box.open` returned `false` when opening failed (for example, due to
+  using incorrect key, nonce, or when input was maliciously or accidentally
+  modified after encryption). This version instead returns `null`.
+
+  The usual way to check for this condition:
+
+  `if (!result) { ... }`
+
+  is correct and will continue working.
+
+  However, the direct comparison with `false`:
+
+  `if (result == false) { ... }`
+
+  it will no longer work and **will not detect opening failure**. Please check
+  your code for this condition.
+
+  (`nacl.sign.open` always returned `null`, so it is not affected.)
+
+
+* Use `instanceof Uint8Array` instead of `Object.prototype.toString` to check
+  argument types.
+* Removed deprecation checks for `nacl.util` (moved to a
+  [separate package](https://github.com/dchest/tweetnacl-util-js) in v0.14.0).
+* Removed deprecation checks for the old signature API (changed in v0.10.0).
+* Improved benchmarking.
 
 v0.14.5
 -------
