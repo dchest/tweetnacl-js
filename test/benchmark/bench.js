@@ -24,27 +24,47 @@ var getTime = (function () {
 })();
 
 function benchmark(fn, bytes) {
-  var best = Number.MAX_VALUE;
   var elapsed = 0;
   var iterations = 1;
+  var runsPerIteration = 1;
+  // Run once without measuring anything to possibly kick-off JIT.
+  fn();
   while (true) {
-    var startTime = getTime();
-    fn();
-    var diff = getTime() - startTime;
-    if (diff > 0 && diff < best) {
-      best = diff;
+    var startTime = void 0;
+    var diff = void 0;
+    if (runsPerIteration === 1) {
+      // Measure one iteration.
+      startTime = getTime();
+      fn();
+      diff = getTime() - startTime;
     }
+    else {
+      // Measure many iterations.
+      startTime = getTime();
+      for (var i = 0; i < runsPerIteration; i++) {
+        fn();
+      }
+      diff = getTime() - startTime;
+    }
+    // If diff is too small, double the number of iterations
+    // and start over without recording results.
+    if (diff < 1) {
+      runsPerIteration *= 2;
+    }
+    // Otherwise, record the result.
     elapsed += diff;
     if (elapsed > 500 && iterations > 2) {
       break;
     }
-    iterations++;
+    iterations += runsPerIteration;
   }
+  // Calculate average time per iteration.
+  var avg = elapsed / iterations;
   return {
     iterations: iterations,
-    msPerOp: best,
-    opsPerSecond: 1 / (best / 1000),
-    bytesPerSecond: bytes ? 1000 * (bytes * iterations) / (best * iterations) : undefined
+    msPerOp: avg,
+    opsPerSecond: 1000 / avg,
+    bytesPerSecond: bytes ? 1000 * (bytes * iterations) / (avg * iterations) : undefined
   };
 }
 
