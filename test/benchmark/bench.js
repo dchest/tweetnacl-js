@@ -50,6 +50,7 @@ function benchmark(fn, bytes) {
     // and start over without recording results.
     if (diff < 1) {
       runsPerIteration *= 2;
+      continue;
     }
     // Otherwise, record the result.
     elapsed += diff;
