@@ -1404,7 +1404,7 @@ function crypto_box_open(m, c, d, n, y, x) {
   return crypto_box_open_afternm(m, c, d, n, k);
 }
 
-var K = [
+var K = new Uint32Array([
   0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
   0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
   0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
@@ -1445,7 +1445,7 @@ var K = [
   0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
   0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
   0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
-];
+]);
 
 function crypto_hashblocks_hl(hh, hl, m, n) {
   var wh = new Int32Array(16), wl = new Int32Array(16),
