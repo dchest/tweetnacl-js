@@ -83,10 +83,6 @@ You can install TweetNaCl.js via a package manager:
 
     $ npm install tweetnacl
 
-[Bower](http://bower.io):
-
-    $ bower install tweetnacl
-
 or [download source code](https://github.com/dchest/tweetnacl-js/releases).
 
 
