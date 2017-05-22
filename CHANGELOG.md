@@ -1,6 +1,12 @@
 TweetNaCl.js Changelog
 ======================
 
+v1.0.0
+------
+
+No code changes from v1.0.0-rc.1.
+
+
 v1.0.0-rc.1
 -----------
 
