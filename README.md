@@ -480,6 +480,7 @@ Who uses it
 
 Some notable users of TweetNaCl.js:
 
-* [miniLock](http://minilock.io/)
-* [Stellar](https://www.stellar.org/)
 * [MEGA](https://github.com/meganz/webclient)
+* [Peerio](https://www.peerio.com/)
+* [Stellar](https://www.stellar.org/)
+* [miniLock](http://minilock.io/)
