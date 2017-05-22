@@ -1,12 +1,11 @@
 List of TweetNaCl.js authors
 ============================
 
-    Alphabetical order by first name.
     Format: Name (GitHub username or URL)
 
-* AndSDev (@AndSDev)
-* Devi Mandiri (@devi)
 * Dmitry Chestnykh (@dchest)
+* Devi Mandiri (@devi)
+* AndSDev (@AndSDev)
 
 List of authors of third-party public domain code from which TweetNaCl.js code was derived
 ==========================================================================================
