@@ -84,7 +84,7 @@ function verifyForm(form) {
   // Check that algorithm (2 bytes) and fingerprint (8 bytes) exist and match.
   if (binPublicKey.length !== 10 + nacl.sign.publicKeyLength) throw new Error('Bad public key length');
   if (binSignature.length !== 10 + nacl.sign.signatureLength) throw new Error('Bad signature length');
-  if (!nacl.verify(binPublicKey.subarray(0, 9), binSignature.subarray(0, 9)))
+  if (!nacl.verify(binPublicKey.subarray(0, 10), binSignature.subarray(0, 10)))
     throw new Error('Verifying against wrong public key');
 
   // Check algorithm.
