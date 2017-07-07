@@ -67,7 +67,7 @@ TweetNaCl.js has been audited by [Cure53](https://cure53.de/) in January-Februar
 > likely one of the safer and more secure cryptographic tools among its
 > competition.
 
-[Read full audit report](https://dchest.github.io/tweetnacl-js/audits/cure53.pdf)
+[Read full audit report](https://cure53.de/tweetnacl.pdf)
 
 
 Installation
