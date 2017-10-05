@@ -135,7 +135,7 @@ Returns an encrypted and authenticated message, which is
 Authenticates and decrypts the given box with peer's public key, our secret
 key, and the given nonce.
 
-Returns the original message, or `false` if authentication fails.
+Returns the original message, or `null` if authentication fails.
 
 #### nacl.box.before(theirPublicKey, mySecretKey)
 
@@ -187,7 +187,7 @@ Returns an encrypted and authenticated message, which is
 
 Authenticates and decrypts the given secret box using the key and the nonce.
 
-Returns the original message, or `false` if authentication fails.
+Returns the original message, or `null` if authentication fails.
 
 #### nacl.secretbox.keyLength = 32
 
