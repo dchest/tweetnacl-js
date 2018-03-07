@@ -150,23 +150,25 @@ Same as `nacl.box`, but uses a shared key precomputed with `nacl.box.before`.
 
 Same as `nacl.box.open`, but uses a shared key precomputed with `nacl.box.before`.
 
-#### nacl.box.publicKeyLength = 32
+#### Constants
+
+##### nacl.box.publicKeyLength = 32
 
 Length of public key in bytes.
 
-#### nacl.box.secretKeyLength = 32
+##### nacl.box.secretKeyLength = 32
 
 Length of secret key in bytes.
 
-#### nacl.box.sharedKeyLength = 32
+##### nacl.box.sharedKeyLength = 32
 
 Length of precomputed shared key in bytes.
 
-#### nacl.box.nonceLength = 24
+##### nacl.box.nonceLength = 24
 
 Length of nonce in bytes.
 
-#### nacl.box.overheadLength = 16
+##### nacl.box.overheadLength = 16
 
 Length of overhead added to box compared to original message.
 
@@ -189,15 +191,17 @@ Authenticates and decrypts the given secret box using the key and the nonce.
 
 Returns the original message, or `null` if authentication fails.
 
-#### nacl.secretbox.keyLength = 32
+#### Constants
+
+##### nacl.secretbox.keyLength = 32
 
 Length of key in bytes.
 
-#### nacl.secretbox.nonceLength = 24
+##### nacl.secretbox.nonceLength = 24
 
 Length of nonce in bytes.
 
-#### nacl.secretbox.overheadLength = 16
+##### nacl.secretbox.overheadLength = 16
 
 Length of overhead added to secret box compared to original message.
 
@@ -216,11 +220,13 @@ group element.
 Multiplies an integer `n` by a standard group element and returns the resulting
 group element.
 
-#### nacl.scalarMult.scalarLength = 32
+#### Constants
+
+##### nacl.scalarMult.scalarLength = 32
 
 Length of scalar in bytes.
 
-#### nacl.scalarMult.groupElementLength = 32
+##### nacl.scalarMult.groupElementLength = 32
 
 Length of group element in bytes.
 
@@ -271,19 +277,21 @@ Signs the message using the secret key and returns a signature.
 Verifies the signature for the message and returns `true` if verification
 succeeded or `false` if it failed.
 
-#### nacl.sign.publicKeyLength = 32
+#### Constants
+
+##### nacl.sign.publicKeyLength = 32
 
 Length of signing public key in bytes.
 
-#### nacl.sign.secretKeyLength = 64
+##### nacl.sign.secretKeyLength = 64
 
 Length of signing secret key in bytes.
 
-#### nacl.sign.seedLength = 32
+##### nacl.sign.seedLength = 32
 
 Length of seed for `nacl.sign.keyPair.fromSeed` in bytes.
 
-#### nacl.sign.signatureLength = 64
+##### nacl.sign.signatureLength = 64
 
 Length of signature in bytes.
 
@@ -296,7 +304,9 @@ Implements *SHA-512*.
 
 Returns SHA-512 hash of the message.
 
-#### nacl.hash.hashLength = 64
+#### Constants
+
+##### nacl.hash.hashLength = 64
 
 Length of hash in bytes.
 
