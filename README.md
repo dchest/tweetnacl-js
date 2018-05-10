@@ -97,9 +97,10 @@ packages.
 In Node.js v4 and later `Buffer` objects are backed by `Uint8Array`s, so you
 can freely pass them to TweetNaCl.js functions as arguments. The returned
 objects are still `Uint8Array`s, so if you need `Buffer`s, you'll have to
-convert them manually; make sure to convert using copying: `new Buffer(array)`,
-instead of sharing: `new Buffer(array.buffer)`, because some functions return
-subarrays of their buffers.
+convert them manually; make sure to convert using copying: `Buffer.from(array)`
+(or `new Buffer(array)` in Node.js v4 or earlier), instead of sharing:
+`Buffer.from(array.buffer)` (or `new Buffer(array.buffer)` Node 4 or earlier),
+because some functions return subarrays of their buffers.
 
 
 ### Public-key authenticated encryption (box)
