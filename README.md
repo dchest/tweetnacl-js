@@ -15,6 +15,7 @@ Documentation
 * [Overview](#overview)
 * [Audits](#audits)
 * [Installation](#installation)
+* [Examples](#examples)
 * [Usage](#usage)
   * [Public-key authenticated encryption (box)](#public-key-authenticated-encryption-box)
   * [Secret-key authenticated encryption (secretbox)](#secret-key-authenticated-encryption-secretbox)
@@ -84,6 +85,11 @@ You can install TweetNaCl.js via a package manager:
     $ npm install tweetnacl
 
 or [download source code](https://github.com/dchest/tweetnacl-js/releases).
+
+
+Examples
+--------
+You can find usage examples in our [wiki](https://github.com/dchest/tweetnacl-js/wiki/Examples).
 
 
 Usage
