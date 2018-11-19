@@ -1,5 +1,5 @@
 {
-  "name": "tweetnacl",
+  "name": "@liskhq/tweetnacl",
   "version": "1.0.0",
   "description": "Port of TweetNaCl cryptographic library to JavaScript",
   "main": "nacl-fast.js",
