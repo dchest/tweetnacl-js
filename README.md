@@ -422,12 +422,6 @@ To prepare tests for browsers:
 and then open `test/browser/test.html` (or `test/browser/test-fast.html`) to
 run them.
 
-To run headless browser tests with `tape-run` (powered by Electron):
-
-    $ npm run test-browser
-
-(If you get `Error: spawn ENOENT`, install *xvfb*: `sudo apt-get install xvfb`.)
-
 To run tests in both Node and Electron:
 
     $ npm test
