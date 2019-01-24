@@ -31,7 +31,7 @@ declare namespace nacl {
         readonly groupElementLength: number;
     }
 
-    namespace box {
+    namespace boxProps {
         export interface open {
             (msg: Uint8Array, nonce: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array | null;
             after(box: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array | null;
@@ -47,8 +47,8 @@ declare namespace nacl {
         (msg: Uint8Array, nonce: Uint8Array, publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array;
         before(publicKey: Uint8Array, secretKey: Uint8Array): Uint8Array;
         after(msg: Uint8Array, nonce: Uint8Array, key: Uint8Array): Uint8Array;
-        open: box.open;
-        keyPair: box.keyPair;
+        open: boxProps.open;
+        keyPair: boxProps.keyPair;
         readonly publicKeyLength: number;
         readonly secretKeyLength: number;
         readonly sharedKeyLength: number;
@@ -56,7 +56,7 @@ declare namespace nacl {
         readonly overheadLength: number;
     }
 
-    namespace sign {
+    namespace signProps {
         export interface detached {
             (msg: Uint8Array, secretKey: Uint8Array): Uint8Array;
             verify(msg: Uint8Array, sig: Uint8Array, publicKey: Uint8Array): boolean;
@@ -72,8 +72,8 @@ declare namespace nacl {
     export interface sign {
         (msg: Uint8Array, secretKey: Uint8Array): Uint8Array;
         open(signedMsg: Uint8Array, publicKey: Uint8Array): Uint8Array | null;
-        detached: sign.detached;
-        keyPair: sign.keyPair;
+        detached: signProps.detached;
+        keyPair: signProps.keyPair;
         readonly publicKeyLength: number;
         readonly secretKeyLength: number;
         readonly seedLength: number;
