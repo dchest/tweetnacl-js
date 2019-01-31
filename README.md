@@ -487,6 +487,7 @@ Third-party libraries based on TweetNaCl.js
 * [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](http://nacl.cr.yp.to/auth.html)
 * [tweetnacl-sealed-box](https://github.com/whs/tweetnacl-sealed-box) — implementation of [`sealed boxes`](https://download.libsodium.org/doc/public-key_cryptography/sealed_boxes.html)
 * [chloride](https://github.com/dominictarr/chloride) - unified API for various NaCl modules
+* [react-native-tweetnacl](https://github.com/tarun1475/React-Native-Tweetnacl) - implementation of react native bindings for tweetnacl.js 
 
 
 Who uses it
