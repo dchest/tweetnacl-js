@@ -10,12 +10,12 @@ function decodeUTF8(s) {
   return b;
 }
 
-var getTime = (function () {
-  if (typeof performance !== "undefined") {
+var getTime = (function() {
+  if (typeof performance !== 'undefined') {
     return performance.now.bind(performance);
   }
-  if (typeof process !== "undefined" && process.hrtime) {
-    return function () {
+  if (typeof process !== 'undefined' && process.hrtime) {
+    return function() {
       var _a = process.hrtime(), sec = _a[0], nanosec = _a[1];
       return (sec * 1e9 + nanosec) / 1e6;
     };
@@ -29,7 +29,7 @@ function benchmark(fn, bytes) {
   var runsPerIteration = 1;
   // Run once without measuring anything to possibly kick-off JIT.
   fn();
-  while (true) {
+  while (true) { // eslint-disable-line
     var startTime = void 0;
     var diff = void 0;
     if (runsPerIteration === 1) {
@@ -37,8 +37,7 @@ function benchmark(fn, bytes) {
       startTime = getTime();
       fn();
       diff = getTime() - startTime;
-    }
-    else {
+    } else {
       // Measure many iterations.
       startTime = getTime();
       for (var i = 0; i < runsPerIteration; i++) {
