@@ -41,13 +41,13 @@
   },
   "homepage": "https://tweetnacl.js.org",
   "devDependencies": {
-    "browserify": "^13.1.1",
-    "eslint": "^3.12.1",
+    "browserify": "^16.2.3",
+    "eslint": "^5.16.0",
     "faucet": "^0.0.1",
     "tap-browser-color": "^0.1.2",
-    "tape": "^4.6.3",
-    "tweetnacl-util": "^0.13.5",
-    "uglify-js": "^2.7.5"
+    "tape": "^4.10.2",
+    "tweetnacl-util": "^0.15.0",
+    "uglify-js": "^3.6.0"
   },
   "browser": {
     "buffer": false,
