@@ -42,7 +42,7 @@
   "homepage": "https://tweetnacl.js.org",
   "devDependencies": {
     "browserify": "^16.2.3",
-    "eslint": "^5.16.0",
+    "eslint": "^6.0.1",
     "faucet": "^0.0.1",
     "tap-browser-color": "^0.1.2",
     "tape": "^4.10.2",
