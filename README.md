@@ -490,6 +490,5 @@ Some notable users of TweetNaCl.js:
 
 * [GitHub](https://github.com)
 * [MEGA](https://github.com/meganz/webclient)
-* [Peerio](https://www.peerio.com/)
 * [Stellar](https://www.stellar.org/)
 * [miniLock](http://minilock.io/)
