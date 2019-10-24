@@ -833,7 +833,6 @@ function crypto_sign_open(m, sm, n, pk) {
   var p = [gf(), gf(), gf(), gf()],
       q = [gf(), gf(), gf(), gf()];
 
-  mlen = -1;
   if (n < 64) return -1;
 
   if (unpackneg(q, pk)) return -1;
