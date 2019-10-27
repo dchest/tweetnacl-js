@@ -6,6 +6,7 @@ List of TweetNaCl.js authors
 * Dmitry Chestnykh (@dchest)
 * Devi Mandiri (@devi)
 * AndSDev (@AndSDev)
+* Iheb Khemissi (@ikhemissi)
 
 List of authors of third-party public domain code from which TweetNaCl.js code was derived
 ==========================================================================================

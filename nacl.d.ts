@@ -38,7 +38,7 @@ declare namespace nacl {
         }
 
         export interface keyPair {
-            (): BoxKeyPair;
+            (): Promise<BoxKeyPair>;
             fromSecretKey(secretKey: Uint8Array): BoxKeyPair;
         }
     }
@@ -63,9 +63,9 @@ declare namespace nacl {
         }
 
         export interface keyPair {
-            (): SignKeyPair;
+            (): Promise<SignKeyPair>;
             fromSecretKey(secretKey: Uint8Array): SignKeyPair;
-            fromSeed(secretKey: Uint8Array): SignKeyPair;
+            fromSeed(secretKey: Uint8Array): Promise<SignKeyPair>;
         }
     }
 
@@ -87,12 +87,12 @@ declare namespace nacl {
 }
 
 declare interface nacl {
-    randomBytes(n: number): Uint8Array;
+    randomBytes(n: number): Promise<Uint8Array>;
     secretbox: nacl.secretbox;
     scalarMult: nacl.scalarMult;
     box: nacl.box;
     sign: nacl.sign;
     hash: nacl.hash;
     verify(x: Uint8Array, y: Uint8Array): boolean;
-    setPRNG(fn: (x: Uint8Array, n: number) => void): void;
+    setPRNG(fn: (x: Uint8Array, n: number) => void | Promise<void>): void;
 }

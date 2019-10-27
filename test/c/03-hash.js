@@ -21,8 +21,8 @@ function chash(msg, callback) {
 }
 
 test('nacl.hash (C)', function(t) {
-  function check(num) {
-    var msg = nacl.randomBytes(num);
+  async function check(num) {
+    var msg = await nacl.randomBytes(num);
     var h = nacl.hash(msg);
     var hexH = (new Buffer(h)).toString('hex');
     chash(new Buffer(msg), function(hexCH) {

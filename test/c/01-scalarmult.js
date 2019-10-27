@@ -21,8 +21,8 @@ test('nacl.scalarMult (C)', function(t) {
     secretKey: nacl.util.decodeBase64('5g1pBmI3HL5GAjtt3/2FZDQVfGSMNohngN7OVSizBVE=')
   };
 
-  function check(num) {
-    var k2 = nacl.box.keyPair();
+  async function check(num) {
+    var k2 = await nacl.box.keyPair();
     var q1 = nacl.scalarMult(k1.secretKey, k2.publicKey);
     var q2 = nacl.scalarMult(k2.secretKey, k1.publicKey);
 

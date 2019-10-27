@@ -115,8 +115,8 @@ Implements *x25519-xsalsa20-poly1305*.
 
 #### nacl.box.keyPair()
 
-Generates a new random key pair for box and returns it as an object with
-`publicKey` and `secretKey` members:
+Generates a new random key pair for box and returns it as an object (wrapped 
+within a Promise) with `publicKey` and `secretKey` members:
 
     {
        publicKey: ...,  // Uint8Array with 32-byte public key
@@ -244,8 +244,8 @@ Implements [ed25519](http://ed25519.cr.yp.to).
 
 #### nacl.sign.keyPair()
 
-Generates new random key pair for signing and returns it as an object with
-`publicKey` and `secretKey` members:
+Generates new random key pair for signing and returns it as an object (wrapped 
+within a Promise) with `publicKey` and `secretKey` members:
 
     {
        publicKey: ...,  // Uint8Array with 32-byte public key
@@ -260,7 +260,8 @@ Returns a signing key pair with public key corresponding to the given
 
 #### nacl.sign.keyPair.fromSeed(seed)
 
-Returns a new signing key pair generated deterministically from a 32-byte seed.
+Returns a new signing key pair generated deterministically from a 32-byte seed,
+the key pair will be wrapped within a Promise.
 The seed must contain enough entropy to be secure. This method is not
 recommended for general use: instead, use `nacl.sign.keyPair` to generate a new
 key pair from a random seed.
@@ -322,8 +323,8 @@ Length of hash in bytes.
 
 #### nacl.randomBytes(length)
 
-Returns a `Uint8Array` of the given length containing random bytes of
-cryptographic quality.
+Returns a Promise that resolves to a `Uint8Array` of the given length 
+containing random bytes of cryptographic quality.
 
 **Implementation note**
 
@@ -354,6 +355,8 @@ TweetNaCl.js like this:
 
 Note that `nacl.setPRNG` *completely replaces* internal random byte generator
 with the one provided.
+If the function you passed to `nacl.setPRNG` returns a Promise, `nacl.randomBytes`
+will wait for it to resolve before using its value (the random bytes).
 
 
 ### Constant-time comparison

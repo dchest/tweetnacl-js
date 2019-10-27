@@ -1,11 +1,14 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var test = require('tape');
+const nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
+const tape = require('tape');
+const tapePromise = require('tape-promise').default;
 
-var nonce = new Uint8Array(nacl.secretbox.nonceLength);
-var key = new Uint8Array(nacl.secretbox.keyLength);
-var msg = new Uint8Array(10);
+const test = tapePromise(tape);
 
-var arr = [1,2,3];
+const nonce = new Uint8Array(nacl.secretbox.nonceLength);
+const key = new Uint8Array(nacl.secretbox.keyLength);
+const msg = new Uint8Array(10);
+
+const arr = [1,2,3];
 
 test('input type check', function(t) {
   t.throws(function() { nacl.secretbox(arr, nonce, key); }, TypeError);
@@ -58,7 +61,7 @@ test('input type check', function(t) {
   t.throws(function() { nacl.sign.detached.verify(msg, key, arr); }, TypeError);
 
   t.throws(function() { nacl.sign.keyPair.fromSecretKey(arr); }, TypeError);
-  t.throws(function() { nacl.sign.keyPair.fromSeed(arr); }, TypeError);
+  t.rejects(function() { return nacl.sign.keyPair.fromSeed(arr); }, TypeError);
 
   t.throws(function() { nacl.hash(arr); }, TypeError);
 

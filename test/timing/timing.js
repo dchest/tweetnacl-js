@@ -5,7 +5,7 @@ var test = require('tape');
 
 var hex = function(x) { return Buffer.from(x).toString('hex'); }
 
-test('nacl.scalarMult timings', function(t) {
+test('nacl.scalarMult timings', async function(t) {
   function measure(x, prev) {
     var avgdiff = 0;
     for (var k = 0; k < 10; k++) {
@@ -22,9 +22,9 @@ test('nacl.scalarMult timings', function(t) {
   }
 
   var diffs = [];
-  var z, prev = nacl.scalarMult.base(nacl.randomBytes(32));
+  var z, prev = nacl.scalarMult.base(await nacl.randomBytes(32));
   for (var i = 0; i < 10; i++) {
-    var x = nacl.randomBytes(32);
+    var x = await nacl.randomBytes(32);
     if (i % 2 === 0) {
       for (var k = 0; k < 16; k++) x[k] = 0;
     } else if (i % 2 === 3) {

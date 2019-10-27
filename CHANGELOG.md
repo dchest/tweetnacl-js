@@ -1,6 +1,31 @@
 TweetNaCl.js Changelog
 ======================
 
+v2.0.0
+------
+
+Make `randomBytes` and its dependant functions `async`.
+This will allow using the library with custom secure random number generators (e.g. mobile) via `setPRNG`.
+
+Example:
+```javascript
+tweetnacl.setPRNG(async (uint8Array, randomBytesLength) => {
+  const randomBytesBuffer = await myNativeRandomBytesGenerator(randomBytesLength);
+
+  // Copy randomBytesBuffer to uint8Array
+  // Cleanup
+});
+```
+
+The signature of the following public methods have changed to make them `async` (return a Promise):
+- nacl.randomBytes()
+- nacl.box.keyPair()
+- nacl.sign.keyPair()
+- nacl.sign.keyPair.fromSeed()
+
+As a result, the library will now require ECMAScript 2017, and IE11 support is dropped in this version.
+
+
 v1.0.0
 ------
 

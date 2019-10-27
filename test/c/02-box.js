@@ -23,13 +23,13 @@ function cbox(msg, sk, pk, n, callback) {
   p.stdin.end();
 }
 
-test('nacl.box (C)', function(t) {
-  var k1 = nacl.box.keyPair();
+test('nacl.box (C)', async function(t) {
+  var k1 = await nacl.box.keyPair();
 
-  function check(num, maxNum, next) {
-    var sk2 = nacl.randomBytes(nacl.box.secretKeyLength);
-    var msg = nacl.randomBytes(num);
-    var nonce = nacl.randomBytes(24);
+  async function check(num, maxNum, next) {
+    var sk2 = await nacl.randomBytes(nacl.box.secretKeyLength);
+    var msg = await nacl.randomBytes(num);
+    var nonce = await nacl.randomBytes(24);
     var box = nacl.util.encodeBase64(nacl.box(msg, nonce, k1.publicKey, sk2));
     cbox(new Buffer(msg), sk2, k1.publicKey, nonce, function(boxFromC) {
       t.equal(box, boxFromC, 'boxes should be equal');

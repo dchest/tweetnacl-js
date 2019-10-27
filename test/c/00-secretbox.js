@@ -29,8 +29,8 @@ test('nacl.secretbox (C)', function(t) {
   for (i = 0; i < 32; i++) k[i] = i;
   for (i = 0; i < 24; i++) n[i] = i;
 
-  function check(num, maxNum, next) {
-    var msg = nacl.randomBytes(num);
+  async function check(num, maxNum, next) {
+    var msg = await nacl.randomBytes(num);
     var box = nacl.util.encodeBase64(nacl.secretbox(msg, n, k));
     csecretbox(new Buffer(msg), n, k, function(boxFromC) {
       t.equal(box, boxFromC, 'secretboxes should be equal');

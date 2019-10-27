@@ -22,9 +22,9 @@ function csign(sk, msg, callback) {
 }
 
 test('nacl.sign (C)', function(t) {
-  function check(num) {
-    var keys = nacl.sign.keyPair();
-    var msg = nacl.randomBytes(num);
+  async function check(num) {
+    var keys = await nacl.sign.keyPair();
+    var msg = await nacl.randomBytes(num);
     var signedMsg = nacl.util.encodeBase64(nacl.sign(msg, keys.secretKey));
     csign(keys.secretKey, new Buffer(msg), function(signedFromC) {
       t.equal(signedMsg, signedFromC, 'signed messages should be equal');

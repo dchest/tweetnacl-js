@@ -179,8 +179,8 @@ function box_seal_open_benchmark() {
   }, msg.length));
 }
 
-function sign_open_benchmark() {
-  var k = nacl.sign.keyPair();
+async function sign_open_benchmark() {
+  var k = await nacl.sign.keyPair();
   var sk = k.secretKey;
   var pk = k.publicKey;
   var msg = decodeUTF8((new Array(128)).join('a'));

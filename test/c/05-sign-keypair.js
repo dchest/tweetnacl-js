@@ -31,11 +31,11 @@ function csignkeypair(callback) {
 
 test('nacl.sign (C) with keypair from C', function(t) {
   function check(num) {
-    csignkeypair(function(hexSecretKey) {
+    csignkeypair(async function(hexSecretKey) {
       var secretKey = new Uint8Array(nacl.sign.secretKeyLength);
       var b = new Buffer(hexSecretKey, 'hex');
       for (var i = 0; i < b.length; i++) secretKey[i] = b[i];
-      var msg = nacl.randomBytes(num);
+      var msg = await nacl.randomBytes(num);
       var signedMsg = nacl.util.encodeBase64(nacl.sign(msg, secretKey));
       csign(secretKey, new Buffer(msg), function(signedFromC) {
         t.equal(signedMsg, signedFromC, 'signed messages should be equal');

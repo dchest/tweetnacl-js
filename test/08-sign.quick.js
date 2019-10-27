@@ -1,49 +1,52 @@
 var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
 nacl.util = require('tweetnacl-util');
-var test = require('tape');
+const tape = require('tape');
+const tapePromise = require('tape-promise').default;
+
+const test = tapePromise(tape);
 
 var enc = nacl.util.encodeBase64;
 
-test('nacl.sign.keyPair', function(t) {
-  var keys = nacl.sign.keyPair();
+test('nacl.sign.keyPair', async function(t) {
+  var keys = await nacl.sign.keyPair();
   t.ok(keys.secretKey && keys.secretKey.length === nacl.sign.secretKeyLength, 'has secret key');
   t.ok(keys.publicKey && keys.publicKey.length === nacl.sign.publicKeyLength, 'has public key');
   t.notEqual(enc(keys.secretKey), enc(keys.publicKey));
-  var newKeys = nacl.sign.keyPair();
+  var newKeys = await nacl.sign.keyPair();
   t.notEqual(enc(newKeys.secretKey), enc(keys.secretKey), 'two keys differ');
   t.end();
 });
 
-test('nacl.sign.keyPair.fromSecretKey', function(t) {
-  var k1 = nacl.sign.keyPair();
+test('nacl.sign.keyPair.fromSecretKey', async function(t) {
+  var k1 = await nacl.sign.keyPair();
   var k2 = nacl.sign.keyPair.fromSecretKey(k1.secretKey);
   t.equal(enc(k2.secretKey), enc(k1.secretKey));
   t.equal(enc(k2.publicKey), enc(k1.publicKey));
   t.end();
 });
 
-test('nacl.sign.keyPair.fromSeed', function(t) {
-  var seed = nacl.randomBytes(nacl.sign.seedLength);
-  var k1 = nacl.sign.keyPair.fromSeed(seed);
-  var k2 = nacl.sign.keyPair.fromSeed(seed);
+test('nacl.sign.keyPair.fromSeed', async function(t) {
+  var seed = await nacl.randomBytes(nacl.sign.seedLength);
+  var k1 = await nacl.sign.keyPair.fromSeed(seed);
+  var k2 = await nacl.sign.keyPair.fromSeed(seed);
   t.equal(k1.secretKey.length, nacl.sign.secretKeyLength);
   t.equal(k1.publicKey.length, nacl.sign.publicKeyLength);
   t.equal(k2.secretKey.length, nacl.sign.secretKeyLength);
   t.equal(k2.publicKey.length, nacl.sign.publicKeyLength);
   t.equal(enc(k2.secretKey), enc(k1.secretKey));
   t.equal(enc(k2.publicKey), enc(k1.publicKey));
-  var seed2 = nacl.randomBytes(nacl.sign.seedLength);
-  var k3 = nacl.sign.keyPair.fromSeed(seed2);
+  var seed2 = await nacl.randomBytes(nacl.sign.seedLength);
+  var k3 = await nacl.sign.keyPair.fromSeed(seed2);
   t.equal(k3.secretKey.length, nacl.sign.secretKeyLength);
   t.equal(k3.publicKey.length, nacl.sign.publicKeyLength);
   t.notEqual(enc(k3.secretKey), enc(k1.secretKey));
   t.notEqual(enc(k3.publicKey), enc(k1.publicKey));
-  t.throws(function() { nacl.sign.keyPair.fromSeed(seed2.subarray(0, 16)); }, Error, 'should throw error for wrong seed size');
+  t.rejects(function() { return nacl.sign.keyPair.fromSeed(seed2.subarray(0, 16)); }, Error, 'should throw error for wrong seed size');
   t.end();
 });
 
-test('nacl.sign and nacl.sign.open', function(t) {
-  var k = nacl.sign.keyPair();
+test('nacl.sign and nacl.sign.open', async function(t) {
+  var k = await nacl.sign.keyPair();
   var m = new Uint8Array(100);
   var i;
   for (i = 0; i < m.length; i++) m[i] = i & 0xff;
@@ -61,8 +64,8 @@ test('nacl.sign and nacl.sign.open', function(t) {
   t.end();
 });
 
-test('nacl.sign.detached and nacl.sign.detached.verify', function(t) {
-  var k = nacl.sign.keyPair();
+test('nacl.sign.detached and nacl.sign.detached.verify', async function(t) {
+  var k = await nacl.sign.keyPair();
   var m = new Uint8Array(100);
   var i;
   for (i = 0; i < m.length; i++) m[i] = i & 0xff;

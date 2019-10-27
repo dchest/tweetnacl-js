@@ -1,8 +1,13 @@
 {
+  'root': true,
+  'parserOptions': {
+    'ecmaVersion': 2017
+  },
   'env': {                           // http://eslint.org/docs/user-guide/configuring.html#specifying-environments
     'node': true,
     'browser': true,
-    'shared-node-browser': true
+    'shared-node-browser': true,
+    'es6': true
   },
   'globals': {
     'Uint8Array': true,

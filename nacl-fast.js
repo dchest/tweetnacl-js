@@ -1378,8 +1378,8 @@ function crypto_scalarmult_base(q, n) {
   return crypto_scalarmult(q, n, _9);
 }
 
-function crypto_box_keypair(y, x) {
-  randombytes(x, 32);
+async function crypto_box_keypair(y, x) {
+  await Promise.resolve(randombytes(x, 32));
   return crypto_scalarmult_base(y, x);
 }
 
@@ -1914,12 +1914,12 @@ function scalarbase(p, s) {
   scalarmult(p, q, s);
 }
 
-function crypto_sign_keypair(pk, sk, seeded) {
+async function crypto_sign_keypair(pk, sk, seeded) {
   var d = new Uint8Array(64);
   var p = [gf(), gf(), gf(), gf()];
   var i;
 
-  if (!seeded) randombytes(sk, 32);
+  if (!seeded) await Promise.resolve(randombytes(sk, 32));
   crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
@@ -2154,9 +2154,9 @@ function cleanup(arr) {
   for (var i = 0; i < arr.length; i++) arr[i] = 0;
 }
 
-nacl.randomBytes = function(n) {
+nacl.randomBytes = async function(n) {
   var b = new Uint8Array(n);
-  randombytes(b, n);
+  await Promise.resolve(randombytes(b, n));
   return b;
 };
 
@@ -2227,10 +2227,10 @@ nacl.box.open = function(msg, nonce, publicKey, secretKey) {
 
 nacl.box.open.after = nacl.secretbox.open;
 
-nacl.box.keyPair = function() {
+nacl.box.keyPair = async function() {
   var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
   var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
-  crypto_box_keypair(pk, sk);
+  await crypto_box_keypair(pk, sk);
   return {publicKey: pk, secretKey: sk};
 };
 
@@ -2291,10 +2291,10 @@ nacl.sign.detached.verify = function(msg, sig, publicKey) {
   return (crypto_sign_open(m, sm, sm.length, publicKey) >= 0);
 };
 
-nacl.sign.keyPair = function() {
+nacl.sign.keyPair = async function() {
   var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
   var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
-  crypto_sign_keypair(pk, sk);
+  await crypto_sign_keypair(pk, sk);
   return {publicKey: pk, secretKey: sk};
 };
 
@@ -2307,14 +2307,14 @@ nacl.sign.keyPair.fromSecretKey = function(secretKey) {
   return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
 };
 
-nacl.sign.keyPair.fromSeed = function(seed) {
+nacl.sign.keyPair.fromSeed = async function(seed) {
   checkArrayTypes(seed);
   if (seed.length !== crypto_sign_SEEDBYTES)
     throw new Error('bad seed size');
   var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
   var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
   for (var i = 0; i < 32; i++) sk[i] = seed[i];
-  crypto_sign_keypair(pk, sk, true);
+  await crypto_sign_keypair(pk, sk, true);
   return {publicKey: pk, secretKey: sk};
 };
 
