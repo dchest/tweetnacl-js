@@ -87,6 +87,27 @@ You can install TweetNaCl.js via a package manager:
 or [download source code](https://github.com/dchest/tweetnacl-js/releases).
 
 
+
+Migration from tweetnacl@1
+--------
+In this version 2, the signature of the following methods have changed 
+to become `async function` (they return a `Promise`).
+Please make sure to add an `await` before you call any of them in order 
+to get the key pair or the `Uint8Array`:
+
+- `nacl.randomBytes()`
+- `nacl.box.keyPair()`
+- `nacl.sign.keyPair()`
+- `nacl.sign.keyPair.fromSeed()`
+
+The signature of `nacl.setPRNG` also changed to allow passing either 
+a regular function (like in tweetnacl@1) or a function that returns a Promise like async functions.
+
+Please make sure your runtime environment supports `async/await` (introduced in ES2017):
+- Browsers: https://caniuse.com/#feat=async-functions
+- NodeJS: https://node.green/#ES2017-features-async-functions
+
+
 Examples
 --------
 You can find usage examples in our [wiki](https://github.com/dchest/tweetnacl-js/wiki/Examples).
@@ -103,9 +124,8 @@ packages.
 In Node.js v4 and later `Buffer` objects are backed by `Uint8Array`s, so you
 can freely pass them to TweetNaCl.js functions as arguments. The returned
 objects are still `Uint8Array`s, so if you need `Buffer`s, you'll have to
-convert them manually; make sure to convert using copying: `Buffer.from(array)`
-(or `new Buffer(array)` in Node.js v4 or earlier), instead of sharing:
-`Buffer.from(array.buffer)` (or `new Buffer(array.buffer)` Node 4 or earlier),
+convert them manually; make sure to convert using copying: `Buffer.from(array)`, 
+instead of sharing: `Buffer.from(array.buffer)`,
 because some functions return subarrays of their buffers.
 
 
