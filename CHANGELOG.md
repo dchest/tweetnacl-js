@@ -1,6 +1,20 @@
 TweetNaCl.js Changelog
 ======================
 
+v1.0.2
+------
+
+Exported more internal undocumented functions for
+third-party projects that rely on low-level interface,
+(something users of TweetNaCl shouldn't care about).
+
+
+v1.0.1
+------
+
+Updated documentation and typings.
+
+
 v1.0.0
 ------
 
