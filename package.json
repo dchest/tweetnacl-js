@@ -42,12 +42,12 @@
   "homepage": "https://tweetnacl.js.org",
   "devDependencies": {
     "browserify": "^16.2.3",
-    "eslint": "^6.0.1",
+    "eslint": "^6.8.0",
     "faucet": "^0.0.1",
     "tap-browser-color": "^0.1.2",
-    "tape": "^4.10.2",
+    "tape": "^4.13.0",
     "tweetnacl-util": "^0.15.0",
-    "uglify-js": "^3.6.0"
+    "uglify-js": "^3.7.5"
   },
   "browser": {
     "buffer": false,
