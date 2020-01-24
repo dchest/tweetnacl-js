@@ -1178,3 +1178,5 @@ nacl.setPRNG = function(fn) {
 })();
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : typeof self !== 'undefined' ? (self.nacl = self.nacl || {}) : nacl);
+
+export default nacl;

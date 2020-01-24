@@ -3,11 +3,13 @@
   "version": "1.0.1",
   "description": "Port of TweetNaCl cryptographic library to JavaScript",
   "main": "nacl-fast.js",
+  "module": "nacl-fast.mjs",
   "types": "nacl.d.ts",
   "directories": {
     "test": "test"
   },
   "scripts": {
+    "build-esm": "cp nacl.js nacl.mjs && echo '\nexport default nacl;' >> nacl.mjs && cp nacl-fast.js nacl-fast.mjs && echo '\nexport default nacl;' >> nacl-fast.mjs",
     "build": "uglifyjs nacl.js -c -m -o nacl.min.js && uglifyjs nacl-fast.js -c -m -o nacl-fast.min.js",
     "test-node": "tape test/*.js | faucet",
     "test-node-all": "make -C test/c && tape test/*.js test/c/*.js | faucet",
