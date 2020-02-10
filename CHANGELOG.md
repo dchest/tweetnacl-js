@@ -1,6 +1,19 @@
 TweetNaCl.js Changelog
 ======================
 
+v1.0.3
+------
+
+***IMPORTANT BUG FIX***. Due to a bug in calculating carry in
+modulo reduction that used bit operations on integers larger than
+32 bits, `nacl.sign` or `nacl.sign.detached` could have created
+incorrect signatures.
+
+This only affects signing, not verification.
+
+Thanks to @valerini on GitHub for finding and reporting the bug.
+
+
 v1.0.2
 ------
 
