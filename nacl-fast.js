@@ -1940,7 +1940,7 @@ function modL(r, x) {
     carry = 0;
     for (j = i - 32, k = i - 12; j < k; ++j) {
       x[j] += carry - 16 * x[i] * L[j - (i - 32)];
-      carry = (x[j] + 128) >> 8;
+      carry = Math.floor((x[j] + 128) / 256);
       x[j] -= carry * 256;
     }
     x[j] += carry;
