@@ -312,7 +312,7 @@ window["promise"+(test+1)] = window["promise"+(test++)]
 				//->	Alise's secretKey:  90440c464b9d4365feac64c1facc3fc6473deafe03884815e1ab8d042537407e , AlicesKeypair.secretKey.length:  32
 
 				var BobsRandomSeed = nacl.randomBytes(32);
-				var BobsKeypair 	= nacl.box.keyPair.fromSecretKey(AlicesRandomSeed);
+				var BobsKeypair 	= nacl.box.keyPair.fromSecretKey(BobsRandomSeed);
 				console.log("Bob's publicKey: ", toHexString(BobsKeypair.publicKey), ", BobsKeypair.publicKey.length: ", BobsKeypair.publicKey.length);
 				//->	Bob's publicKey:  f779cbddc7ae411fb8085f4cdf452b8b7743ef85d14d45280645a8dba8823925 , BobsKeypair.publicKey.length:  32
 				console.log("Bob's secretKey: ", toHexString(BobsKeypair.secretKey), ", BobsKeypair.secretKey.length: ", BobsKeypair.secretKey.length);
@@ -1751,7 +1751,7 @@ function AddPow(post)
 	return post;
 }
 
-/*
+
 //		TEST:
 window["promise"+(test+1)] = window["promise"+(test++)]
 .then(
@@ -1791,7 +1791,7 @@ window["promise"+(test+1)] = window["promise"+(test++)]
 		);
 	}
 );
-*/
+
 
 function AddSignatureToThePost(post_object, index, valid_captcha_guess)
 {
