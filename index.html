@@ -6,7 +6,7 @@
 </head>
 
 <body>
-	Смари, что творится там, в консоли (клавиша F12). Алсо, смари "исходный кот".<br>
+	Client-side posts-validation for <a href="https://github.com/username1565/nanoboard/">Nanoboard</a>. See console.log (F12-button). Also, see the "source code".<br>
 	<div id="captcha_div" style="display: none;">
 	<img id="current_captcha" src=""></img><br>
 	<input id="the_current_captcha_answer" type="text" maxlength="5" title="?abcefgijknopqrsvxyz3478" value="ixr3"><br>
@@ -224,7 +224,7 @@ window["promise"+(test+1)] = window["promise"+(test++)]
 				CheckCaptchaAndAddSignatureToThePost(post_with_POW)					->	show captcha, wait the input of answer this, and sign the post, then.
 */
 
-//		+	- опционально - симметричное шифрование/дешифрование salsa20
+//		+	- optionally - symmetric encryption/decryption, salsa20
 //		nacl.secretbox(message, nonce, key)		//Encrypts and authenticates message using the key and the nonce. The nonce must be unique for each distinct message for this key.
 //		nacl.secretbox.open(box, nonce, key)	//Authenticates and decrypts the given secret box using the key and the nonce.
 window["promise"+(test+1)] = window["promise"+(test++)]
