@@ -1966,40 +1966,58 @@ function reduce(r) {
   modL(r, x);
 }
 
-// Note: difference from C - smlen returned, not passed as argument.
-function crypto_sign(sm, m, n, sk) {
+// Note: difference from C - smlen returned, not passed as argument. With direct==true working uses secret key directly in hash. When rnd (64 bytes) passed, sm must be n+128.
+function crypto_sign(sm, m, n, sk, direct, rnd) {
+	direct 	=	( typeof direct === 'undefined' ) ? false : true;	//false by default, if not true or something else. direct = true when secret key need to use directly in hash.
+	rnd		=	( typeof rnd	=== 'undefined' ) ? false : rnd;	//optionally random, 64 bytes.
   var d = new Uint8Array(64), h = new Uint8Array(64), r = new Uint8Array(64);
   var i, j, x = new Float64Array(64);
   var p = [gf(), gf(), gf(), gf()];
 
-  crypto_hash(d, sk, 32);
-  d[0] &= 248;
-  d[31] &= 127;
-  d[31] |= 64;
+  if(direct === false && rnd === false){
+	crypto_hash(d, sk, 32);
+	d[0] &= 248;
+	d[31] &= 127;
+	d[31] |= 64;
 
-  var smlen = n + 64;
-  for (i = 0; i < n; i++) sm[64 + i] = m[i];
-  for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
+	var smlen = n + 64;
+  }else if( rnd !== false ){
+    // Hash separation.
+    sm[0] = 0xfe;
+    for (i = 1; i < 32; i++) sm[i] = 0xff;
+    for (i = 0; i < 32; i++) sm[32 + i] = sk[i];		//secret key
+  }
+  
+  for (i = 0; i < n; i++) sm[64 + i] = m[i];			//message
+  if(rnd === false) {
+	for (i = 0; i < 32; i++) sm[32 + i] = ( (direct === false) ? d[32 + i] : sk[i] );
+  } else {
+	for (i = 0; i < 64; i++) sm[n + 64 + i] = rnd[i];	//random suffix
+  }
 
-  crypto_hash(r, sm.subarray(32), n+32);
+  crypto_hash(r, ( (rnd !== false) ? sm : sm.subarray(32) ), ( (rnd !== false) ? (n+128) : (n+32) ) );
   reduce(r);
   scalarbase(p, r);
   pack(sm, p);
 
-  for (i = 32; i < 64; i++) sm[i] = sk[i];
+  if(direct === false && rnd === false){	   for (i = 32; i < 64; i++){ sm[i] = sk[i]; } }else{    for (i = 0; i < 32; i++) sm[i + 32] = sk[32 + i];  }
+
   crypto_hash(h, sm, n + 64);
   reduce(h);
-
+  if(rnd !== false){
+	for (i = 0; i < 64; i++) sm[n + 64 + i] = 0;		// Wipe out random suffix.
+  }
+  var src = ((direct === false && rnd === false) ? d : sk);
   for (i = 0; i < 64; i++) x[i] = 0;
   for (i = 0; i < 32; i++) x[i] = r[i];
   for (i = 0; i < 32; i++) {
     for (j = 0; j < 32; j++) {
-      x[i+j] += h[i] * d[j];
+      x[i+j] += h[i] * src[j];
     }
   }
 
-  modL(sm.subarray(32), x);
-  return smlen;
+  if(rnd === false) { modL(sm.subarray(32), x); } else { modL(sm.subarray(32, n + 64), x); }
+  return ( (direct === false && rnd === false) ? smlen : (n+64) );
 }
 
 function unpackneg(r, p) {
@@ -2388,4 +2406,253 @@ nacl.setPRNG = function(fn) {
   }
 })();
 
+
+
+
+
+
+
+/*
+console.log('To understand the following changes:')
+console.log(''	+	"1. Let's generate two nacl keys, secretKey and publicKey, as one random box-keyPair:");
+	var NewKeyPair = nacl.box.keyPair();
+	console.log(
+			''	+	'Generate new, random, box-keyPair (secretKey32 + publicKey32). '
+		,	'\n'	+	'NewKeyPair.secretKey ('+NewKeyPair.secretKey.length+' bytes):', 		NewKeyPair.secretKey
+		,	'\n' 	+ 	'NewKeyPair.publicKey ('+NewKeyPair.publicKey.length+' bytes): ',		NewKeyPair.publicKey
+	);
+console.log(''	+	'2. You can see two different Uint8Arrays, with length 32 bytes. This is a bytes of secretKey and publicKey. This keys can be used to encrypt and decrypt data, using nacl.box.');
+console.log('\n\n'	+	'3. Also, public key, can be generated from specified public key, and this is equals:');
+	var SecondKeyPair = nacl.box.keyPair.fromSecretKey(NewKeyPair.secretKey);
+	console.log(
+			''		+	'Generate publicKey32 from specified SecretKey32, generated in previous box-keyPair (32 + 32 bytes).'
+		,	'\n'	+	'nacl.box.keyPair.fromSecretKey(NewKeyPair.secretKey).publicKey: ', SecondKeyPair.publicKey
+		,	'\n'	+	'compare this, with previous publicKey. '	+	'(NewKeyPair.publicKey.toString() === SecondKeyPair.publicKey.toString()):',
+			(NewKeyPair.publicKey.toString() === SecondKeyPair.publicKey.toString())
+		,	'\n'	+	'This is the same publicKey.'
+	);
+
+console.log('\n\n'	+	'Hm... Ok... But... We can not sign the message, by secretKey, and verify the signature with THIS publicKey...');
+console.log(''	+	'Why?');
+
+console.log('\n\n'	+	"4. Let's try to generate keyPair to sign the message.");
+	var NewSignKeyPair = nacl.sign.keyPair();
+	console.log(
+			''		+	'Generate keyPair to sign the messages (secretKey.length === 64 bytes, not 32 bytes):'
+		,	'\n'	+	'NewSignKeyPair.secretKey ('+NewSignKeyPair.secretKey.length+' bytes):', 		NewSignKeyPair.secretKey
+		,	'\n' 	+ 	'NewSignKeyPair.publicKey ('+NewSignKeyPair.publicKey.length+' bytes): ',		NewSignKeyPair.publicKey
+		,	'\n'	+	'Here, as you can see, secretKey.length === 64, not 32 bytes.'
+	);
+console.log(''		+	'The secretKey is too long (64 bytes) and contains the generated publicKey, as the second part of this (last 32 bytes of this secretKey).');
+console.log('\n\n'	+	'Hm... Try to generate keyPair for signing messages, from previous generated 32-bytes secretKey...');
+console.log(''		+	'nacl.sign.keyPair.fromSecretKey = function(secretKey) - accept 64-bytes secretKey, and previous generated NewKeyPair.secretKey (32 bytes) can not be used there.');
+	var SecondSignKeyPair = nacl.sign.keyPair.fromSeed(NewKeyPair.secretKey);	//crypto_sign_SEEDBYTES = 32, and this seems, like secretKey
+	console.log(
+			'\n\n'	+	'5. Try to use previous generated secretKey32, as seed, to get publicKey from this:'
+		,	'\n'	+	'SecondSignKeyPair.secretKey ('+SecondSignKeyPair.secretKey.length+' bytes):', 		SecondSignKeyPair.secretKey
+		,	'\n' 	+ 	'SecondSignKeyPair.publicKey ('+SecondSignKeyPair.publicKey.length+' bytes): ',		SecondSignKeyPair.publicKey
+		,	'\n'	+	'compare public keys: (NewKeyPair.publicKey.toString() === SecondSignKeyPair.publicKey.toString())',
+		(NewKeyPair.publicKey.toString() === SecondSignKeyPair.publicKey.toString()) //false!
+		,	'\n'	+	'false! publicKey\'s are different!'
+	);
+console.log('\n\n'	+	'As we can see, from previous secretKey bytes (32 bytes), as from seed, was been generated long secretKey (64 bytes),');
+console.log(''		+	'and this is contains another publicKey in the second part of this. Also, publicKey was not corresponded with previous calculated publicKey.');
+
+console.log('\n\n'	+	"6. Let's combine previous generated secretKey (32 bytes) and publicKey (32 bytes) into one long secretKey (64 bytes):");
+    var NewLongSecretKey64 = new Uint8Array((NewKeyPair.secretKey).length + (NewKeyPair.publicKey).length);			//64 bytes Uint8Array for long secretKey
+    NewLongSecretKey64.set(	(NewKeyPair.secretKey)													);				//priv
+    NewLongSecretKey64.set(	(NewKeyPair.publicKey), 	(NewKeyPair.secretKey).length				);				//+pub
+	console.log(''	+	'Combine (NewKeyPair.secretKey + NewKeyPair.publicKey), length(32 + 32 bytes). NewLongSecretKey64 ('+NewLongSecretKey64.length+' bytes):', NewLongSecretKey64	);				
+console.log('\n\n'	+	'Seems, like, maybe, now, we can use this to generate the same keypair, after specify this as long secretKey,');
+console.log(''		+	'by using nacl.sign.keyPair.fromSecretKey = function(secretKey)	//accept 64 secretKey');
+	var ThirdSignKeyPair = nacl.sign.keyPair.fromSecretKey(NewLongSecretKey64);	//crypto_sign_SEEDBYTES = 32, and this seems, like secretKey
+	console.log(
+			'\n\n'	+	'7. Try to using combined 64-bytes secretKey, as 32-bytes box-secretKey + 32-bytes box-publicKey'
+		,	'\n'	+	'ThirdSignKeyPair.secretKey ('+ThirdSignKeyPair.secretKey.length+' bytes):', 		ThirdSignKeyPair.secretKey
+		,	'\n' 	+ 	'ThirdSignKeyPair.publicKey ('+ThirdSignKeyPair.publicKey.length+' bytes): ',		ThirdSignKeyPair.publicKey
+		,	'\n'	+	'compare public keys: (NewKeyPair.publicKey.toString() === ThirdSignKeyPair.publicKey.toString())',
+		(NewKeyPair.publicKey.toString() === ThirdSignKeyPair.publicKey.toString())
+		, 	'\n'	+	'Seems like success, and publicKey is corresponding with previous generated box-publicKey (32 bytes), '+
+						'which was been specified as second part of 64-bytes secretKey...'
+	);
+
+console.log('\n\n'	+	'8. Try to sign the message, and verify signature, with ThirdSignKeyPair:');
+	var SignedMessage = nacl.sign(new TextEncoder().encode('message_text_to_sign'), ThirdSignKeyPair.secretKey);
+	console.log(
+			''		+	'Try to sign message and verify signature.'
+		,	'\n'	+	'SignedMessage ('+SignedMessage.length+' bytes):', 				SignedMessage		//signature was been generated...
+	);
+	console.log(
+		''		+	'Try to verify signature with previous generated public key'
+		,			'nacl.sign.open(SignedMessage, ThirdSignKeyPair.publicKey):'																		,	//but
+					nacl.sign.open(SignedMessage, ThirdSignKeyPair.publicKey)																			,	//null!
+			'\n'	+	"(nacl.sign.open(SignedMessage, ThirdSignKeyPair.publicKey).toString() === new TextEncoder().encode('message_text_to_sign'))"	,	//and
+		(																																					//not verified
+				( nacl.sign.open(SignedMessage, ThirdSignKeyPair.publicKey) !== null )
+			&&	( nacl.sign.open(SignedMessage, ThirdSignKeyPair.publicKey).toString() === new TextEncoder().encode('message_text_to_sign').toString() )
+		)
+		, '\n'	+	'Not verified, Because ThirdSignKeyPair.publicKey this is not equals with SecondSignKeyPair.publicKey'
+	);
+	
+console.log('\n\n'	+	'9. Try to sign the message, and verify signature, with SecondSignKeyPair:');
+	var SecondSignedMessage = nacl.sign(
+		new TextEncoder().encode('message_text_to_sign'),
+		SecondSignKeyPair.secretKey
+	);
+	console.log(
+			''		+	'Try to sign message and verify signature.'
+		,	'SecondSignedMessage ('+SecondSignedMessage.length+' bytes):', 			SecondSignedMessage		 //signature was been generated...
+	);
+	console.log(
+			''		+	'Try to verify signature with SecondSignKeyPair'
+			,			'nacl.sign.open(SecondSignedMessage, SecondSignKeyPair.publicKey):'	,
+						nacl.sign.open(SecondSignedMessage, SecondSignKeyPair.publicKey)	,
+			"(nacl.sign.open(SecondSignedMessage, SecondSignKeyPair.publicKey).toString() === new TextEncoder().encode('message_text_to_sign').toString())",
+			(
+				( nacl.sign.open(SecondSignedMessage, SecondSignKeyPair.publicKey).toString() !== null )
+			&&	( nacl.sign.open(SecondSignedMessage, SecondSignKeyPair.publicKey).toString() === new TextEncoder().encode('message_text_to_sign').toString() )
+			)
+			,	'\n'	+	'Signature was been verified, because bytes of text was been returned.'
+	); //And verified, because bytes of text was been returned.
+
+
+	
+	
+console.log(
+			'\n\n'	+	'_________________________________________________________________________________' + 
+						'All this seems, like need to use two pubkeys (first pubkey for encryption, and second pubkey for signing the messages)...'
+);
+console.log('The following code, allow to sign messages with privkey, and verify the signature by using nacl.box.keyPair-publicKey.');
+console.log('\n'	+	'			Warning! The function "crypto_sign" was been modified with saving the full backward-compatibility. See comments there.');
+*/
+
+
+
+
+
+
+
+//_______________________________________________________________________________________________________________________________________
+//		Add ability to sign messages by 32-bytes secretKey, and verify this by 32-bytes publicKey.
+//		Pubkey can be computed from secretKey direcly, by using nacl.box.keyPair.fromSecretKey(secretKey_bytes_Uint8Array),
+//		or generated by using nacl.box.keyPair()
+//			
+//			Warning! The function "crypto_sign" was been modified with saving the full backward-compatibility. See comments there.
+//_______________________________________________________________________________________________________________________________________
+
+// Converts Curve25519 public key back to Ed25519 public key.
+// edwardsY = (montgomeryX - 1) / (montgomeryX + 1)
+function convertPublicKey(pk) {
+  var z = new Uint8Array(32),
+      x = gf(), a = gf(), b = gf();
+
+  unpack25519(x, pk);
+
+  A(a, x, gf1);
+  Z(b, x, gf1);
+  inv25519(a, a);
+  M(a, a, b);
+
+  pack25519(z, a);
+  return z;
+}
+
+//	Write in variable "sm", the signed message "m", with length "n",
+//	singed by 32-bytes secretKey "sk", and with adding the optional random "opt_random" (64 bytes).
+function curve25519_sign(sm, m, n, sk, opt_rnd) {
+  // If opt_rnd is provided, sm must have n + 128,
+  // otherwise it must have n + 64 bytes.
+
+  // Convert Curve25519 secret key into Ed25519 secret key (includes pub key).
+  var edsk = new Uint8Array(64);													//create new Uint8Array with length 64 bytes
+  var p = [gf(), gf(), gf(), gf()];													//initialize p, by calling gf() 4 times.
+
+  for (var i = 0; i < 32; i++) edsk[i] = sk[i];										//write secret key in edsk-array
+  // Ensure private key is in the correct format.									//working with secret-key
+  edsk[0] &= 248;
+  edsk[31] &= 127;
+  edsk[31] |= 64;
+
+  scalarbase(p, edsk);
+  pack(edsk.subarray(32), p);
+
+  // Remember sign bit.
+  var signBit = edsk[63] & 128;
+  var smlen;
+
+  if (opt_rnd) {																//if optional random "opt_rnd" specified
+    smlen = crypto_sign(sm, m, n, edsk, true, opt_rnd);								//sign using secretKey "directly" and add "optional random"
+  } else {																		//else
+    smlen = crypto_sign(sm, m, n, edsk, true);										//sign using secretKey "directly" and without "optional random"
+  }
+
+  sm[63] |= signBit;						// Copy sign bit from public key into signature.
+  return smlen;
+}
+
+function curve25519_sign_open(m, sm, n, pk) {
+  var edpk = convertPublicKey(pk);			// Convert Curve25519 public key into Ed25519 public key.
+  edpk[31] |= sm[63] & 128;  				// Restore sign bit from signature.
+  sm[63] &= 127;  							// Remove sign bit from signature.
+  return crypto_sign_open(m, sm, n, edpk);	// Verify signed message.
+}
+
+//sign with 32-bytes secretKey, and verify by 32-bytes publicKey
+nacl.sign32 = function(secretKey, msg, opt_random) {											//with "secretKey" (32 bytes), sign the message "msg" (with optional random "opt_random")
+  checkArrayTypes(secretKey, msg);																//check types is Uint8Arrays
+  if (secretKey.length !== 32) throw new Error('wrong secret key length');						//check length of secretKey (32 bytes).
+  if (opt_random) {																				//if "optional random" specified
+    checkArrayTypes(opt_random);																	//check is Uint8Array
+    if (opt_random.length !== 64) throw new Error('wrong random data length');						//check length (64 bytes)
+  }
+  var buf = new Uint8Array((opt_random ? 128 : 64) + msg.length);								//new buffer with length (64 or 128 bytes + msg.length).
+  curve25519_sign(buf, msg, msg.length, secretKey, opt_random);									//sign "msg" by "secretKey", and put "signature" in "buf"
+  var signature = new Uint8Array(64);															//create new Uint8Array with length 64 for signagure
+  for (var i = 0; i < signature.length; i++) signature[i] = buf[i];								//fill signature there
+  return signature;																				//and return this signature.
+};
+
+//verify by 32-bytes publicKey, after signing with 32-bytes secretKey
+nacl.verify32 = function(publicKey, msg, signature) {											//with "publicKey" (32 bytes) verify for message "msg", the specified "signature"
+  checkArrayTypes(msg, signature, publicKey);													//check is this Uint8Arrays
+  if (signature.length !== 64) throw new Error('wrong signature length');						//if "signature" length not 64 bytes - error
+  if (publicKey.length !== 32) throw new Error('wrong public key length');						//if "publicKey" length not 32 bytes - eroor
+  var sm = new Uint8Array(64 + msg.length);														//create array for signed message with length 64 + message length.
+  var m = new Uint8Array(64 + msg.length);														//create message array 64 bytes + message length.
+  var i;																						//i
+  for (i = 0; i < 64; i++) sm[i] = signature[i];												//fill 64 bytes from "signature"
+  for (i = 0; i < msg.length; i++) sm[i+64] = msg[i];											//fill message bytes
+  return (curve25519_sign_open(m, sm, sm.length, publicKey) >= 0);								//and return result of verification signature for message, with specified publicKey.
+};
+
 })(typeof module !== 'undefined' && module.exports ? module.exports : (self.nacl = self.nacl || {}));
+
+
+
+
+/*
+//		TEST:
+console.log('\n\n'	+	'______________________________________\n' + 'TEST sign32-verify32:');
+//test nacl.sign32(secretKey, msg, opt_random) and nacl.verify32(publicKey, msg, signature):
+//	var NewKeyPair = nacl.box.keyPair();				//using nacl.box.keyPair to generate secretKey and publicKey
+	var NewKeyPair = nacl.box.keyPair.fromSecretKey(	//or, generate keypair (get public key) - from specified secretKey
+		new Uint8Array(
+			[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]	//32 bytes
+		)
+	);
+	console.log('NewKeyPair: ', NewKeyPair);
+	var signature = nacl.sign32(
+			NewKeyPair.secretKey
+		,	new TextEncoder().encode('message_text_to_sign')
+		,	window.crypto.getRandomValues(new Uint8Array(64))	//if this will be commented, then signature is static.
+	);
+	console.log(	'signature ('+signature.length+' bytes):', 			signature								); //signature was been generated...
+	console.log(
+		'nacl.verify32(NewKeyPair.publicKey, signature)',
+		nacl.verify32(
+				NewKeyPair.publicKey									//publicKey (32 bytes) from secretKey (32 bytes)
+			,	new TextEncoder().encode('message_text_to_sign')		//encoded bytes of signed message text
+			,	signature												//signature
+		)
+	); //And verified, because bytes of text was been returned.
+*/
