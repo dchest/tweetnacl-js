@@ -1,8 +1,10 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import test from 'tap-esm';
+import util from 'tweetnacl-util';
+nacl.util = util;
 
-var specVectors = require('./data/hash.spec');
+import specVectors from './data/hash.spec.js';
 
 var enc = nacl.util.encodeBase64;
 

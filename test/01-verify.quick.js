@@ -1,5 +1,6 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import test from 'tap-esm';
 
 test('nacl.verify', function(t) {
   t.ok(nacl.verify(new Uint8Array(1), new Uint8Array(1)), 'equal arrays of length 1 should verify');

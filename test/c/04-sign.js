@@ -1,11 +1,16 @@
-var nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var spawn = require('child_process').spawn;
-var path = require('path');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import util from 'tweetnacl-util';
+nacl.util = util;
+import { spawn } from 'child_process';
+import path from 'path';
+import url from 'url';
+import test from 'tap-esm';
+
+var __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 function csign(sk, msg, callback) {
-  var hexsk = (new Buffer(sk)).toString('hex');
+  var hexsk = (Buffer.from(sk)).toString('hex');
   var p = spawn(path.resolve(__dirname, 'csign'), [hexsk]);
   var result = [];
   p.stdout.on('data', function(data) {
@@ -26,7 +31,7 @@ test('nacl.sign (C)', function(t) {
     var keys = nacl.sign.keyPair();
     var msg = nacl.randomBytes(num);
     var signedMsg = nacl.util.encodeBase64(nacl.sign(msg, keys.secretKey));
-    csign(keys.secretKey, new Buffer(msg), function(signedFromC) {
+    csign(keys.secretKey, Buffer.from(msg), function(signedFromC) {
       t.equal(signedMsg, signedFromC, 'signed messages should be equal');
       var openedMsg = nacl.sign.open(nacl.util.decodeBase64(signedFromC), keys.publicKey);
       t.notEqual(openedMsg, null, 'open should succeed');

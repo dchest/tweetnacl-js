@@ -1,8 +1,10 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import test from 'tap-esm';
+import util from 'tweetnacl-util';
+nacl.util = util;
 
-var randomVectors = require('./data/box.random');
+import randomVectors from './data/box.random.js';
 
 var enc = nacl.util.encodeBase64,
     dec = nacl.util.decodeBase64;

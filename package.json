@@ -13,10 +13,10 @@
     "test": "test"
   },
   "scripts": {
-    "test-node": "tape test/*.js | faucet",
-    "test-node-all": "make -C test/c && tape test/*.js test/c/*.js | faucet",
+    "test-node": "node test | faucet",
+    "test-node-c": "make -C test/c && node --trace-deprecation test/c | faucet",
     "build-test-browser": "browserify test/browser/init.js test/*.js | uglifyjs -c -m -o test/browser/_bundle.js 2>/dev/null && browserify test/browser/init.js test/*.quick.js | uglifyjs -c -m -o test/browser/_bundle-quick.js 2>/dev/null",
-    "test": "npm run test-node-all",
+    "test": "npm run test-node && npm run test-node-c",
     "bench": "node test/benchmark/bench.js",
     "lint": "eslint nacl.js nacl-fast.js test/*.js test/benchmark/*.js"
   },
@@ -49,7 +49,7 @@
     "eslint": "^6.8.0",
     "faucet": "^0.0.1",
     "tap-browser-color": "^0.1.2",
-    "tape": "^4.13.0",
+    "tap-esm": "^1.4.1",
     "tweetnacl-util": "^0.15.0"
   },
   "browser": {

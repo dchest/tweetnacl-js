@@ -1,12 +1,17 @@
-var nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var spawn = require('child_process').spawn;
-var path = require('path');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import util from 'tweetnacl-util';
+nacl.util = util;
+import { spawn } from 'child_process';
+import path from 'path';
+import url from 'url';
+import test from 'tap-esm';
+
+var __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 function csecretbox(msg, n, k, callback) {
-  var hexk = (new Buffer(k)).toString('hex');
-  var hexn = (new Buffer(n)).toString('hex');
+  var hexk = (Buffer.from(k)).toString('hex');
+  var hexn = (Buffer.from(n)).toString('hex');
   var p = spawn(path.resolve(__dirname, 'csecretbox'), [hexk, hexn]);
   var result = [];
   p.stdout.on('data', function(data) {
@@ -32,7 +37,7 @@ test('nacl.secretbox (C)', function(t) {
   function check(num, maxNum, next) {
     var msg = nacl.randomBytes(num);
     var box = nacl.util.encodeBase64(nacl.secretbox(msg, n, k));
-    csecretbox(new Buffer(msg), n, k, function(boxFromC) {
+    csecretbox(Buffer.from(msg), n, k, function(boxFromC) {
       t.equal(box, boxFromC, 'secretboxes should be equal');
       t.notEqual(nacl.secretbox.open(nacl.util.decodeBase64(boxFromC), n, k), false, 'opening should succeed');
       if (num >= maxNum) {

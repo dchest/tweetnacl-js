@@ -1,6 +1,8 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import test from 'tap-esm';
+import util from 'tweetnacl-util';
+nacl.util = util;
 
 var enc = nacl.util.encodeBase64;
 
@@ -50,7 +52,7 @@ test('nacl.sign and nacl.sign.open', function(t) {
   var sm = nacl.sign(m, k.secretKey);
   t.ok(sm.length > m.length, 'signed message length should be greater than message length');
   var om = nacl.sign.open(sm, k.publicKey);
-  t.deepEqual(om, m);
+  t.arrayEqual(om, m);
   t.throws(function() { nacl.sign.open(sm, k.publicKey.subarray(1)); }, Error, 'throws error for wrong public key size');
   var badPublicKey = new Uint8Array(k.publicKey.length);
   om = nacl.sign.open(sm, badPublicKey);

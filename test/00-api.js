@@ -1,5 +1,6 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import test from 'tap-esm';
 
 var nonce = new Uint8Array(nacl.secretbox.nonceLength);
 var key = new Uint8Array(nacl.secretbox.keyLength);

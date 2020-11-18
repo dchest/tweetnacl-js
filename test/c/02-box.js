@@ -1,13 +1,19 @@
-var nacl = require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var crypto = require('crypto');
-var spawn = require('child_process').spawn;
-var path = require('path');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import util from 'tweetnacl-util';
+nacl.util = util;
+import crypto from 'crypto';
+import { spawn } from 'child_process';
+import path from 'path';
+import url from 'url';
+import test from 'tap-esm';
+
+var __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 function cbox(msg, sk, pk, n, callback) {
-  var hexsk = (new Buffer(sk)).toString('hex');
-  var hexpk = (new Buffer(pk)).toString('hex');
-  var hexn = (new Buffer(n)).toString('hex');
+  var hexsk = (Buffer.from(sk)).toString('hex');
+  var hexpk = (Buffer.from(pk)).toString('hex');
+  var hexn = (Buffer.from(n)).toString('hex');
   var p = spawn(path.resolve(__dirname, 'cbox'), [hexsk, hexpk, hexn]);
   var result = [];
   p.stdout.on('data', function(data) {
@@ -31,7 +37,7 @@ test('nacl.box (C)', function(t) {
     var msg = nacl.randomBytes(num);
     var nonce = nacl.randomBytes(24);
     var box = nacl.util.encodeBase64(nacl.box(msg, nonce, k1.publicKey, sk2));
-    cbox(new Buffer(msg), sk2, k1.publicKey, nonce, function(boxFromC) {
+    cbox(Buffer.from(msg), sk2, k1.publicKey, nonce, function(boxFromC) {
       t.equal(box, boxFromC, 'boxes should be equal');
       t.notEqual(nacl.box.open(nacl.util.decodeBase64(boxFromC), nonce, k1.publicKey, sk2),
                 false, 'opening box should succeed');

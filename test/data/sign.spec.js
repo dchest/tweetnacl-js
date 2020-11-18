@@ -1,5 +1,5 @@
 // Taken from http://ed25519.cr.yp.to/python/sign.input
-module.exports = [
+export default [
 [
 "nWGxne/9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2DXWpgBgrEKt9VL/tPJZAc6DuFy89qmIyWvAhpo9wdRGg==",
 "",
