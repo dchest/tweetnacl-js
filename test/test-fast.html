@@ -6,16 +6,8 @@
 </head>
 <body>
 <h1>TweetNaCl-js Tests (fast)</h1>
-<script type="importmap-shim">
-{
-  "imports": {
-    "tweetnacl/": "./tweetnacl/",
-    "tweetnacl-util": "./tweetnacl-util/nacl-util.js",
-    "tap-esm": "./tap-esm/index.js"
-  }
-}
-</script>
 <script>window.process = { env: { NACL_SRC: 'nacl-fast.js' }}</script>
+<script type="importmap-shim" src="import-map.json"></script>
 <script type="module-shim" src="index.js"></script>
 <script src="es-module-shims/dist/es-module-shims.js"></script>
 </body>

@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "tweetnacl/": "./tweetnacl/",
+    "tweetnacl-util": "./tweetnacl-util/nacl-util.js",
+    "tap-esm": "./tap-esm/index.js"
+  }
+}
