@@ -1,7 +1,9 @@
 // Measures timing variations and displays them
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import util from 'tweetnacl-util';
+nacl.util = util;
+import test from 'tap-esm';
 
 var hex = function(x) { return Buffer.from(x).toString('hex'); }
 
