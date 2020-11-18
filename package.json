@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test-node": "node test | faucet",
-    "test-node-c": "make -C test/c && node --trace-deprecation test/c | faucet",
+    "test-node-c": "make -C test/c && node test/c | faucet",
     "test": "npm run test-node && npm run test-node-c",
     "test-browser": "ecstatic --cache no-cache --port 7357 test",
     "bench": "node test/benchmark/bench.js",
