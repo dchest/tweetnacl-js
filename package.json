@@ -52,6 +52,6 @@
     "es-module-shims": "^0.7.1",
     "faucet": "^0.0.1",
     "tap-esm": "^1.4.1",
-    "tweetnacl-util": "^0.15.0"
+    "tweetnacl-util": "https://github.com/jessetane/tweetnacl-util-js#esm"
   }
 }
