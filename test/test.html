@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>TweetNaCl-js Tests</title>
+</head>
+<body>
+<h1>TweetNaCl-js Tests</h1>
+<script type="importmap-shim">
+{
+  "imports": {
+    "tweetnacl/": "./tweetnacl/",
+    "tweetnacl-util": "./tweetnacl-util/nacl-util.js",
+    "tap-esm": "./tap-esm/index.js"
+  }
+}
+</script>
+<script>process = { env: {}}</script>
+<script type="module-shim" src="index.js"></script>
+<script src="es-module-shims/dist/es-module-shims.js"></script>
+</body>
+</html>

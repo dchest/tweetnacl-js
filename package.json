@@ -15,8 +15,8 @@
   "scripts": {
     "test-node": "node test | faucet",
     "test-node-c": "make -C test/c && node --trace-deprecation test/c | faucet",
-    "build-test-browser": "browserify test/browser/init.js test/*.js | uglifyjs -c -m -o test/browser/_bundle.js 2>/dev/null && browserify test/browser/init.js test/*.quick.js | uglifyjs -c -m -o test/browser/_bundle-quick.js 2>/dev/null",
     "test": "npm run test-node && npm run test-node-c",
+    "test-browser": "ecstatic --cache no-cache --port 7357 test",
     "bench": "node test/benchmark/bench.js",
     "lint": "eslint nacl.js nacl-fast.js test/*.js test/benchmark/*.js"
   },
@@ -45,15 +45,11 @@
   },
   "homepage": "https://tweetnacl.js.org",
   "devDependencies": {
-    "browserify": "^16.2.3",
+    "ecstatic": "^4.1.4",
+    "es-module-shims": "^0.7.1",
     "eslint": "^6.8.0",
     "faucet": "^0.0.1",
-    "tap-browser-color": "^0.1.2",
     "tap-esm": "^1.4.1",
     "tweetnacl-util": "^0.15.0"
-  },
-  "browser": {
-    "buffer": false,
-    "crypto": false
   }
 }
