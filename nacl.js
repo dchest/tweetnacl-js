@@ -1,11 +1,10 @@
-(function(nacl) {
-'use strict';
-
 // Ported in 2014 by Dmitry Chestnykh and Devi Mandiri.
 // Public domain.
 //
 // Implementation derived from TweetNaCl version 20140427.
 // See for details: http://tweetnacl.cr.yp.to/
+
+var nacl = {};
 
 var u64 = function(h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function(init) {
@@ -1147,32 +1146,29 @@ nacl.setPRNG = function(fn) {
   randombytes = fn;
 };
 
-(function() {
-  // Initialize PRNG if environment provides CSPRNG.
-  // If not, methods calling randombytes will throw.
-  var crypto = typeof self !== 'undefined' ? (self.crypto || self.msCrypto) : null;
-  if (crypto && crypto.getRandomValues) {
-    // Browsers.
-    var QUOTA = 65536;
-    nacl.setPRNG(function(x, n) {
-      var i, v = new Uint8Array(n);
-      for (i = 0; i < n; i += QUOTA) {
-        crypto.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
-      }
-      for (i = 0; i < n; i++) x[i] = v[i];
-      cleanup(v);
-    });
-  } else if (typeof require !== 'undefined') {
-    // Node.js.
-    crypto = require('crypto');
-    if (crypto && crypto.randomBytes) {
-      nacl.setPRNG(function(x, n) {
-        var i, v = crypto.randomBytes(n);
-        for (i = 0; i < n; i++) x[i] = v[i];
-        cleanup(v);
-      });
+// Initialize PRNG if environment provides CSPRNG.
+// If not, methods calling randombytes will throw.
+var crypto = typeof window !== 'undefined' ? (window.crypto || window.msCrypto) : null;
+if (crypto) {
+  // Browsers.
+  var QUOTA = 65536;
+  nacl.setPRNG(function(x, n) {
+    var i, v = new Uint8Array(n);
+    for (i = 0; i < n; i += QUOTA) {
+      crypto.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
     }
-  }
-})();
+    for (i = 0; i < n; i++) x[i] = v[i];
+    cleanup(v);
+  });
+} else {
+  // Node.js.
+  crypto = await import('crypto');
+  crypto = crypto.default;
+  nacl.setPRNG(function(x, n) {
+    var i, v = crypto.randomBytes(n);
+    for (i = 0; i < n; i++) x[i] = v[i];
+    cleanup(v);
+  });
+}
 
-})(typeof module !== 'undefined' && module.exports ? module.exports : (self.nacl = self.nacl || {}));
+export default nacl;
