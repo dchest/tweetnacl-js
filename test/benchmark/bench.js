@@ -1,6 +1,6 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var helpers = (typeof require !== 'undefined') ? require('./helpers') : window.helpers;
-var log = helpers.log;
+var nacl = await import('tweetnacl/' + (process.env.NACL_SRC || 'nacl.js'));
+nacl = nacl.default;
+import { log } from './helpers.js';
 
 if (!nacl) throw new Error('nacl not loaded');
 

@@ -1,6 +1,4 @@
 // Test helpers.
-(function(exports) {
-
 function NodeLogger() {
   this.print = function() {
     console.log.apply(console, arguments);
@@ -55,8 +53,8 @@ function BrowserLogger() {
 }
 
 if (typeof window !== 'undefined')
-  exports.log = new BrowserLogger();
+  var log = new BrowserLogger();
 else
-  exports.log = new NodeLogger();
+  log = new NodeLogger();
 
-})(typeof exports !== 'undefined' ? exports : (window.helpers = window.helpers || {}));
+export { log };
