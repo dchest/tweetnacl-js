@@ -8,7 +8,6 @@
     "test": "test"
   },
   "scripts": {
-    "build": "uglifyjs nacl.js -c -m -o nacl.min.js && uglifyjs nacl-fast.js -c -m -o nacl-fast.min.js",
     "test-node": "tape test/*.js | faucet",
     "test-node-all": "make -C test/c && tape test/*.js test/c/*.js | faucet",
     "build-test-browser": "browserify test/browser/init.js test/*.js | uglifyjs -c -m -o test/browser/_bundle.js 2>/dev/null && browserify test/browser/init.js test/*.quick.js | uglifyjs -c -m -o test/browser/_bundle-quick.js 2>/dev/null",
@@ -46,8 +45,7 @@
     "faucet": "^0.0.1",
     "tap-browser-color": "^0.1.2",
     "tape": "^4.13.0",
-    "tweetnacl-util": "^0.15.0",
-    "uglify-js": "^3.7.5"
+    "tweetnacl-util": "^0.15.0"
   },
   "browser": {
     "buffer": false,
