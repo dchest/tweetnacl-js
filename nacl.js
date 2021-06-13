@@ -922,6 +922,7 @@ nacl.lowlevel = {
   L: L,
   pack25519: pack25519,
   unpack25519: unpack25519,
+  pack: pack,
   M: M,
   A: A,
   S: S,
