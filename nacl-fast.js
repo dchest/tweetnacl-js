@@ -2082,6 +2082,9 @@ var crypto_secretbox_KEYBYTES = 32,
     crypto_box_NONCEBYTES = crypto_secretbox_NONCEBYTES,
     crypto_box_ZEROBYTES = crypto_secretbox_ZEROBYTES,
     crypto_box_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES,
+    crypto_sealedbox_NONCEBYTES = crypto_secretbox_NONCEBYTES,
+    crypto_sealedbox_PUBLICKEYBYTES = 32,
+    crypto_sealedbox_SECRETKEYBYTES = 32,
     crypto_sign_BYTES = 64,
     crypto_sign_PUBLICKEYBYTES = 32,
     crypto_sign_SECRETKEYBYTES = 64,
@@ -2124,6 +2127,9 @@ nacl.lowlevel = {
   crypto_box_NONCEBYTES: crypto_box_NONCEBYTES,
   crypto_box_ZEROBYTES: crypto_box_ZEROBYTES,
   crypto_box_BOXZEROBYTES: crypto_box_BOXZEROBYTES,
+  crypto_sealedbox_NONCEBYTES: crypto_sealedbox_NONCEBYTES,
+  crypto_sealedbox_PUBLICKEYBYTES: crypto_sealedbox_PUBLICKEYBYTES,
+  crypto_sealedbox_SECRETKEYBYTES: crypto_sealedbox_SECRETKEYBYTES,
   crypto_sign_BYTES: crypto_sign_BYTES,
   crypto_sign_PUBLICKEYBYTES: crypto_sign_PUBLICKEYBYTES,
   crypto_sign_SECRETKEYBYTES: crypto_sign_SECRETKEYBYTES,
@@ -2157,6 +2163,12 @@ function checkLengths(k, n) {
 function checkBoxLengths(pk, sk) {
   if (pk.length !== crypto_box_PUBLICKEYBYTES) throw new Error('bad public key size');
   if (sk.length !== crypto_box_SECRETKEYBYTES) throw new Error('bad secret key size');
+}
+
+function checkSealedBoxLengths(sk, n, m) {
+  if (sk.length !== crypto_sealedbox_SECRETKEYBYTES) throw new Error('bad secret key size');
+  if (n.length !== crypto_sealedbox_NONCEBYTES) throw new Error('bad nonce size');
+  if (m.length <= crypto_sealedbox_PUBLICKEYBYTES) throw new Error('bad message size');
 }
 
 function checkArrayTypes() {
@@ -2264,6 +2276,33 @@ nacl.box.secretKeyLength = crypto_box_SECRETKEYBYTES;
 nacl.box.sharedKeyLength = crypto_box_BEFORENMBYTES;
 nacl.box.nonceLength = crypto_box_NONCEBYTES;
 nacl.box.overheadLength = nacl.secretbox.overheadLength;
+
+nacl.sealedbox = function(msg, nonce, publicKey) {
+  checkArrayTypes(msg, nonce, publicKey);
+  checkLengths(publicKey, nonce);
+  var ekp = nacl.box.keyPair();
+  var box = nacl.box(msg, nonce, publicKey, ekp.secretKey);
+  for (var i = 0; i < ekp.secretKey.length; i++) ekp.secretKey[i] = 0;
+  var m = new Uint8Array(ekp.publicKey.length + box.length);
+  for (var i = 0; i < ekp.publicKey.length; i++) m[i] = ekp.publicKey[i];
+  for (var i = 0; i < box.length; i++) m[ekp.publicKey.length + i] = box[i];
+  return m;
+}
+
+nacl.sealedbox.open = function(msg, nonce, secretKey) {
+  checkArrayTypes(msg, nonce, secretKey);
+  checkSealedBoxLengths(secretKey, nonce, msg);
+  var epk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+  for (var i = 0; i < epk.length; i++) epk[i] = msg[i];
+  var m = new Uint8Array(msg.length - crypto_box_PUBLICKEYBYTES);
+  for (var i = 0; i < m.length; i++) m[i] = msg[crypto_box_PUBLICKEYBYTES + i];
+  return nacl.box.open(m, nonce, epk, secretKey);
+}
+
+nacl.sealedbox.publicKeyLength = crypto_sealedbox_PUBLICKEYBYTES;
+nacl.sealedbox.secretKeyLength = crypto_sealedbox_SECRETKEYBYTES;
+nacl.sealedbox.nonceLength = crypto_sealedbox_NONCEBYTES;
+nacl.sealedbox.overheadLength = nacl.box.overheadLength + crypto_sealedbox_PUBLICKEYBYTES;
 
 nacl.sign = function(msg, secretKey) {
   checkArrayTypes(msg, secretKey);
