@@ -482,6 +482,7 @@ Third-party libraries based on TweetNaCl.js
 * [ristretto255-js](https://github.com/calibra/ristretto255-js) — implementation of the [ristretto255 group](https://ristretto.group/)
 * [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](http://nacl.cr.yp.to/auth.html)
 * [tweetnacl-sealed-box](https://github.com/TogaTech/tweetnacl-js-sealed-box) — implementation of [`sealed boxes`](https://download.libsodium.org/doc/public-key_cryptography/sealed_boxes.html)
+* [ed2curve](https://github.com/dchest/ed2curve-js) — convert Ed25519 signing key pair to X25519 boxes key pair
 
 
 Who uses it
