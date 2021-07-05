@@ -59,7 +59,7 @@ TweetNaCl.js has been audited by [Cure53](https://cure53.de/) in January-Februar
 
 [Read full audit report](https://cure53.de/tweetnacl.pdf)
 
-While the audit didn't find any bugs, there has been [1 bug](https://github.com/dchest/tweetnacl-js/issues/187) discovered after the audit.
+While the audit didn't find any bugs, there has been [1 bug](https://github.com/dchest/tweetnacl-js/issues/187) discovered and fixed after the audit.
 
 
 Installation
