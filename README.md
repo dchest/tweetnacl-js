@@ -55,20 +55,11 @@ TweetNaCl.js has been audited by [Cure53](https://cure53.de/) in January-Februar
 
 > The overall outcome of this audit signals a particularly positive assessment
 > for TweetNaCl-js, as the testing team was unable to find any security
-> problems in the library. It has to be noted that this is an exceptionally
-> rare result of a source code audit for any project and must be seen as a true
-> testament to a development proceeding with security at its core.
->
-> To reiterate, the TweetNaCl-js project, the source code was found to be
-> bug-free at this point.
->
-> [...]
->
-> In sum, the testing team is happy to recommend the TweetNaCl-js project as
-> likely one of the safer and more secure cryptographic tools among its
-> competition.
+> problems in the library.
 
 [Read full audit report](https://cure53.de/tweetnacl.pdf)
+
+While the audit didn't find any bugs, there has been [1 bug](https://github.com/dchest/tweetnacl-js/issues/187) discovered after the audit.
 
 
 Installation
