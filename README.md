@@ -481,7 +481,7 @@ Third-party libraries based on TweetNaCl.js
 * [nacl-stream](https://github.com/dchest/nacl-stream-js) - streaming encryption
 * [ristretto255-js](https://github.com/calibra/ristretto255-js) — implementation of the [ristretto255 group](https://ristretto.group/)
 * [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](http://nacl.cr.yp.to/auth.html)
-* [tweetnacl-sealed-box](https://github.com/whs/tweetnacl-sealed-box) — implementation of [`sealed boxes`](https://download.libsodium.org/doc/public-key_cryptography/sealed_boxes.html)
+* [tweetnacl-sealed-box](https://github.com/TogaTech/tweetnacl-js-sealed-box) — implementation of [`sealed boxes`](https://download.libsodium.org/doc/public-key_cryptography/sealed_boxes.html)
 
 
 Who uses it
