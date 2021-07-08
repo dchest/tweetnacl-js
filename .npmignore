@@ -1,5 +1,7 @@
 .eslintrc
 .travis.yml
+.npmignore
 bower.json
 test
 yarn.lock
+PULL_REQUEST_TEMPLATE.md
