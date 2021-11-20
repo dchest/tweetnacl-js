@@ -44,7 +44,7 @@ There are two versions, you can use either of them:
   original + high-level API.
 
 * `nacl-fast.js` is like `nacl.js`, but with some functions replaced with
-  faster versions. (Used by default when importing NPM package.)
+  faster versions. (Used by default when importing npm package.)
 
 
 Audits
@@ -378,7 +378,7 @@ Other systems:
 Development and testing
 ------------------------
 
-Install NPM modules needed for development:
+Install npm modules needed for development:
 
     $ npm install
 
@@ -484,4 +484,3 @@ Some notable users of TweetNaCl.js:
 * [GitHub](https://github.com)
 * [MEGA](https://github.com/meganz/webclient)
 * [Stellar](https://www.stellar.org/)
-* [miniLock](https://github.com/kaepora/miniLock)
