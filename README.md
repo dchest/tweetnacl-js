@@ -484,4 +484,4 @@ Some notable users of TweetNaCl.js:
 * [GitHub](https://github.com)
 * [MEGA](https://github.com/meganz/webclient)
 * [Stellar](https://www.stellar.org/)
-* [miniLock](https://github.com/kaepora/miniLock)
+* [Solana](https://solana.com/)
