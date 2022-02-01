@@ -479,9 +479,4 @@ Third-party libraries based on TweetNaCl.js
 Who uses it
 -----------
 
-Some notable users of TweetNaCl.js:
-
-* [GitHub](https://github.com)
-* [MEGA](https://github.com/meganz/webclient)
-* [Stellar](https://www.stellar.org/)
-* [miniLock](https://github.com/kaepora/miniLock)
+Some notable users of TweetNaCl.js are listed on the [associated wiki page](https://github.com/dchest/tweetnacl-js/wiki/Who-uses-TweetNaCl.js).
