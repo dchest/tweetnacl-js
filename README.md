@@ -7,7 +7,7 @@ to JavaScript for modern browsers and Node.js. Public domain.
 [![Build Status](https://travis-ci.org/dchest/tweetnacl-js.svg?branch=master)
 ](https://travis-ci.org/dchest/tweetnacl-js)
 
-Demo: <https://dchest.github.io/tweetnacl-js/>
+Demo: [dchest.github.io/tweetnacl-js/](https://dchest.github.io/tweetnacl-js/)
 
 Documentation
 =============
@@ -88,7 +88,7 @@ Usage
 
 All API functions accept and return bytes as `Uint8Array`s.  If you need to
 encode or decode strings, use functions from
-<https://github.com/dchest/tweetnacl-util-js> or one of the more robust codec
+[github.com/dchest/tweetnacl-util-js](https://github.com/dchest/tweetnacl-util-js) or one of the more robust codec
 packages.
 
 In Node.js v4 and later `Buffer` objects are backed by `Uint8Array`s, so you
