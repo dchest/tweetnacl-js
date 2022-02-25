@@ -5,7 +5,7 @@
 // Public domain.
 //
 // Implementation derived from TweetNaCl version 20140427.
-// See for details: http://tweetnacl.cr.yp.to/
+// See for details: https://tweetnacl.cr.yp.to/
 
 var u64 = function(h, l) { this.hi = h|0 >>> 0; this.lo = l|0 >>> 0; };
 var gf = function(init) {
