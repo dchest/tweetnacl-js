@@ -2,7 +2,7 @@
 
 If your contribution is not trivial (not a typo fix, etc.), we can only accept
 it if you dedicate your copyright for the contribution to the public domain.
-Make sure you understand what it means (see http://unlicense.org/)! If you
+Make sure you understand what it means (see [unlicense.org](https://unlicense.org/))! If you
 agree, please add yourself to AUTHORS.md file, and include the following text
 to your pull request description or a comment in it:
 
