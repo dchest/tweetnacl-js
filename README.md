@@ -432,27 +432,27 @@ Benchmarks
 ----------
 
 For reference, here are benchmarks from MacBook Pro (Retina, 13-inch, Mid 2014)
-laptop with 2.6 GHz Intel Core i5 CPU (Intel) in Chrome 53/OS X and Xiaomi Redmi
+laptop with 2.6 GHz Intel Core i5 CPU (Intel) in Chrome 53/OS X, Xiaomi Redmi
 Note 3 smartphone with 1.8 GHz Qualcomm Snapdragon 650 64-bit CPU (ARM) in
-Chrome 52/Android:
+Chrome 52/Android, and MacBook Air 2020 with Apple M1 SOC (M1) in Chromium 102/macOS.
 
-|               | nacl.js Intel | nacl-fast.js Intel  |   nacl.js ARM | nacl-fast.js ARM  |
-| ------------- |:-------------:|:-------------------:|:-------------:|:-----------------:|
-| salsa20       | 1.3 MB/s      | 128 MB/s            |  0.4 MB/s     |  43 MB/s          |
-| poly1305      | 13 MB/s       | 171 MB/s            |  4 MB/s       |  52 MB/s          |
-| hash          | 4 MB/s        | 34 MB/s             |  0.9 MB/s     |  12 MB/s          |
-| secretbox 1K  | 1113 op/s     | 57583 op/s          |  334 op/s     |  14227 op/s       |
-| box 1K        | 145 op/s      | 718 op/s            |  37 op/s      |  368 op/s         |
-| scalarMult    | 171 op/s      | 733 op/s            |  56 op/s      |  380 op/s         |
-| sign          | 77  op/s      | 200 op/s            |  20 op/s      |  61 op/s          |
-| sign.open     | 39  op/s      | 102  op/s           |  11 op/s      |  31 op/s          |
+|               | nacl.js Intel | nacl-fast.js Intel  |   nacl.js ARM | nacl-fast.js ARM  | nacl-fast.js M1   |
+| ------------- |:-------------:|:-------------------:|:-------------:|:-----------------:|:-----------------:|
+| salsa20       | 1.3 MB/s      | 128 MB/s            |  0.4 MB/s     |  43 MB/s          |  268 MB/s         |
+| poly1305      | 13 MB/s       | 171 MB/s            |  4 MB/s       |  52 MB/s          |  248 MB/s         |
+| hash          | 4 MB/s        | 34 MB/s             |  0.9 MB/s     |  12 MB/s          |  76 MB/s          |
+| secretbox 1K  | 1113 op/s     | 57583 op/s          |  334 op/s     |  14227 op/s       |  54546 op/s       |
+| box 1K        | 145 op/s      | 718 op/s            |  37 op/s      |  368 op/s         |  1836 op/s        |
+| scalarMult    | 171 op/s      | 733 op/s            |  56 op/s      |  380 op/s         |  1882 op/s        |
+| sign          | 77  op/s      | 200 op/s            |  20 op/s      |  61 op/s          |  592 op/s         |
+| sign.open     | 39  op/s      | 102  op/s           |  11 op/s      |  31 op/s          |  300 op/s         |
 
 (You can run benchmarks on your devices by clicking on the links at the bottom
 of the [home page](https://tweetnacl.js.org)).
 
 In short, with *nacl-fast.js* and 1024-byte messages you can expect to encrypt and
 authenticate more than 57000 messages per second on a typical laptop or more than
-14000 messages per second on a $170 smartphone, sign about 200 and verify 100
+14000 messages per second on a $170 smartphone, sign about 500 and verify 300
 messages per second on a laptop or 60 and 30 messages per second on a smartphone,
 per CPU core (with Web Workers you can do these operations in parallel),
 which is good enough for most applications.
