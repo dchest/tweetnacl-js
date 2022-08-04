@@ -53,6 +53,28 @@ function crypto_verify_32(x, xi, y, yi) {
   return vn(x,xi,y,yi,32);
 }
 
+function key_arrays_to_keypair(pk, sk) {
+  var pkArray, skArray;
+  return Object.defineProperties({}, {
+    publicKey: {
+      get: function() {
+        if (pkArray === undefined) {
+          pkArray = Object.freeze(Array.from(pk));
+        }
+        return pkArray;
+      }
+    },
+    secretKey: {
+      get: function() {
+        if (skArray === undefined) {
+          skArray = Object.freeze(Array.from(sk));
+        }
+        return skArray;
+      }
+    }
+  });
+}
+
 function core_salsa20(o, p, k, c) {
   var j0  = c[ 0] & 0xff | (c[ 1] & 0xff)<<8 | (c[ 2] & 0xff)<<16 | (c[ 3] & 0xff)<<24,
       j1  = k[ 0] & 0xff | (k[ 1] & 0xff)<<8 | (k[ 2] & 0xff)<<16 | (k[ 3] & 0xff)<<24,
@@ -2161,8 +2183,16 @@ function checkBoxLengths(pk, sk) {
 
 function checkArrayTypes() {
   for (var i = 0; i < arguments.length; i++) {
-    if (!(arguments[i] instanceof Uint8Array))
-      throw new TypeError('unexpected type, use Uint8Array');
+    if (arguments[i] instanceof Object && typeof arguments[i].length === 'number') {
+      for(var j = 0; j < arguments[i].length; j++) {
+        var value = arguments[i][j];
+        if (typeof value !== 'number' || value < 0 || value > 255) {
+          break;
+        }
+      }
+      continue;
+    }
+    throw new TypeError('unexpected type, expected an array-like object with numerical values between 0-255');
   }
 }
 
@@ -2247,7 +2277,7 @@ nacl.box.keyPair = function() {
   var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
   var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
   crypto_box_keypair(pk, sk);
-  return {publicKey: pk, secretKey: sk};
+  return key_arrays_to_keypair(pk, sk);
 };
 
 nacl.box.keyPair.fromSecretKey = function(secretKey) {
@@ -2256,7 +2286,7 @@ nacl.box.keyPair.fromSecretKey = function(secretKey) {
     throw new Error('bad secret key size');
   var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
   crypto_scalarmult_base(pk, secretKey);
-  return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
+  return key_arrays_to_keypair(pk, new Uint8Array(secretKey));
 };
 
 nacl.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
@@ -2311,7 +2341,7 @@ nacl.sign.keyPair = function() {
   var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
   var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
   crypto_sign_keypair(pk, sk);
-  return {publicKey: pk, secretKey: sk};
+  return key_arrays_to_keypair(pk, sk);
 };
 
 nacl.sign.keyPair.fromSecretKey = function(secretKey) {
@@ -2320,7 +2350,7 @@ nacl.sign.keyPair.fromSecretKey = function(secretKey) {
     throw new Error('bad secret key size');
   var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
   for (var i = 0; i < pk.length; i++) pk[i] = secretKey[32+i];
-  return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
+  return key_arrays_to_keypair(pk, new Uint8Array(secretKey));
 };
 
 nacl.sign.keyPair.fromSeed = function(seed) {
@@ -2331,7 +2361,7 @@ nacl.sign.keyPair.fromSeed = function(seed) {
   var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
   for (var i = 0; i < 32; i++) sk[i] = seed[i];
   crypto_sign_keypair(pk, sk, true);
-  return {publicKey: pk, secretKey: sk};
+  return key_arrays_to_keypair(pk, sk);
 };
 
 nacl.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;

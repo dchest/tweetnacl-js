@@ -14,7 +14,6 @@ test('nacl.hash length', function(t) {
 
 test('nacl.hash exceptions for bad types', function(t) {
   t.throws(function() { nacl.hash('string'); }, TypeError, 'should throw TypeError for string type');
-  t.throws(function() { nacl.hash([1,2,3]); }, TypeError, 'should throw TypeError for array type');
   t.end();
 });
 
