@@ -4,9 +4,6 @@ TweetNaCl.js
 Port of [TweetNaCl](http://tweetnacl.cr.yp.to) / [NaCl](http://nacl.cr.yp.to/)
 to JavaScript for modern browsers and Node.js. Public domain.
 
-[![Build Status](https://travis-ci.org/dchest/tweetnacl-js.svg?branch=master)
-](https://travis-ci.org/dchest/tweetnacl-js)
-
 Demo: <https://dchest.github.io/tweetnacl-js/>
 
 Documentation
