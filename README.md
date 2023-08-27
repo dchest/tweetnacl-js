@@ -11,6 +11,7 @@ Documentation
 
 * [Overview](#overview)
 * [Audits](#audits)
+* [Security Considerations](#security-considerations)
 * [Installation](#installation)
 * [Examples](#examples)
 * [Usage](#usage)
@@ -57,6 +58,48 @@ TweetNaCl.js has been audited by [Cure53](https://cure53.de/) in January-Februar
 [Read full audit report](https://cure53.de/tweetnacl.pdf)
 
 While the audit didn't find any bugs, there has been [1 bug](https://github.com/dchest/tweetnacl-js/issues/187) discovered and fixed after the audit.
+
+
+Security Considerations
+-----------------------
+
+It is important to note that TweetNaCl.js is a low-level library
+that doesn't provide complete security protocols. When designing
+protocols, you should carefully consider the properties of
+underlying primitives.
+
+### No secret key commitment
+
+While XSalsa20-Poly1305, as used in `nacl.secretbox` and `nacl.box`,
+meets the standard notions of privacy and authenticity for a secret-key
+authenticated-encryption scheme using nonces, it is *not key-committing*,
+which means that it is possible to find a ciphertext which decrypts to
+valid plaintexts under two different keys. This may lead to vulnerabilities
+if encrypted messages are used in a context where key commitment is expected.
+
+### Signature malleability
+
+While Ed22519 as originally defined and implemented in `nacl.sign`
+meats the standard notion of unforgeability for a public-key
+signature scheme under chosen-message attacks, it is *malleable*:
+given a signed message, it is possible, without knowing the secret key,
+to create a different signature for the same message that will verify
+under the same public key. This may lead to vulnerabilities if
+signatures are used in a context where malleability is not expected.
+
+### Hash length-extension attacks
+
+The SHA-512 hash function, as implemented by `nacl.hash`, is *not
+resistant* to length-extension attacks.
+
+### Side-channel attacks
+
+While TweetNaCl.js uses algorithmic constant-time operations,
+it is impossible to guarantee that they are physically constant time
+given JavaScript runtimes, JIT compilers, and other factors.
+It is also impossible to guarantee that secret data is physically
+removed from memory during cleanup due to copying garbage
+collectors and optimizing compilers.
 
 
 Installation
