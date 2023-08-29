@@ -65,7 +65,7 @@ Security Considerations
 
 It is important to note that TweetNaCl.js is a low-level library
 that doesn't provide complete security protocols. When designing
-protocols, you should carefully consider the properties of
+protocols, you should carefully consider various properties of
 underlying primitives.
 
 ### No secret key commitment
@@ -80,7 +80,7 @@ if encrypted messages are used in a context where key commitment is expected.
 ### Signature malleability
 
 While Ed22519 as originally defined and implemented in `nacl.sign`
-meats the standard notion of unforgeability for a public-key
+meets the standard notion of unforgeability for a public-key
 signature scheme under chosen-message attacks, it is *malleable*:
 given a signed message, it is possible, without knowing the secret key,
 to create a different signature for the same message that will verify
