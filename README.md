@@ -1,10 +1,10 @@
 TweetNaCl.js
 ============
 
-Port of [TweetNaCl](http://tweetnacl.cr.yp.to) / [NaCl](http://nacl.cr.yp.to/)
+Port of [TweetNaCl](https://tweetnacl.cr.yp.to) / [NaCl](https://nacl.cr.yp.to/)
 to JavaScript for modern browsers and Node.js. Public domain.
 
-Demo: <https://dchest.github.io/tweetnacl-js/>
+Demo: [dchest.github.io/tweetnacl-js/](https://dchest.github.io/tweetnacl-js/)
 
 Documentation
 =============
@@ -128,7 +128,7 @@ Usage
 
 All API functions accept and return bytes as `Uint8Array`s.  If you need to
 encode or decode strings, use functions from
-<https://github.com/dchest/tweetnacl-util-js> or one of the more robust codec
+[github.com/dchest/tweetnacl-util-js](https://github.com/dchest/tweetnacl-util-js) or one of the more robust codec
 packages.
 
 In Node.js v4 and later `Buffer` objects are backed by `Uint8Array`s, so you
@@ -271,7 +271,7 @@ Length of group element in bytes.
 
 ### Signatures
 
-Implements [ed25519](http://ed25519.cr.yp.to).
+Implements [ed25519](https://ed25519.cr.yp.to).
 
 #### nacl.sign.keyPair()
 
@@ -511,7 +511,7 @@ Third-party libraries based on TweetNaCl.js
 * [forward-secrecy](https://github.com/alax/forward-secrecy) — Axolotl ratchet implementation
 * [nacl-stream](https://github.com/dchest/nacl-stream-js) - streaming encryption
 * [ristretto255-js](https://github.com/calibra/ristretto255-js) — implementation of the [ristretto255 group](https://ristretto.group/)
-* [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](http://nacl.cr.yp.to/auth.html)
+* [tweetnacl-auth-js](https://github.com/dchest/tweetnacl-auth-js) — implementation of [`crypto_auth`](https://nacl.cr.yp.to/auth.html)
 * [tweetnacl-js-sealed-box](https://github.com/TogaTech/tweetnacl-js-sealed-box) — fork that adds [`sealed boxes`](https://download.libsodium.org/doc/public-key_cryptography/sealed_boxes.html)
 * [ed2curve](https://github.com/dchest/ed2curve-js) — convert Ed25519 signing key pair to X25519 boxes key pair
 

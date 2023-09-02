@@ -11,7 +11,7 @@ incorrect signatures.
 
 This only affects signing, not verification.
 
-Thanks to @valerini on GitHub for finding and reporting the bug.
+Thanks to [@valerini](https://github.com/valerini) on GitHub for finding and reporting the bug.
 
 
 v1.0.2
@@ -79,7 +79,7 @@ v0.14.5
 v0.14.4
 -------
 
-* Added TypeScript type definitions (contributed by @AndSDev).
+* Added TypeScript type definitions (contributed by [@AndSDev](https://github.com/AndSDev)).
 * Improved benchmarking code.
 
 
@@ -88,14 +88,14 @@ v0.14.3
 
 Fixed a bug in the fast version of Poly1305 and brought it back.
 
-Thanks to @floodyberry for promptly responding and fixing the original C code:
+Thanks to [@floodyberry](https://github.com/floodyberry) for promptly responding and fixing the original C code:
 
 > "The issue was not properly detecting if st->h was >= 2^130 - 5, coupled with
 > [testing mistake] not catching the failure. The chance of the bug affecting
 > anything in the real world is essentially zero luckily, but it's good to have
 > it fixed."
 
-https://github.com/floodyberry/poly1305-donna/issues/2#issuecomment-202698577
+[github.com/floodyberry/poly1305-donna/issues/2#issuecomment-202698577](https://github.com/floodyberry/poly1305-donna/issues/2#issuecomment-202698577)
 
 
 v0.14.2
@@ -122,7 +122,7 @@ v0.14.0
       nacl.util.encodeBase64
 
   If want to continue using them, you can include
-  <https://github.com/dchest/tweetnacl-util-js> package:
+  [github.com/dchest/tweetnacl-util-js](https://github.com/dchest/tweetnacl-util-js) package:
 
       <script src="nacl.min.js"></script>
       <script src="nacl-util.min.js"></script>
@@ -223,7 +223,7 @@ v0.11.0
 
 * Implement `nacl.sign.keyPair.fromSeed` to enable creation of sign key pairs
   deterministically from a 32-byte seed. (It behaves like
-  [libsodium's](http://doc.libsodium.org/public-key_cryptography/public-key_signatures.html)
+  [libsodium's](https://doc.libsodium.org/public-key_cryptography/public-key_signatures)
   `crypto_sign_seed_keypair`: the seed becomes a secret part of the secret key.)
 
 * Fast version now has an improved hash implementation that is 2x-5x faster.
