@@ -1,10 +1,10 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+import * as nacl from '../nacl.js'
+import test from 'tape'
+import util from 'tweetnacl-util'
 
-var specVectors = require('./data/onetimeauth.spec');
+import specVectors from './data/onetimeauth.spec.js'
 
-var enc = nacl.util.encodeBase64;
+var enc = util.encodeBase64;
 
 test('nacl.lowlevel.crypto_onetimeauth specified vectors', function(t) {
   var out = new Uint8Array(16);
