@@ -1,5 +1,5 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-var test = require('tape');
+import * as nacl from '../nacl.js'
+import test from 'tape'
 
 test('nacl.verify', function(t) {
   t.ok(nacl.verify(new Uint8Array(1), new Uint8Array(1)), 'equal arrays of length 1 should verify');

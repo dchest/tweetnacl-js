@@ -1,11 +1,11 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+import * as nacl from '../nacl.js'
+import test from 'tape'
+import util from 'tweetnacl-util'
 
-var specVectors = require('./data/sign.spec');
+import specVectors from './data/sign.spec.js';
 
-var enc = nacl.util.encodeBase64,
-    dec = nacl.util.decodeBase64;
+var enc = util.encodeBase64,
+    dec = util.decodeBase64;
 
 test('nacl.sign and nacl.sign.open specified vectors', function(t) {
   specVectors.forEach(function(vec) {

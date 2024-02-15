@@ -2,8 +2,21 @@
   "name": "tweetnacl",
   "version": "1.0.3",
   "description": "Port of TweetNaCl cryptographic library to JavaScript",
+  "type": "module",
   "main": "nacl-fast.js",
   "types": "nacl.d.ts",
+  "exports": {
+    ".": {
+      "import": "./nacl.js",
+      "require": "./nacl.cjs",
+      "types": "./nacl.d.ts"
+    },
+    "./fast": {
+      "import": "./nacl-fast.js",
+      "require": "./nacl-fast.js",
+      "types": "./nacl.d.ts"
+    }
+  },
   "directories": {
     "test": "test"
   },
@@ -11,7 +24,7 @@
     "build": "uglifyjs nacl.js -c -m -o nacl.min.js && uglifyjs nacl-fast.js -c -m -o nacl-fast.min.js",
     "test-node": "tape test/*.js | faucet",
     "test-node-all": "make -C test/c && tape test/*.js test/c/*.js | faucet",
-    "build-test-browser": "browserify test/browser/init.js test/*.js | uglifyjs -c -m -o test/browser/_bundle.js 2>/dev/null && browserify test/browser/init.js test/*.quick.js | uglifyjs -c -m -o test/browser/_bundle-quick.js 2>/dev/null",
+    "build-test-browser": "browserify test/browser/init.js test/*.js -p esmify | uglifyjs -c -m -o test/browser/_bundle.js 2>/dev/null && browserify test/browser/init.js test/*.quick.js | uglifyjs -c -m -o test/browser/_bundle-quick.js 2>/dev/null",
     "test": "npm run test-node-all",
     "bench": "node test/benchmark/bench.js",
     "lint": "eslint nacl.js nacl-fast.js test/*.js test/benchmark/*.js"
@@ -41,13 +54,15 @@
   },
   "homepage": "https://tweetnacl.js.org",
   "devDependencies": {
-    "browserify": "^16.2.3",
-    "eslint": "^6.8.0",
-    "faucet": "^0.0.1",
+    "browserify": "^16.5.2",
+    "eslint": "^8.56.0",
+    "esmify": "^2.1.1",
+    "faucet": "^0.0.4",
+    "prettier": "3.2.5",
     "tap-browser-color": "^0.1.2",
-    "tape": "^4.13.0",
+    "tape": "^5.7.5",
     "tweetnacl-util": "^0.15.0",
-    "uglify-js": "^3.7.5"
+    "uglify-js": "^3.17.4"
   },
   "browser": {
     "buffer": false,
