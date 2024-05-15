@@ -58,7 +58,7 @@ test('nacl.secretbox with message lengths of 0 to 1024', function(t) {
   for (i = 0; i < key.length; i++) key[i] = i & 0xff;
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
   var fullMsg = new Uint8Array(1024);
-  for (i = 0; i < fullMsg; i++) fullMsg[i] = i & 0xff;
+  for (i = 0; i < fullMsg.length; i++) fullMsg[i] = i & 0xff;
   for (i = 0; i < fullMsg.length; i++) {
     var msg = fullMsg.subarray(0, i);
     var box = nacl.secretbox(msg, nonce, key);
