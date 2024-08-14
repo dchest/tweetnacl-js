@@ -79,7 +79,7 @@ if encrypted messages are used in a context where key commitment is expected.
 
 ### Signature malleability
 
-While Ed22519 as originally defined and implemented in `nacl.sign`
+While Ed25519 as originally defined and implemented in `nacl.sign`
 meets the standard notion of unforgeability for a public-key
 signature scheme under chosen-message attacks, it is *malleable*:
 given a signed message, it is possible, without knowing the secret key,
