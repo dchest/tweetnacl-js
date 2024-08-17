@@ -1,10 +1,10 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+import * as nacl from '../nacl.js'
+import test from 'tape'
+import util from 'tweetnacl-util'
 
-var specVectors = require('./data/hash.spec');
+import specVectors from './data/hash.spec.js';
 
-var enc = nacl.util.encodeBase64;
+var enc = util.encodeBase64;
 
 test('nacl.hash length', function(t) {
   t.equal(nacl.hash(new Uint8Array(0)).length, 64);

@@ -1,8 +1,8 @@
-var nacl = (typeof window !== 'undefined') ? window.nacl : require('../' + (process.env.NACL_SRC || 'nacl.min.js'));
-nacl.util = require('tweetnacl-util');
-var test = require('tape');
+import * as nacl from '../nacl.js'
+import test from 'tape'
+import util from 'tweetnacl-util'
 
-var enc = nacl.util.encodeBase64;
+var enc = util.encodeBase64;
 
 test('nacl.secretbox and nacl.secretbox.open', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
@@ -10,10 +10,10 @@ test('nacl.secretbox and nacl.secretbox.open', function(t) {
   var i;
   for (i = 0; i < key.length; i++) key[i] = i & 0xff;
   for (i = 0; i < nonce.length; i++) nonce[i] = (32+i) & 0xff;
-  var msg = nacl.util.decodeUTF8('message to encrypt');
+  var msg = util.decodeUTF8('message to encrypt');
   var box = nacl.secretbox(msg, nonce, key);
   var openedMsg = nacl.secretbox.open(box, nonce, key);
-  t.equal(nacl.util.encodeUTF8(openedMsg), nacl.util.encodeUTF8(msg), 'opened messages should be equal');
+  t.equal(util.encodeUTF8(openedMsg), util.encodeUTF8(msg), 'opened messages should be equal');
   t.end();
 });
 
@@ -30,10 +30,10 @@ test('nacl.secretbox.open with invalid nonce', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
   for (var i = 0; i < nonce.length; i++) nonce[i] = i & 0xff;
-  var msg = nacl.util.decodeUTF8('message to encrypt');
+  var msg = util.decodeUTF8('message to encrypt');
   var box = nacl.secretbox(msg, nonce, key);
-  t.equal(nacl.util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
-          nacl.util.encodeUTF8(msg));
+  t.equal(util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
+          util.encodeUTF8(msg));
   nonce[0] = 255;
   t.equal(nacl.secretbox.open(box, nonce, key), null);
   t.end();
@@ -43,10 +43,10 @@ test('nacl.secretbox.open with invalid key', function(t) {
   var key = new Uint8Array(nacl.secretbox.keyLength);
   for (var i = 0; i < key.length; i++) key[i] = i & 0xff;
   var nonce = new Uint8Array(nacl.secretbox.nonceLength);
-  var msg = nacl.util.decodeUTF8('message to encrypt');
+  var msg = util.decodeUTF8('message to encrypt');
   var box = nacl.secretbox(msg, nonce, key);
-  t.equal(nacl.util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
-          nacl.util.encodeUTF8(msg));
+  t.equal(util.encodeUTF8(nacl.secretbox.open(box, nonce, key)),
+          util.encodeUTF8(msg));
   key[0] = 255;
   t.equal(nacl.secretbox.open(box, nonce, key), null);
   t.end();
