@@ -8,11 +8,11 @@
 // See for details: http://tweetnacl.cr.yp.to/
 
 function gf() {
-  return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  return new Uint32Array(16);
 }
 
 function gfi(init) {
-  var r = [], i = 0;
+  var r = new Uint32Array(16), i = 0;
   for ( ; i < init.length; i++) r[i] = init[i];
   for ( ; i < 16; i++) r[i] = 0;
   return r;
@@ -1328,7 +1328,7 @@ function pow2523(o, i) {
 
 function crypto_scalarmult(q, n, p) {
   var z = new Uint8Array(32);
-  var x = [] /* 80 */, r, i;
+  var x = new Uint32Array(80), r, i;
   var a = gf(), b = gf(), c = gf(),
       d = gf(), e = gf(), f = gf();
   for (i = 0; i < 31; i++) z[i] = n[i];
@@ -1366,13 +1366,13 @@ function crypto_scalarmult(q, n, p) {
     sel25519(c,d,r);
   }
 
-  var x32 = []; /* 48 */
+  var x32 = new Uint32Array(48);
   for (i = 0; i < 16; i++) {
     x32[i] = c[i];
     x32[i+16] = b[i];
     x32[i+32] = d[i];
   }
-  var x16 = []; /* 64 */
+  var x16 = new Uint32Array(64);
   for (i = 0; i < 16; i++) {
     x16[i] = a[i];
     x16[i+16] = c[i];
@@ -1944,7 +1944,7 @@ function crypto_sign_keypair(pk, sk, seeded) {
   return 0;
 }
 
-var L = [0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10];
+var L = new Uint32Array([0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10]);
 
 function modL(r, x) {
   var carry, i, j, k;
@@ -1972,7 +1972,7 @@ function modL(r, x) {
 }
 
 function reduce(r) {
-  var x = [] /* 64 */, i;
+  var x = new Uint32Array(64), i;
   for (i = 0; i < 64; i++) x[i] = r[i];
   for (i = 0; i < 64; i++) r[i] = 0;
   modL(r, x);
@@ -1981,7 +1981,7 @@ function reduce(r) {
 // Note: difference from C - smlen returned, not passed as argument.
 function crypto_sign(sm, m, n, sk) {
   var d = new Uint8Array(64), h = new Uint8Array(64), r = new Uint8Array(64);
-  var i, j, x = [] /* 64 */;
+  var i, j, x = new Uint32Array(64);
   var p = [gf(), gf(), gf(), gf()];
 
   crypto_hash(d, sk, 32);
