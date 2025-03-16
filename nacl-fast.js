@@ -7,11 +7,16 @@
 // Implementation derived from TweetNaCl version 20140427.
 // See for details: http://tweetnacl.cr.yp.to/
 
-var gf = function(init) {
-  var i, r = new Float64Array(16);
-  if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
+function gf() {
+  return new Uint32Array(16);
+}
+
+function gfi(init) {
+  var r = new Uint32Array(16), i = 0;
+  for ( ; i < init.length; i++) r[i] = init[i];
+  for ( ; i < 16; i++) r[i] = 0;
   return r;
-};
+}
 
 //  Pluggable, initialized in high-level API below.
 var randombytes = function(/* x, n */) { throw new Error('no PRNG'); };
@@ -20,13 +25,13 @@ var _0 = new Uint8Array(16);
 var _9 = new Uint8Array(32); _9[0] = 9;
 
 var gf0 = gf(),
-    gf1 = gf([1]),
-    _121665 = gf([0xdb41, 1]),
-    D = gf([0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203]),
-    D2 = gf([0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406]),
-    X = gf([0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169]),
-    Y = gf([0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666]),
-    I = gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
+    gf1 = gfi([1]),
+    _121665 = gfi([0xdb41, 1]),
+    D = gfi([0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203]),
+    D2 = gfi([0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406]),
+    X = gfi([0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169]),
+    Y = gfi([0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666]),
+    I = gfi([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
 
 function ts64(x, i, h, l) {
   x[i]   = (h >> 24) & 0xff;
@@ -1323,7 +1328,7 @@ function pow2523(o, i) {
 
 function crypto_scalarmult(q, n, p) {
   var z = new Uint8Array(32);
-  var x = new Float64Array(80), r, i;
+  var x = new Uint32Array(80), r, i;
   var a = gf(), b = gf(), c = gf(),
       d = gf(), e = gf(), f = gf();
   for (i = 0; i < 31; i++) z[i] = n[i];
@@ -1360,14 +1365,21 @@ function crypto_scalarmult(q, n, p) {
     sel25519(a,b,r);
     sel25519(c,d,r);
   }
+
+  var x32 = new Uint32Array(48);
   for (i = 0; i < 16; i++) {
-    x[i+16]=a[i];
-    x[i+32]=c[i];
-    x[i+48]=b[i];
-    x[i+64]=d[i];
+    x32[i] = c[i];
+    x32[i+16] = b[i];
+    x32[i+32] = d[i];
   }
-  var x32 = x.subarray(32);
-  var x16 = x.subarray(16);
+  var x16 = new Uint32Array(64);
+  for (i = 0; i < 16; i++) {
+    x16[i] = a[i];
+    x16[i+16] = c[i];
+    x16[i+32] = b[i];
+    x16[i+48] = d[i];
+  }
+
   inv25519(x32,x32);
   M(x16,x16,x32);
   pack25519(q,x16);
@@ -1932,7 +1944,7 @@ function crypto_sign_keypair(pk, sk, seeded) {
   return 0;
 }
 
-var L = new Float64Array([0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10]);
+var L = new Uint32Array([0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10]);
 
 function modL(r, x) {
   var carry, i, j, k;
@@ -1960,7 +1972,7 @@ function modL(r, x) {
 }
 
 function reduce(r) {
-  var x = new Float64Array(64), i;
+  var x = new Uint32Array(64), i;
   for (i = 0; i < 64; i++) x[i] = r[i];
   for (i = 0; i < 64; i++) r[i] = 0;
   modL(r, x);
@@ -1969,7 +1981,7 @@ function reduce(r) {
 // Note: difference from C - smlen returned, not passed as argument.
 function crypto_sign(sm, m, n, sk) {
   var d = new Uint8Array(64), h = new Uint8Array(64), r = new Uint8Array(64);
-  var i, j, x = new Float64Array(64);
+  var i, j, x = new Uint32Array(64);
   var p = [gf(), gf(), gf(), gf()];
 
   crypto_hash(d, sk, 32);
