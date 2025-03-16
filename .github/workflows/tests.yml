@@ -1,4 +1,4 @@
-name: Tests
+name: TweetNaCl Tests and Benchmarks
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
+  main-test:
+    name: Main Test Suite
     runs-on: ubuntu-latest
     
     steps:
@@ -18,61 +19,380 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '22'
         cache: 'yarn'
     
     - name: Install dependencies
       run: yarn install --frozen-lockfile
     
-    - name: Run tests
+    - name: Run all tests
       run: yarn test
+  
+  test-nacl:
+    name: Test nacl.js
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run tests for nacl.js
+      run: NACL_SRC=nacl.js yarn test-node
       
-    # Additional test runs on PRs
-    - name: Run tests with minified fast library
-      if: github.event_name == 'pull_request'
-      run: NACL_SRC=nacl-fast.min.js npm run test-node
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: nacl-test-results
+        path: |
+          test/browser/_bundle.js
+          test/browser/_bundle-quick.js
+
+  test-nacl-fast:
+    name: Test nacl-fast.min.js
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     
-    - name: Run benchmarks on PR
-      if: github.event_name == 'pull_request'
-      id: bench_pr
-      run: |
-        echo "PR_BENCH_RESULT<<EOF" >> $GITHUB_ENV
-        yarn bench | tee bench_pr_results.txt
-        echo "EOF" >> $GITHUB_ENV
-        cat bench_pr_results.txt >> $GITHUB_ENV
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
-    - name: Run benchmarks on master
-      if: github.event_name == 'pull_request'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run tests for nacl-fast.min.js
+      run: NACL_SRC=nacl-fast.min.js yarn test-node
+
+  benchmark-nacl:
+    name: Benchmark nacl.js
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run benchmarks for nacl.js on PR branch
+      run: NACL_SRC=nacl.js yarn bench | tee bench_nacl_pr_results.txt
+    
+    - name: Checkout target branch
       run: |
-        git checkout master
+        git checkout ${{ github.base_ref }}
         yarn install --frozen-lockfile
-        echo "MASTER_BENCH_RESULT<<EOF" >> $GITHUB_ENV
-        yarn bench | tee bench_master_results.txt
-        echo "EOF" >> $GITHUB_ENV
-        cat bench_master_results.txt >> $GITHUB_ENV
     
-    - name: Post benchmark comparison
-      if: github.event_name == 'pull_request'
+    - name: Run benchmarks for nacl.js on target branch
+      run: NACL_SRC=nacl.js yarn bench | tee bench_nacl_target_results.txt
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: nacl-benchmark-results
+        path: |
+          bench_nacl_pr_results.txt
+          bench_nacl_target_results.txt
+    
+    - name: Calculate and post benchmark comparison
       uses: actions/github-script@v6
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          const prBench = process.env.PR_BENCH_RESULT;
-          const masterBench = process.env.MASTER_BENCH_RESULT;
+          const fs = require('fs');
+          const prResults = fs.readFileSync('bench_nacl_pr_results.txt', 'utf8');
+          const targetResults = fs.readFileSync('bench_nacl_target_results.txt', 'utf8');
           
-          const comment = `## Benchmark Comparison
+          // Debug logs
+          console.log('PR Results:');
+          console.log(prResults);
+          console.log('Target Branch Results:');
+          console.log(targetResults);
           
-          ### PR Branch
+          // Parse the benchmark results to extract the operations per second
+          function parseResults(results) {
+            const lines = results.split('\n');
+            const parsedResults = {};
+            
+            for (const line of lines) {
+              // Skip empty lines and non-benchmark lines
+              if (line.trim() === '' || line.includes('yarn run') || line.includes('node test/') || line.includes('Done in')) {
+                continue;
+              }
+              
+              // Only process lines that look like benchmark results
+              if (line.includes('ops/sec')) {
+                // Extract benchmark name - everything before the ops count
+                const benchNameMatch = line.match(/^([^0-9]+)/);
+                if (benchNameMatch) {
+                  const benchName = benchNameMatch[1].trim();
+                  
+                  // Extract ops/sec value
+                  const opsPerSecMatch = line.match(/(\d+\.\d+)\s+ops\/sec/);
+                  if (opsPerSecMatch) {
+                    const opsPerSec = parseFloat(opsPerSecMatch[1]);
+                    parsedResults[benchName] = opsPerSec;
+                    console.log(`Parsed benchmark: ${benchName} = ${opsPerSec} ops/sec`);
+                  }
+                }
+              }
+            }
+            
+            return parsedResults;
+          }
+          
+          // Calculate deltas between PR and target branch
+          function calculateDeltas(prResults, targetResults) {
+            const deltas = {};
+            
+            for (const [benchmark, prValue] of Object.entries(prResults)) {
+              if (targetResults[benchmark]) {
+                const targetValue = targetResults[benchmark];
+                const percentChange = ((prValue - targetValue) / targetValue) * 100;
+                deltas[benchmark] = {
+                  pr: prValue,
+                  target: targetValue,
+                  delta: percentChange.toFixed(2)
+                };
+                console.log(`Delta for ${benchmark}: PR=${prValue}, Target=${targetValue}, Change=${percentChange.toFixed(2)}%`);
+              }
+            }
+            
+            return deltas;
+          }
+          
+          const parsedPrResults = parseResults(prResults);
+          const parsedTargetResults = parseResults(targetResults);
+          
+          console.log('Parsed PR Results:', parsedPrResults);
+          console.log('Parsed Target Branch Results:', parsedTargetResults);
+          
+          const deltas = calculateDeltas(parsedPrResults, parsedTargetResults);
+          console.log('Calculated Deltas:', deltas);
+          
+          // Generate a markdown table with the comparison
+          let comparisonTable = '| Benchmark | PR (ops/sec) | Target (ops/sec) | Change (%) |\n';
+          comparisonTable += '|-----------|--------------|-----------------|------------|\n';
+          
+          if (Object.keys(deltas).length === 0) {
+            comparisonTable += '| No matching benchmarks found | - | - | - |\n';
+          } else {
+            for (const [benchmark, data] of Object.entries(deltas)) {
+              const change = parseFloat(data.delta);
+              let changeStr = data.delta + '%';
+              
+              // Add visual indicators for improvements/regressions with 10% margin for neutral
+              if (change > 5) {
+                changeStr = `+${data.delta}% 🟢`; // Green for improvement > 10%
+              } else if (change < -5) {
+                changeStr = `${data.delta}% 🔴`; // Red for regression > 10%
+              } else {
+                changeStr = `${data.delta}% ⚪`; // Neutral for changes within ±10%
+              }
+              
+              comparisonTable += `| ${benchmark} | ${data.pr.toFixed(2)} | ${data.target.toFixed(2)} | ${changeStr} |\n`;
+            }
+          }
+          
+          const targetBranchName = process.env.GITHUB_BASE_REF || 'target branch';
+          
+          const comment = `## Benchmark Comparison for nacl.js
+          
+          ### Raw Results (PR Branch)
           \`\`\`
-          ${prBench}
+          ${prResults}
           \`\`\`
           
-          ### Master Branch
+          ### Performance Delta (PR vs ${targetBranchName})
+          ${comparisonTable}
+          
+          *Note: Changes within ±10% are considered neutral due to normal benchmark variation. This threshold aligns with common benchmarking practices in JavaScript engines and Node.js projects.*
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  benchmark-nacl-fast:
+    name: Benchmark nacl-fast.min.js
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run benchmarks for nacl-fast.min.js on PR branch
+      run: NACL_SRC=nacl-fast.min.js yarn bench | tee bench_nacl_fast_pr_results.txt
+    
+    - name: Checkout target branch
+      run: |
+        git checkout ${{ github.base_ref }}
+        yarn install --frozen-lockfile
+    
+    - name: Run benchmarks for nacl-fast.min.js on target branch
+      run: NACL_SRC=nacl-fast.min.js yarn bench | tee bench_nacl_fast_target_results.txt
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: nacl-fast-benchmark-results
+        path: |
+          bench_nacl_fast_pr_results.txt
+          bench_nacl_fast_target_results.txt
+    
+    - name: Calculate and post benchmark comparison
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const fs = require('fs');
+          const prResults = fs.readFileSync('bench_nacl_fast_pr_results.txt', 'utf8');
+          const targetResults = fs.readFileSync('bench_nacl_fast_target_results.txt', 'utf8');
+          
+          // Debug logs
+          console.log('PR Results:');
+          console.log(prResults);
+          console.log('Target Branch Results:');
+          console.log(targetResults);
+          
+          // Parse the benchmark results to extract the operations per second
+          function parseResults(results) {
+            const lines = results.split('\n');
+            const parsedResults = {};
+            
+            for (const line of lines) {
+              // Skip empty lines and non-benchmark lines
+              if (line.trim() === '' || line.includes('yarn run') || line.includes('node test/') || line.includes('Done in')) {
+                continue;
+              }
+              
+              // Only process lines that look like benchmark results
+              if (line.includes('ops/sec')) {
+                // Extract benchmark name - everything before the ops count
+                const benchNameMatch = line.match(/^([^0-9]+)/);
+                if (benchNameMatch) {
+                  const benchName = benchNameMatch[1].trim();
+                  
+                  // Extract ops/sec value
+                  const opsPerSecMatch = line.match(/(\d+\.\d+)\s+ops\/sec/);
+                  if (opsPerSecMatch) {
+                    const opsPerSec = parseFloat(opsPerSecMatch[1]);
+                    parsedResults[benchName] = opsPerSec;
+                    console.log(`Parsed benchmark: ${benchName} = ${opsPerSec} ops/sec`);
+                  }
+                }
+              }
+            }
+            
+            return parsedResults;
+          }
+          
+          // Calculate deltas between PR and target branch
+          function calculateDeltas(prResults, targetResults) {
+            const deltas = {};
+            
+            for (const [benchmark, prValue] of Object.entries(prResults)) {
+              if (targetResults[benchmark]) {
+                const targetValue = targetResults[benchmark];
+                const percentChange = ((prValue - targetValue) / targetValue) * 100;
+                deltas[benchmark] = {
+                  pr: prValue,
+                  target: targetValue,
+                  delta: percentChange.toFixed(2)
+                };
+                console.log(`Delta for ${benchmark}: PR=${prValue}, Target=${targetValue}, Change=${percentChange.toFixed(2)}%`);
+              }
+            }
+            
+            return deltas;
+          }
+          
+          const parsedPrResults = parseResults(prResults);
+          const parsedTargetResults = parseResults(targetResults);
+          
+          console.log('Parsed PR Results:', parsedPrResults);
+          console.log('Parsed Target Branch Results:', parsedTargetResults);
+          
+          const deltas = calculateDeltas(parsedPrResults, parsedTargetResults);
+          console.log('Calculated Deltas:', deltas);
+          
+          // Generate a markdown table with the comparison
+          let comparisonTable = '| Benchmark | PR (ops/sec) | Target (ops/sec) | Change (%) |\n';
+          comparisonTable += '|-----------|--------------|-----------------|------------|\n';
+          
+          if (Object.keys(deltas).length === 0) {
+            comparisonTable += '| No matching benchmarks found | - | - | - |\n';
+          } else {
+            for (const [benchmark, data] of Object.entries(deltas)) {
+              const change = parseFloat(data.delta);
+              let changeStr = data.delta + '%';
+              
+              // Add visual indicators for improvements/regressions with 10% margin for neutral
+              if (change > 10) {
+                changeStr = `+${data.delta}% 🟢`; // Green for improvement > 10%
+              } else if (change < -10) {
+                changeStr = `${data.delta}% 🔴`; // Red for regression > 10%
+              } else {
+                changeStr = `${data.delta}% ⚪`; // Neutral for changes within ±10%
+              }
+              
+              comparisonTable += `| ${benchmark} | ${data.pr.toFixed(2)} | ${data.target.toFixed(2)} | ${changeStr} |\n`;
+            }
+          }
+          
+          const targetBranchName = process.env.GITHUB_BASE_REF || 'target branch';
+          
+          const comment = `## Benchmark Comparison for nacl-fast.min.js
+          
+          ### Raw Results (PR Branch)
           \`\`\`
-          ${masterBench}
+          ${prResults}
           \`\`\`
           
-          Please review these benchmark results to ensure there's no performance regression.`;
+          ### Performance Delta (PR vs ${targetBranchName})
+          ${comparisonTable}
+          
+          *Note: Changes within ±10% are considered neutral due to normal benchmark variation. This threshold aligns with common benchmarking practices in JavaScript engines and Node.js projects.*
+          `;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
