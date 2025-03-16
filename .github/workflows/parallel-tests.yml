@@ -1,0 +1,57 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-nacl:
+    name: Test nacl.js
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run tests for nacl.js
+      run: NACL_SRC=nacl.js yarn test-node
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: nacl-test-results
+        path: |
+          test/browser/_bundle.js
+          test/browser/_bundle-quick.js
+
+  test-nacl-fast:
+    name: Test nacl-fast.min.js
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run tests for nacl-fast.min.js
+      run: NACL_SRC=nacl-fast.min.js yarn test-node 

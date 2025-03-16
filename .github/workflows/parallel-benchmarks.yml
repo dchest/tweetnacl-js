@@ -1,0 +1,110 @@
+name: Benchmarks
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  benchmark-nacl:
+    name: Benchmark nacl.js
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run benchmarks for nacl.js
+      id: bench_nacl
+      run: |
+        echo "NACL_BENCH_RESULT<<EOF" >> $GITHUB_ENV
+        NACL_SRC=nacl.js yarn bench | tee bench_nacl_results.txt
+        echo "EOF" >> $GITHUB_ENV
+    
+    - name: Upload nacl.js benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: nacl-benchmark-results
+        path: bench_nacl_results.txt
+    
+    - name: Post benchmark results
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const naclBench = process.env.NACL_BENCH_RESULT;
+          
+          const comment = `## Benchmark Results for nacl.js
+          
+          \`\`\`
+          ${naclBench}
+          \`\`\`
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  benchmark-nacl-fast:
+    name: Benchmark nacl-fast.min.js
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run benchmarks for nacl-fast.min.js
+      id: bench_nacl_fast
+      run: |
+        echo "NACL_FAST_BENCH_RESULT<<EOF" >> $GITHUB_ENV
+        NACL_SRC=nacl-fast.min.js yarn bench | tee bench_nacl_fast_results.txt
+        echo "EOF" >> $GITHUB_ENV
+    
+    - name: Upload nacl-fast.min.js benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: nacl-fast-benchmark-results
+        path: bench_nacl_fast_results.txt
+    
+    - name: Post benchmark results
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const naclFastBench = process.env.NACL_FAST_BENCH_RESULT;
+          
+          const comment = `## Benchmark Results for nacl-fast.min.js
+          
+          \`\`\`
+          ${naclFastBench}
+          \`\`\`
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          }); 
