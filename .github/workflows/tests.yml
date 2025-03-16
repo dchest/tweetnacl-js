@@ -1,0 +1,82 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    
+    - name: Run tests
+      run: yarn test
+      
+    # Additional test runs on PRs
+    - name: Run tests with minified fast library
+      if: github.event_name == 'pull_request'
+      run: NACL_SRC=nacl-fast.min.js npm run test-node
+    
+    - name: Run benchmarks on PR
+      if: github.event_name == 'pull_request'
+      id: bench_pr
+      run: |
+        echo "PR_BENCH_RESULT<<EOF" >> $GITHUB_ENV
+        yarn bench | tee bench_pr_results.txt
+        echo "EOF" >> $GITHUB_ENV
+        cat bench_pr_results.txt >> $GITHUB_ENV
+    
+    - name: Run benchmarks on master
+      if: github.event_name == 'pull_request'
+      run: |
+        git checkout master
+        yarn install --frozen-lockfile
+        echo "MASTER_BENCH_RESULT<<EOF" >> $GITHUB_ENV
+        yarn bench | tee bench_master_results.txt
+        echo "EOF" >> $GITHUB_ENV
+        cat bench_master_results.txt >> $GITHUB_ENV
+    
+    - name: Post benchmark comparison
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const prBench = process.env.PR_BENCH_RESULT;
+          const masterBench = process.env.MASTER_BENCH_RESULT;
+          
+          const comment = `## Benchmark Comparison
+          
+          ### PR Branch
+          \`\`\`
+          ${prBench}
+          \`\`\`
+          
+          ### Master Branch
+          \`\`\`
+          ${masterBench}
+          \`\`\`
+          
+          Please review these benchmark results to ensure there's no performance regression.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          }); 
