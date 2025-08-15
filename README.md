@@ -45,6 +45,11 @@ There are two versions, you can use either of them:
   faster versions. (Used by default when importing NPM package.)
 
 
+WebCrypto API
+-------------
+
+Note that [WebCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) supports most of the primitives implemented by TweetNaCl.js (`X25519` in `nacl.scalarMult`, `Ed25519` in `nacl.sign.detached`, and `SHA-512` in `nacl.hash`), except for `XSalsa20-Poly1305` authenticated encryption, so you should use it if possible.
+
 Audits
 ------
 
